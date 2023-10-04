@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background: radial-gradient(farthest-corner at 10% 10%, #feeae8 5%, #f4f4f4 30%, #f4f4f400 30%),
+        radial-gradient(farthest-corner at 90% 70%, #feeae8 5%, #f4f4f4 30%, #f4f4f400 30%), #f4f4f4;
+    background-attachment: fixed;
+}
+
+.tab-bar::after {
+    content: '';
+    position: absolute;
+    width: 50%;
+    top: 0;
+    transition: left cubic-bezier(0.88, -0.35, 0.565, 1.35) 0.4s;
+    border-radius: 27.5px;
+    box-shadow: 0 2px 15px #0000001a;
+    background-color: #fff;
+    height: 100%;
+    z-index: 0;
+}
+
+.tab-bar.stake::after {
+    left: 0;
+}
+
+.tab-bar.unstake::after {
+    left: 50%;
+}
+
+#tc-widget-root {
+    position: absolute;
+}
+
+#ton-connect-button [data-tc-button='true'] {
+    box-shadow: none;
+    transform: none;
+    @apply rounded-2xl shadow-sm;
+}

@@ -1,0 +1,47 @@
+{
+    "name": "webapp",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@fontsource/eczar": "^5.0.12",
+        "@fontsource/poppins": "^5.0.8",
+        "@orbs-network/ton-access": "^2.3.3",
+        "@tonconnect/ui": "^2.0.0-beta.2",
+        "eslint-plugin-react": "^7.33.2",
+        "mobx": "^6.10.2",
+        "mobx-react-lite": "^4.0.4",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "ton": "^13.6.1",
+        "ton-core": "^0.52.0",
+        "ton-crypto": "^3.2.0",
+        "vite-plugin-node-polyfills": "^0.15.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.6.2",
+        "@types/react": "^18.2.15",
+        "@types/react-dom": "^18.2.7",
+        "@typescript-eslint/eslint-plugin": "^6.0.0",
+        "@typescript-eslint/parser": "^6.0.0",
+        "@vitejs/plugin-react-swc": "^3.3.2",
+        "autoprefixer": "^10.4.15",
+        "eslint": "^8.45.0",
+        "eslint-config-prettier": "^9.0.0",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "eslint-plugin-react-refresh": "^0.4.3",
+        "postcss": "^8.4.29",
+        "prettier": "3.0.3",
+        "prettier-plugin-tailwindcss": "^0.5.4",
+        "tailwindcss": "^3.3.3",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.0.2",
+        "vite": "^4.4.5"
+    }
+}
