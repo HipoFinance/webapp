@@ -1,12 +1,12 @@
 import { Network, getHttpV4Endpoint } from '@orbs-network/ton-access'
 import { TonConnectUI, THEME, CHAIN } from '@tonconnect/ui'
-import { action, autorun, computed, makeObservable, observable } from 'mobx'
+import { action, autorun, computed, makeObservable, observable, runInAction } from 'mobx'
 import { Address, Dictionary, OpenedContract, TonClient4, beginCell, fromNano, toNano } from 'ton'
 import { ParticipationState, Reward, Treasury, TreasuryConfig } from './wrappers/Treasury'
 import { Wallet } from './wrappers/Wallet'
 import { op } from './wrappers/common'
 
-const updateLastBlockDelay = 10 * 1000
+const updateLastBlockDelay = 6 * 1000
 const retryDelay = 3 * 1000
 
 const treasuryAddresses = {
@@ -89,11 +89,6 @@ export class Model {
 
             setNetwork: action,
             setTonClient: action,
-            setLastBlock: action,
-            setTreasuryState: action,
-            setTonBalance: action,
-            setHtonWalletAddress: action,
-            setHtonWalletState: action,
             setAddress: action,
             setActiveTab: action,
             setAmount: action,
@@ -113,27 +108,7 @@ export class Model {
         autorun(() => {
             // dependencies: tonClient
             // updates: lastBlock, treasury
-            this.readLastBlock()
-        })
-        autorun(() => {
-            // dependencies: tonClient, lastBlock, address
-            // updates: tonBalance
-            this.readTonBalance()
-        })
-        autorun(() => {
-            // dependencies: treasury
-            // updates: treasuryState
-            this.readTreasuryState()
-        })
-        autorun(() => {
-            // dependencies: treasury, address
-            // updates: htonWalletAddress, htonWallet
-            this.readHtonWalletAddress()
-        })
-        autorun(() => {
-            // dependencies: htonWallet
-            // updates: htonWalletState
-            this.readHtonWalletState()
+            void this.readLastBlock()
         })
     }
 
@@ -345,41 +320,8 @@ export class Model {
         this.tonClient = new TonClient4({ endpoint })
     }
 
-    setLastBlock = (value?: { last: { seqno: number } }) => {
-        this.lastBlock = value?.last.seqno
-        if (this.tonClient != null && this.lastBlock != null) {
-            const treasury = Treasury.createFromAddress(treasuryAddresses[this.network])
-            this.treasury = this.tonClient.openAt(this.lastBlock, treasury)
-        }
-    }
-
-    setTonBalance = (value?: { account: { balance: { coins: string } } }) => {
-        if (value == null) {
-            this.tonBalance = undefined
-        } else {
-            this.tonBalance = BigInt(value.account.balance.coins)
-        }
-    }
-
-    setTreasuryState = (state?: TreasuryConfig) => {
-        this.treasuryState = state
-    }
-
-    setHtonWalletAddress = (htonWalletAddress?: Address) => {
-        this.htonWalletAddress = htonWalletAddress
-        this.htonWallet = undefined
-        if (this.tonClient != null && this.lastBlock != null && this.htonWalletAddress != null) {
-            const htonWallet = Wallet.createFromAddress(this.htonWalletAddress)
-            this.htonWallet = this.tonClient.openAt(this.lastBlock, htonWallet)
-        }
-    }
-
-    setHtonWalletState = (htonWalletState?: [bigint, Dictionary<bigint, bigint>, bigint]) => {
-        this.htonWalletState = htonWalletState
-    }
-
-    setAddress = (address: string) => {
-        this.address = address === '' ? undefined : Address.parseRaw(address)
+    setAddress = (address?: Address) => {
+        this.address = address
     }
 
     setActiveTab = (activeTab: ActiveTab) => {
@@ -405,21 +347,60 @@ export class Model {
             })
     }
 
-    readLastBlock = () => {
+    readLastBlock = async () => {
         const tonClient = this.tonClient
+        const address = this.address
         clearTimeout(this.timeoutReadLastBlock)
-        this.timeoutReadLastBlock = setTimeout(this.readLastBlock, updateLastBlockDelay)
+        this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), updateLastBlockDelay)
+
         if (tonClient == null) {
-            this.setLastBlock(undefined)
+            runInAction(() => {
+                this.lastBlock = undefined
+                this.treasury = undefined
+                this.treasuryState = undefined
+                this.tonBalance = undefined
+                this.htonWalletAddress = undefined
+                this.htonWallet = undefined
+                this.htonWalletState = undefined
+            })
             return
         }
-        tonClient
-            .getLastBlock()
-            .then(this.setLastBlock)
-            .catch(() => {
-                clearTimeout(this.timeoutReadLastBlock)
-                this.timeoutReadLastBlock = setTimeout(this.readLastBlock, retryDelay)
+
+        try {
+            const value = await tonClient.getLastBlock()
+            const lastBlock = value.last.seqno
+            const treasury = tonClient.openAt(lastBlock, Treasury.createFromAddress(treasuryAddresses[this.network]))
+            const parallel: [Promise<TreasuryConfig>, Promise<bigint>?, Promise<Address>?] = [
+                treasury.getTreasuryState(),
+                address == null
+                    ? undefined
+                    : tonClient
+                          .getAccountLite(lastBlock, address)
+                          .then((value: { account: { balance: { coins: string } } }) =>
+                              BigInt(value.account.balance.coins),
+                          ),
+                address == null ? undefined : treasury.getWalletAddress(address),
+            ]
+
+            const [treasuryState, tonBalance, htonWalletAddress] = await Promise.all(parallel)
+            const htonWallet =
+                htonWalletAddress == null
+                    ? undefined
+                    : tonClient.openAt(lastBlock, Wallet.createFromAddress(htonWalletAddress))
+            const htonWalletState = await htonWallet?.getWalletState()
+            runInAction(() => {
+                this.lastBlock = lastBlock
+                this.treasury = treasury
+                this.treasuryState = treasuryState
+                this.tonBalance = tonBalance
+                this.htonWalletAddress = htonWalletAddress
+                this.htonWallet = htonWallet
+                this.htonWalletState = htonWalletState
             })
+        } catch (e) {
+            clearTimeout(this.timeoutReadLastBlock)
+            this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), retryDelay)
+        }
     }
 
     pause = () => {
@@ -427,70 +408,7 @@ export class Model {
     }
 
     resume = () => {
-        this.readLastBlock()
-    }
-
-    readTonBalance = () => {
-        const tonClient = this.tonClient
-        const lastBlock = this.lastBlock
-        const address = this.address
-        clearTimeout(this.timeoutReadTonBalance)
-        if (tonClient == null || lastBlock == null || address == null) {
-            this.setTonBalance(undefined)
-            return
-        }
-        tonClient
-            .getAccountLite(lastBlock, address)
-            .then(this.setTonBalance)
-            .catch(() => {
-                this.timeoutReadTonBalance = setTimeout(this.readTonBalance, retryDelay)
-            })
-    }
-
-    readTreasuryState = () => {
-        const treasury = this.treasury
-        clearTimeout(this.timeoutReadTreasuryState)
-        if (treasury == null) {
-            this.setTreasuryState(undefined)
-            return
-        }
-        treasury
-            .getTreasuryState()
-            .then(this.setTreasuryState)
-            .catch(() => {
-                this.timeoutReadTreasuryState = setTimeout(this.readTreasuryState, retryDelay)
-            })
-    }
-
-    readHtonWalletAddress = () => {
-        const treasury = this.treasury
-        const address = this.address
-        clearTimeout(this.timeoutReadHtonWalletAddress)
-        if (treasury == null || address == null) {
-            this.setHtonWalletAddress(undefined)
-            return
-        }
-        treasury
-            .getWalletAddress(address)
-            .then(this.setHtonWalletAddress)
-            .catch(() => {
-                this.timeoutReadHtonWalletAddress = setTimeout(this.readHtonWalletAddress, retryDelay)
-            })
-    }
-
-    readHtonWalletState = () => {
-        const htonWallet = this.htonWallet
-        clearTimeout(this.timeoutReadHtonWalletState)
-        if (htonWallet == null) {
-            this.setHtonWalletState(undefined)
-            return
-        }
-        htonWallet
-            .getWalletState()
-            .then(this.setHtonWalletState)
-            .catch(() => {
-                this.timeoutReadHtonWalletState = setTimeout(this.readHtonWalletState, retryDelay)
-            })
+        void this.readLastBlock()
     }
 
     send = () => {
@@ -556,10 +474,13 @@ export class Model {
     }
 
     waitForBalanceChange = async (tonBalance: bigint, counter: number): Promise<void> => {
-        this.readLastBlock()
+        void this.readLastBlock()
         await sleep(1 * 1000)
-        if (this.tonBalance !== tonBalance || counter >= 30) {
+        if (this.tonBalance !== tonBalance) {
             return Promise.resolve()
+        }
+        if (counter > 60) {
+            alert('Too many tries while waiting for confirmation of your transaction.')
         }
         return this.waitForBalanceChange(tonBalance, counter + 1)
     }
@@ -606,7 +527,7 @@ export class Model {
             },
         })
         this.tonConnectUI.onStatusChange((wallet) => {
-            this.setAddress(wallet?.account.address ?? '')
+            this.setAddress(wallet == null ? undefined : Address.parseRaw(wallet.account.address))
         })
     }
 }
