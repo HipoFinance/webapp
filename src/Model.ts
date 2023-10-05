@@ -23,7 +23,6 @@ export class Model {
     // observed state
     network: Network
     tonClient?: TonClient4
-    lastBlock?: number
     address?: Address
     tonBalance? = 0n
     treasury?: OpenedContract<Treasury>
@@ -38,10 +37,6 @@ export class Model {
     tonConnectUI?: TonConnectUI
     timeoutConnectTonAccess?: ReturnType<typeof setTimeout>
     timeoutReadLastBlock?: ReturnType<typeof setTimeout>
-    timeoutReadTreasuryState?: ReturnType<typeof setTimeout>
-    timeoutReadTonBalance?: ReturnType<typeof setTimeout>
-    timeoutReadHtonWalletAddress?: ReturnType<typeof setTimeout>
-    timeoutReadHtonWalletState?: ReturnType<typeof setTimeout>
 
     constructor(network: Network) {
         this.network = network
@@ -49,7 +44,6 @@ export class Model {
         makeObservable(this, {
             network: observable,
             tonClient: observable,
-            lastBlock: observable,
             address: observable,
             tonBalance: observable,
             treasury: observable,
@@ -101,13 +95,9 @@ export class Model {
             this.connectWallet(buttonRootId)
         }, 1)
         autorun(() => {
-            // dependencies: network
-            // updates: tonClient
             this.connectTonAccess()
         })
         autorun(() => {
-            // dependencies: tonClient
-            // updates: lastBlock, treasury
             void this.readLastBlock()
         })
     }
@@ -306,7 +296,6 @@ export class Model {
     setNetwork = (network: Network) => {
         this.network = network
         this.tonClient = undefined
-        this.lastBlock = undefined
         this.tonBalance = undefined
         this.treasury = undefined
         this.treasuryState = undefined
@@ -355,7 +344,6 @@ export class Model {
 
         if (tonClient == null) {
             runInAction(() => {
-                this.lastBlock = undefined
                 this.treasury = undefined
                 this.treasuryState = undefined
                 this.tonBalance = undefined
@@ -389,7 +377,6 @@ export class Model {
                     : tonClient.openAt(lastBlock, Wallet.createFromAddress(htonWalletAddress))
             const htonWalletState = await htonWallet?.getWalletState()
             runInAction(() => {
-                this.lastBlock = lastBlock
                 this.treasury = treasury
                 this.treasuryState = treasuryState
                 this.tonBalance = tonBalance
