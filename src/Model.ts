@@ -19,6 +19,8 @@ const unstakeTokensFee = 0x7f2b933n
 
 type ActiveTab = 'stake' | 'unstake'
 
+type WaitForTransaction = 'no' | 'wait' | 'timeout' | 'done'
+
 export class Model {
     // observed state
     network: Network
@@ -32,6 +34,7 @@ export class Model {
     htonWalletState?: [bigint, Dictionary<bigint, bigint>, bigint]
     activeTab: ActiveTab = 'stake'
     amount = ''
+    waitForTransaction: WaitForTransaction = 'no'
 
     // unobserved state
     tonConnectUI?: TonConnectUI
@@ -53,6 +56,7 @@ export class Model {
             htonWalletState: observable,
             activeTab: observable,
             amount: observable,
+            waitForTransaction: observable,
 
             isWalletConnected: computed,
             isMainnet: computed,
@@ -87,6 +91,7 @@ export class Model {
             setActiveTab: action,
             setAmount: action,
             setAmountToMax: action,
+            setWaitForTransaction: action,
         })
     }
 
@@ -326,6 +331,10 @@ export class Model {
         this.amount = fromNano(this.maxAmount)
     }
 
+    setWaitForTransaction = (wait: WaitForTransaction) => {
+        this.waitForTransaction = wait
+    }
+
     connectTonAccess = () => {
         const network = this.network
         clearTimeout(this.timeoutConnectTonAccess)
@@ -448,28 +457,26 @@ export class Model {
                 ],
             }
             const tonBalance = this.tonBalance
-            void this.tonConnectUI
-                .sendTransaction(tx, {
-                    modals: ['before', 'success', 'error'],
-                    notifications: [],
-                })
-                .then(() => {
-                    this.setAmount('')
-                    return this.waitForBalanceChange(tonBalance, 1)
-                })
+            void this.tonConnectUI.sendTransaction(tx).then(() => {
+                this.setAmount('')
+                this.setWaitForTransaction('wait')
+                return this.checkIfBalanceChanged(tonBalance, 1)
+            })
         }
     }
 
-    waitForBalanceChange = async (tonBalance: bigint, counter: number): Promise<void> => {
-        void this.readLastBlock()
+    checkIfBalanceChanged = async (tonBalance: bigint, counter: number): Promise<void> => {
         await sleep(1 * 1000)
+        void this.readLastBlock()
         if (this.tonBalance !== tonBalance) {
+            this.setWaitForTransaction('done')
             return Promise.resolve()
         }
         if (counter > 60) {
-            alert('Too many tries while waiting for confirmation of your transaction.')
+            this.setWaitForTransaction('timeout')
+            return Promise.resolve()
         }
-        return this.waitForBalanceChange(tonBalance, counter + 1)
+        return this.checkIfBalanceChanged(tonBalance, counter + 1)
     }
 
     connect = () => {

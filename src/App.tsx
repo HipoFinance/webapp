@@ -1,9 +1,10 @@
 import { observer } from 'mobx-react-lite'
 import { Model } from './Model.ts'
-import StakeUnstake from './StakeUnstake.tsx'
 import Header from './Header.tsx'
-import Footer from './Footer.tsx'
+import StakeUnstake from './StakeUnstake.tsx'
+import Wait from './Wait.tsx'
 import Stats from './Stats.tsx'
+import Footer from './Footer.tsx'
 import '@fontsource/poppins/300.css'
 import '@fontsource/poppins/400.css'
 import '@fontsource/poppins/500.css'
@@ -19,6 +20,7 @@ const App = observer(({ model }: Props) => {
         <>
             <Header model={model} />
             <StakeUnstake model={model} />
+            <Wait model={model} />
             <Stats model={model} />
             <Footer model={model} />
         </>

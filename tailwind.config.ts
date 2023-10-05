@@ -12,6 +12,7 @@ export default {
             milky: '#efebe5',
             blue: '#0a88ca',
             lightblue: '#d6ecf7',
+            black: '#000000',
             gray: colors.gray,
         },
         fontFamily: {
