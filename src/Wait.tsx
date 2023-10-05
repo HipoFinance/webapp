@@ -40,6 +40,13 @@ const Wait = observer(({ model }: Props) => {
                 onClick={() => {
                     model.setWaitForTransaction('no')
                 }}
+                onKeyDown={(e) => {
+                    if (e.key == 'Escape') {
+                        const button = e.target as HTMLButtonElement
+                        button.click()
+                    }
+                }}
+                autoFocus
             >
                 Okay
             </button>
