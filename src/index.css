@@ -8,6 +8,10 @@ body {
     background-attachment: fixed;
 }
 
+.loading {
+    display: flex !important;
+}
+
 .tab-bar::after {
     content: '';
     position: absolute;

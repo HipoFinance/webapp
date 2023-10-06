@@ -11,12 +11,17 @@
                 or further compounding your rewards across various DeFi protocols. Join Hipo today and experience
                 the benefits of decentralized TON liquid staking."
         />
-        <script type="module" src="src/main.tsx"></script>
+        <script type="module" defer src="src/main.tsx"></script>
         <link rel="icon" type="image/x-icon" href="src/assets/favicon.ico" />
         <title>Hipo App - Decentralized Liquid Staking on TON</title>
     </head>
 
     <body>
-        <div id="root" class="flex min-h-screen min-w-[360px] flex-col"></div>
+        <div id="root" class="flex min-h-screen min-w-[360px] flex-col">
+            <div style="display: none" class="loading m-auto hidden flex-col text-center">
+                <img src="src/assets/logo.svg" class="h-32" />
+                <p class="font-bold text-brown">Loading</p>
+            </div>
+        </div>
     </body>
 </html>
