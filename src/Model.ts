@@ -387,7 +387,9 @@ export class Model {
                 htonWalletAddress == null
                     ? undefined
                     : tonClient.openAt(lastBlock, Wallet.createFromAddress(htonWalletAddress))
-            const htonWalletState = await htonWallet?.getWalletState()
+            const htonWalletState = await htonWallet?.getWalletState().catch(() => {
+                return undefined
+            })
             runInAction(() => {
                 this.treasury = treasury
                 this.treasuryState = treasuryState
