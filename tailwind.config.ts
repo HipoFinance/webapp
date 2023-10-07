@@ -4,6 +4,7 @@ import colors from 'tailwindcss/colors'
 
 export default {
     content: ['./index.html', './src/**/*.tsx'],
+    darkMode: 'class',
     theme: {
         colors: {
             white: '#ffffff',
@@ -14,6 +15,19 @@ export default {
             lightblue: '#d6ecf7',
             black: '#000000',
             gray: colors.gray,
+            dark: {
+                '50': '#f2f2f2',
+                '100': '#eaeaea',
+                '200': '#ffa39b',
+                '300': '#94a3b8',
+                '400': '#8b807f',
+                '500': '#776464',
+                '600': '#483637',
+                '700': '#464343',
+                '800': '#333131',
+                '900': '#2d2a2a',
+                '950': '#221f1f',
+            },
         },
         fontFamily: {
             body: ['Poppins', ...fontFamily.sans],

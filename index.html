@@ -11,17 +11,28 @@
                 or further compounding your rewards across various DeFi protocols. Join Hipo today and experience
                 the benefits of decentralized TON liquid staking."
         />
-        <script type="module" defer src="src/main.tsx"></script>
-        <link rel="icon" type="image/x-icon" href="src/assets/favicon.ico" />
         <title>Hipo App - Decentralized Liquid Staking on TON</title>
+        <link rel="icon" type="image/x-icon" href="src/assets/favicon.ico" />
+        <script>
+            if (
+                localStorage.theme === 'dark' ||
+                (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            ) {
+                document.documentElement.classList.add('dark')
+            } else {
+                document.documentElement.classList.remove('dark')
+            }
+        </script>
     </head>
 
     <body>
         <div id="root" class="flex min-h-screen min-w-[360px] flex-col">
             <div style="display: none" class="loading m-auto hidden flex-col text-center">
-                <img src="src/assets/logo.svg" class="h-32" />
-                <p class="font-bold text-brown">Loading</p>
+                <img src="src/assets/logo.svg" class="h-32 dark:hidden" />
+                <img src="src/assets/logo-dark.svg" class="hidden h-32 dark:block" />
+                <p class="dark:text-dark-50 font-bold text-brown">Loading</p>
             </div>
         </div>
+        <script type="module" src="src/main.tsx"></script>
     </body>
 </html>

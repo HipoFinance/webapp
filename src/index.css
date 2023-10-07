@@ -8,6 +8,10 @@ body {
     background-attachment: fixed;
 }
 
+.dark body {
+    background: #221f1f;
+}
+
 .loading {
     display: flex !important;
 }
@@ -25,6 +29,11 @@ body {
     z-index: 0;
 }
 
+.dark .tab-bar::after {
+    box-shadow: none;
+    background-color: #483637;
+}
+
 .tab-bar.stake::after {
     left: 0;
 }
@@ -33,12 +42,9 @@ body {
     left: 50%;
 }
 
-#tc-widget-root {
-    position: absolute;
-}
-
-#ton-connect-button [data-tc-button='true'] {
+#ton-connect-button [data-tc-button] {
     box-shadow: none;
     transform: none;
+    display: flex;
     @apply rounded-2xl shadow-sm;
 }

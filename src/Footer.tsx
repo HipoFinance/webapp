@@ -25,7 +25,7 @@ const Footer = observer(({ model }: Props) => {
     }
 
     return (
-        <div className='mt-auto bg-brown font-body text-white'>
+        <div className='dark:bg-dark-900 dark:text-dark-50 mt-auto bg-brown font-body text-white'>
             <div className='container mx-auto pb-16 pt-8'>
                 <div className='grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4'>
                     <div className='m-8'>
@@ -72,7 +72,7 @@ const Footer = observer(({ model }: Props) => {
                     </div>
                 </div>
 
-                <p className='mx-8 mt-16 select-none font-logo text-4xl' onClick={switchNetwork}>
+                <p className='mx-8 mt-16 select-none font-logo text-4xl dark:text-orange' onClick={switchNetwork}>
                     Hipo
                 </p>
 

@@ -1,9 +1,11 @@
 import { observer } from 'mobx-react-lite'
 import { Model } from './Model'
-import tonLogo from './assets/ton.svg'
-import htonLogo from './assets/hton.svg'
-import clockLogo from './assets/clock.svg'
-import questionLogo from './assets/question.svg'
+import ton from './assets/ton.svg'
+import hton from './assets/hton.svg'
+import clock from './assets/clock.svg'
+import clockDark from './assets/clock-dark.svg'
+import question from './assets/question.svg'
+import questionDark from './assets/question-dark.svg'
 
 interface Props {
     model: Model
@@ -19,13 +21,13 @@ const StakeUnstake = observer(({ model }: Props) => {
     }
 
     return (
-        <div className='container mx-auto font-body text-brown'>
+        <div className='dark:text-dark-50 container mx-auto font-body text-brown'>
             <p className='my-8 text-center'>
                 {model.isStakeTabActive
                     ? 'Stake TON and receive hTON while staking'
                     : 'Unstake hTON and receive TON and rewards'}
             </p>
-            <div className='mx-auto my-8 w-max rounded-full bg-milky p-0.5'>
+            <div className='dark:bg-tabbar dark:bg-dark-400 mx-auto my-8 w-max rounded-full bg-milky p-0.5 dark:text-white'>
                 <ul
                     className={
                         'tab-bar relative flex select-none flex-nowrap' +
@@ -58,7 +60,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                         (model.isWalletConnected ? maxHeight : ' max-h-0 overflow-hidden')
                     }
                 >
-                    <div className='mx-4 -mb-10 rounded-t-2xl bg-brown px-8 pb-10 pt-4 text-sm text-white'>
+                    <div className='dark:bg-dark-600 dark:text-dark-50 mx-4 -mb-10 rounded-t-2xl bg-brown px-8 pb-10 pt-4 text-sm text-white'>
                         <div
                             className={
                                 'relative flex flex-row flex-wrap' +
@@ -66,7 +68,8 @@ const StakeUnstake = observer(({ model }: Props) => {
                             }
                         >
                             <p className='font-light opacity-70'>Unstaking in progress</p>
-                            <img src={clockLogo} className='peer ml-1 w-4 opacity-70' />
+                            <img src={clock} className='peer ml-1 w-4 opacity-70 dark:hidden' />
+                            <img src={clockDark} className='peer ml-1 hidden w-4 opacity-70 dark:block' />
                             <div className='absolute left-1/2 top-6 hidden -translate-x-1/2 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
                                 <p>
                                     {model.unstakingInProgressDetails?.estimated == null
@@ -82,7 +85,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p className='ml-auto font-medium'>{model.tonBalanceFormatted}</p>
                         </div>
 
-                        <div className='my-4 h-px bg-milky'></div>
+                        <div className='my-4 h-px bg-white opacity-40'></div>
 
                         <div
                             className={
@@ -91,7 +94,8 @@ const StakeUnstake = observer(({ model }: Props) => {
                             }
                         >
                             <p className='font-light opacity-70'>Staking in progress</p>
-                            <img src={clockLogo} className='peer ml-1 w-4 opacity-70' />
+                            <img src={clock} className='peer ml-1 w-4 opacity-70 dark:hidden' />
+                            <img src={clockDark} className='peer ml-1 hidden w-4 opacity-70 dark:block' />
                             <div className='absolute left-1/2 top-6 hidden -translate-x-1/2 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
                                 {model.stakingInProgressDetails.length === 1
                                     ? model.stakingInProgressDetails.map((value) => (
@@ -118,25 +122,27 @@ const StakeUnstake = observer(({ model }: Props) => {
                     </div>
                 </div>
 
-                <div className='mx-4 rounded-2xl bg-white p-8 shadow-sm'>
+                <div className='dark:bg-dark-700 mx-4 rounded-2xl bg-white p-8 shadow-sm'>
                     <p>{model.isStakeTabActive ? 'Stake' : 'Unstake'}</p>
 
                     <label>
                         <div
                             className={
-                                'mb-8 mt-4 flex flex-row rounded-lg border border-milky p-4 focus-within:border-brown ' +
-                                (model.isAmountValid ? '' : ' border-orange focus-within:border-orange')
+                                'dark:bg-dark-900 dark:border-dark-900 mb-8 mt-4 flex flex-row rounded-lg border border-milky p-4 focus-within:border-brown ' +
+                                (model.isAmountValid
+                                    ? ''
+                                    : ' border-orange focus-within:border-orange dark:border-orange dark:focus-within:border-orange')
                             }
                         >
-                            <img src={model.isStakeTabActive ? tonLogo : htonLogo} className='w-7' />
+                            <img src={model.isStakeTabActive ? ton : hton} className='w-7' />
                             <input
                                 type='text'
                                 inputMode='decimal'
                                 placeholder='Amount'
                                 size={1}
                                 className={
-                                    'h-full w-full flex-1 px-3 text-lg focus:outline-none' +
-                                    (model.isAmountValid ? '' : ' text-orange')
+                                    'dark:text-dark-50 dark:bg-dark-900 h-full w-full flex-1 px-3 text-lg focus:outline-none' +
+                                    (model.isAmountValid ? '' : ' text-orange dark:text-orange')
                                 }
                                 value={model.amount}
                                 onInput={(e) => {
@@ -156,10 +162,10 @@ const StakeUnstake = observer(({ model }: Props) => {
                             />
                             <button
                                 className={
-                                    'rounded-lg bg-milky px-3 text-sm font-medium hover:bg-gray-200 focus:outline-none focus:ring focus:ring-blue active:bg-gray-300' +
+                                    'dark:text-dark-600 rounded-lg bg-milky px-3 text-xs hover:bg-gray-200 focus:outline-none active:bg-gray-300' +
                                     (model.isAmountValid
                                         ? ''
-                                        : ' bg-orange text-white hover:bg-brown active:bg-gray-600')
+                                        : ' dark:hover:text-dark-50 active:!bg-dark-600 bg-orange text-white hover:!bg-brown')
                                 }
                                 onClick={() => {
                                     model.setAmountToMax()
@@ -172,7 +178,7 @@ const StakeUnstake = observer(({ model }: Props) => {
 
                     <button
                         id='submit'
-                        className='h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white disabled:opacity-80'
+                        className='dark:text-dark-600 h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white disabled:opacity-80'
                         disabled={!model.isButtonEnabled}
                         onClick={(e) => {
                             if (model.isWalletConnected) {
@@ -198,7 +204,8 @@ const StakeUnstake = observer(({ model }: Props) => {
                         </div>
                         <div className='relative my-4 flex flex-row flex-wrap'>
                             <p>Transaction cost</p>
-                            <img src={questionLogo} className='peer ml-1 w-4' />
+                            <img src={question} className='peer ml-1 w-4 dark:hidden' />
+                            <img src={questionDark} className='peer ml-1 hidden w-4 dark:block' />
                             <p className='absolute left-1/2 top-6 hidden -translate-x-1/2 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
                                 This fee covers sending your transaction on TON network.
                             </p>

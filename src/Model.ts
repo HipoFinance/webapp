@@ -37,6 +37,7 @@ export class Model {
     waitForTransaction: WaitForTransaction = 'no'
 
     // unobserved state
+    dark = false
     tonConnectUI?: TonConnectUI
     timeoutConnectTonAccess?: ReturnType<typeof setTimeout>
     timeoutReadLastBlock?: ReturnType<typeof setTimeout>
@@ -96,6 +97,10 @@ export class Model {
     }
 
     init(buttonRootId: string) {
+        this.dark =
+            localStorage.theme === 'dark' ||
+            (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
         setTimeout(() => {
             this.connectWallet(buttonRootId)
         }, 1)
@@ -495,18 +500,22 @@ export class Model {
             manifestUrl: 'https://app.hipo.finance/tonconnect-manifest.json',
             buttonRootId,
             uiPreferences: {
-                theme: THEME.LIGHT,
+                theme: this.dark ? THEME.DARK : THEME.LIGHT,
                 colorsSet: {
                     [THEME.LIGHT]: {
                         connectButton: {
-                            background: '#ff7e73', // orange
+                            background: '#ff7e73',
+                            foreground: '#fff',
                         },
                         background: {
-                            primary: '#efebe5', // milky
-                            secondary: '#fff', // white
+                            primary: '#efebe5',
+                            secondary: '#fff',
+                            qr: '#fff',
+                            tint: '#fff',
+                            segment: '#fff',
                         },
                         text: {
-                            primary: '#776464', // brown
+                            primary: '#776464',
                             secondary: '#776464',
                         },
                         icon: {
@@ -517,8 +526,37 @@ export class Model {
                             error: '#e00',
                         },
                         constant: {
-                            black: '#776464', // brown
-                            white: '#fff', // white
+                            black: '#776464',
+                            white: '#fff',
+                        },
+                        accent: '#ff7e73',
+                    },
+                    [THEME.DARK]: {
+                        connectButton: {
+                            background: '#ff7e73',
+                            foreground: '#483637',
+                        },
+                        background: {
+                            primary: '#464343', // dialog/connected-button background
+                            secondary: '#8b807f', // menu item hover background
+                            qr: '#eaeaea',
+                            tint: '#8b807f',
+                            segment: '#464343',
+                        },
+                        text: {
+                            primary: '#f2f2f2', // dialog/connected-button text
+                            secondary: '#ffedef', // dialog subtitle
+                        },
+                        icon: {
+                            primary: '#f2f2f2', // browser extension icon
+                            secondary: '#ffedef', // dialog close
+                            tertiary: '#f2f2f2', // loading indicator in connect button
+                            success: '#4bb543', // success notification color
+                            error: '#e00', // error notification color
+                        },
+                        constant: {
+                            black: '#333131', // qrcode color
+                            white: '#333131', // ton connect footer
                         },
                         accent: '#ff7e73', // orange
                     },
@@ -528,6 +566,24 @@ export class Model {
         this.tonConnectUI.onStatusChange((wallet) => {
             this.setAddress(wallet == null ? undefined : Address.parseRaw(wallet.account.address))
         })
+    }
+
+    setDark = (dark: boolean) => {
+        this.dark = dark
+        if (dark) {
+            localStorage.theme = 'dark'
+            document.documentElement.classList.add('dark')
+        } else {
+            localStorage.theme = 'light'
+            document.documentElement.classList.remove('dark')
+        }
+        if (this.tonConnectUI != null) {
+            this.tonConnectUI.uiOptions = {
+                uiPreferences: {
+                    theme: dark ? THEME.DARK : THEME.LIGHT,
+                },
+            }
+        }
     }
 }
 
