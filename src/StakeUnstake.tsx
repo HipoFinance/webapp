@@ -70,7 +70,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p className='font-light opacity-70'>Unstaking in progress</p>
                             <img src={clock} className='peer ml-1 w-4 opacity-70 dark:hidden' />
                             <img src={clockDark} className='peer ml-1 hidden w-4 opacity-70 dark:block' />
-                            <div className='absolute left-1/2 top-6 hidden -translate-x-1/2 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
+                            <div className='absolute left-1/3 top-6 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
                                 <p>
                                     {model.unstakingInProgressDetails?.estimated == null
                                         ? 'Expected in a moment'
@@ -96,7 +96,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p className='font-light opacity-70'>Staking in progress</p>
                             <img src={clock} className='peer ml-1 w-4 opacity-70 dark:hidden' />
                             <img src={clockDark} className='peer ml-1 hidden w-4 opacity-70 dark:block' />
-                            <div className='absolute left-1/2 top-6 hidden -translate-x-1/2 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
+                            <div className='absolute left-1/3 top-6 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
                                 {model.stakingInProgressDetails.length === 1
                                     ? model.stakingInProgressDetails.map((value) => (
                                           <p key={'-' + value.estimated + value.amount}>
@@ -204,7 +204,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p>Transaction cost</p>
                             <img src={question} className='peer ml-1 w-4 dark:hidden' />
                             <img src={questionDark} className='peer ml-1 hidden w-4 dark:block' />
-                            <p className='absolute left-1/2 top-6 hidden -translate-x-1/2 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
+                            <p className='absolute left-1/3 top-6 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
                                 This fee covers sending your transaction on TON network.
                             </p>
                             <p className='ml-auto'>{model.isStakeTabActive ? model.stakeFee : model.unstakeFee}</p>

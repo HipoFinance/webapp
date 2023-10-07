@@ -8,12 +8,12 @@ interface Props {
 const TestnetBadge = observer(({ model }: Props) => {
     return (
         <>
-            <p className={'font-logo text-3xl text-orange' + (model.isMainnet ? '' : ' hidden min-[480px]:block')}>
+            <p className={'ml-3 font-logo text-3xl text-orange' + (model.isMainnet ? '' : ' hidden min-[480px]:block')}>
                 Hipo
             </p>
             <div
                 className={
-                    'h-fit rounded-full bg-orange px-3 py-1 text-sm capitalize text-white' +
+                    'dark:text-dark-600 ml-2 h-fit rounded-full bg-orange px-2 py-1 text-xs uppercase text-white' +
                     (model.isMainnet ? ' hidden' : '')
                 }
             >
