@@ -39,8 +39,10 @@ export class Model {
     // unobserved state
     dark = false
     tonConnectUI?: TonConnectUI
+    switchNetworkCounter = 0
     timeoutConnectTonAccess?: ReturnType<typeof setTimeout>
     timeoutReadLastBlock?: ReturnType<typeof setTimeout>
+    timeoutSwitchNetwork?: ReturnType<typeof setTimeout>
 
     constructor(network: Network) {
         this.network = network
@@ -316,6 +318,8 @@ export class Model {
         this.htonWallet = undefined
         this.htonWalletState = undefined
         this.amount = ''
+        clearTimeout(this.timeoutConnectTonAccess)
+        clearTimeout(this.timeoutReadLastBlock)
     }
 
     setTonClient = (endpoint: string) => {
@@ -583,6 +587,22 @@ export class Model {
                     theme: dark ? THEME.DARK : THEME.LIGHT,
                 },
             }
+        }
+    }
+
+    switchNetwork = () => {
+        this.switchNetworkCounter += 1
+        clearTimeout(this.timeoutSwitchNetwork)
+        if (this.switchNetworkCounter >= 5) {
+            this.switchNetworkCounter = 0
+            if (confirm(`Switch network to ${this.isMainnet ? 'TestNet' : 'MainNet'}?`)) {
+                this.setNetwork(this.isMainnet ? 'testnet' : 'mainnet')
+                window.scrollTo(0, 0)
+            }
+        } else {
+            this.timeoutSwitchNetwork = setTimeout(() => {
+                this.switchNetworkCounter = 0
+            }, 1000)
         }
     }
 }

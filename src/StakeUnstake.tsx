@@ -167,9 +167,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                                         ? ''
                                         : ' dark:hover:text-dark-50 active:!bg-dark-600 bg-orange text-white hover:!bg-brown')
                                 }
-                                onClick={() => {
-                                    model.setAmountToMax()
-                                }}
+                                onClick={model.setAmountToMax}
                             >
                                 Max
                             </button>

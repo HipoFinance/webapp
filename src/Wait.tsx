@@ -32,8 +32,8 @@ const Wait = observer(({ model }: Props) => {
                 <img src={warningDark} className='m-4 mx-auto hidden h-16 dark:block' />
             </div>
         )
-        heading = <h1 className='text-center text-xl font-bold'>Unable to check your transaction</h1>
-        message = <p className='mt-4 text-center'>After many attempts, we could not find your transaction.</p>
+        heading = <h1 className='text-center text-xl font-bold'>Cannot find your transaction</h1>
+        message = <p className='mt-4 text-center'>Despite multiple attempts, we could not locate it.</p>
         button = (
             <button
                 className='dark:text-dark-600 mt-4 h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white'

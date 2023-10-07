@@ -6,24 +6,6 @@ interface Props {
 }
 
 const Footer = observer(({ model }: Props) => {
-    let counter = 0
-    let timeout: ReturnType<typeof setTimeout>
-
-    const switchNetwork = () => {
-        counter += 1
-        if (counter >= 5) {
-            counter = 0
-            if (confirm(`Switch network to ${model.isMainnet ? 'TestNet' : 'MainNet'}?`)) {
-                window.scrollTo(0, 0)
-                model.setNetwork(model.isMainnet ? 'testnet' : 'mainnet')
-            }
-        }
-        clearTimeout(timeout)
-        timeout = setTimeout(() => {
-            counter = 0
-        }, 1000)
-    }
-
     return (
         <div className='dark:bg-dark-900 dark:text-dark-50 mt-auto bg-brown font-body text-white'>
             <div className='container mx-auto pb-16 pt-8'>
@@ -72,7 +54,7 @@ const Footer = observer(({ model }: Props) => {
                     </div>
                 </div>
 
-                <p className='mx-8 mt-16 select-none font-logo text-4xl dark:text-orange' onClick={switchNetwork}>
+                <p className='mx-8 mt-16 select-none font-logo text-4xl dark:text-orange' onClick={model.switchNetwork}>
                     Hipo
                 </p>
 
