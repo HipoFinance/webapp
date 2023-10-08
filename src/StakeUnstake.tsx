@@ -12,14 +12,6 @@ interface Props {
 }
 
 const StakeUnstake = observer(({ model }: Props) => {
-    let maxHeight = ' max-h-28'
-    if (model.unstakingInProgressDetails != null || model.stakingInProgressDetails.length > 0) {
-        maxHeight = ' max-h-32'
-    }
-    if (model.unstakingInProgressDetails != null && model.stakingInProgressDetails.length > 0) {
-        maxHeight = ' max-h-36'
-    }
-
     return (
         <div className='container mx-auto font-body text-brown dark:text-dark-50'>
             <p className='my-8 text-center'>
@@ -57,7 +49,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                 <div
                     className={
                         'transition-all motion-reduce:transition-none' +
-                        (model.isWalletConnected ? maxHeight : ' max-h-0 overflow-hidden')
+                        (model.isWalletConnected ? ' max-h-96' : ' max-h-0 overflow-hidden')
                     }
                 >
                     <div className='mx-4 -mb-10 rounded-t-2xl bg-brown px-8 pb-10 pt-4 text-sm text-white dark:bg-dark-600 dark:text-dark-50'>

@@ -493,7 +493,6 @@ export class Model {
     }
 
     initTonConnect = (buttonRootId: string) => {
-        console.log(buttonRootId, document.getElementById(buttonRootId), document.getElementById(buttonRootId) != null)
         if (document.getElementById(buttonRootId) != null) {
             this.connectWallet(buttonRootId)
         } else {
