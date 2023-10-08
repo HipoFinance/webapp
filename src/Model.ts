@@ -103,9 +103,8 @@ export class Model {
             localStorage.theme === 'dark' ||
             (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
-        setTimeout(() => {
-            this.connectWallet(buttonRootId)
-        }, 1)
+        this.initTonConnect(buttonRootId)
+
         autorun(() => {
             this.connectTonAccess()
         })
@@ -491,6 +490,17 @@ export class Model {
             return Promise.resolve()
         }
         return this.checkIfBalanceChanged(tonBalance, counter + 1)
+    }
+
+    initTonConnect = (buttonRootId: string) => {
+        console.log(buttonRootId, document.getElementById(buttonRootId), document.getElementById(buttonRootId) != null)
+        if (document.getElementById(buttonRootId) != null) {
+            this.connectWallet(buttonRootId)
+        } else {
+            setTimeout(() => {
+                this.initTonConnect(buttonRootId)
+            }, 10)
+        }
     }
 
     connect = () => {
