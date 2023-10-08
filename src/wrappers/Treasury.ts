@@ -716,10 +716,11 @@ export class Treasury implements Contract {
             totalStaking: stack.readBigNumber(),
             totalUnstaking: stack.readBigNumber(),
             totalValidatorsStake: stack.readBigNumber(),
-            participations: (function () {
-                stack.readCellOpt()
-                return Dictionary.empty(Dictionary.Keys.BigUint(32), participationDictionaryValue)
-            })(),
+            participations: Dictionary.loadDirect(
+                Dictionary.Keys.BigUint(32),
+                participationDictionaryValue,
+                stack.readCellOpt(),
+            ),
             balancedRounds: stack.readBoolean(),
             stopped: stack.readBoolean(),
             walletCode: stack.readCell(),
