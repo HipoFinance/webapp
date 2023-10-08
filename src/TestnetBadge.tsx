@@ -13,7 +13,7 @@ const TestnetBadge = observer(({ model }: Props) => {
             </p>
             <div
                 className={
-                    'dark:text-dark-600 ml-2 h-fit rounded-full bg-orange px-2 py-1 text-xs uppercase text-white' +
+                    'ml-2 h-fit rounded-full bg-orange px-2 py-1 text-xs uppercase text-white dark:text-dark-600' +
                     (model.isMainnet ? ' hidden' : '')
                 }
             >

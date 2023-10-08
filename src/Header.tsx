@@ -12,7 +12,7 @@ interface Props {
 
 const Header = observer(({ model }: Props) => {
     return (
-        <div className='dark:text-dark-50 container mx-auto font-body text-brown'>
+        <div className='container mx-auto font-body text-brown dark:text-dark-50'>
             <div className='mx-4 flex flex-row items-center pt-4'>
                 <img src={logo} className='-ml-4 -mr-3 h-20 dark:hidden' />
                 <img src={logoDark} className='-ml-4 -mr-3 hidden h-20 dark:block' />

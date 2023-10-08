@@ -36,7 +36,7 @@ const Wait = observer(({ model }: Props) => {
         message = <p className='mt-4 text-center'>Despite multiple attempts, we could not locate it.</p>
         button = (
             <button
-                className='dark:text-dark-600 mt-4 h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white'
+                className='mt-4 h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white dark:text-dark-600'
                 onClick={() => {
                     model.setWaitForTransaction('no')
                 }}
@@ -58,7 +58,7 @@ const Wait = observer(({ model }: Props) => {
         )
         button = (
             <button
-                className='dark:text-dark-600 mt-4 h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white'
+                className='mt-4 h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white dark:text-dark-600'
                 onClick={() => {
                     model.setWaitForTransaction('no')
                 }}
@@ -79,10 +79,10 @@ const Wait = observer(({ model }: Props) => {
         return (
             <div
                 className={
-                    'bg-black dark:text-dark-50 fixed left-0 top-0 z-[1000] flex h-full w-full overflow-y-auto bg-opacity-40 p-8 text-brown'
+                    'fixed left-0 top-0 z-[1000] flex h-full w-full overflow-y-auto bg-black bg-opacity-40 p-8 text-brown dark:text-dark-50'
                 }
             >
-                <div className='dark:bg-dark-700 m-auto w-96 max-w-sm rounded-3xl bg-milky p-8 shadow-2xl'>
+                <div className='m-auto w-96 max-w-sm rounded-3xl bg-milky p-8 shadow-2xl dark:bg-dark-700'>
                     {img}
                     {heading}
                     {message}

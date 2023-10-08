@@ -21,13 +21,13 @@ const StakeUnstake = observer(({ model }: Props) => {
     }
 
     return (
-        <div className='dark:text-dark-50 container mx-auto font-body text-brown'>
+        <div className='container mx-auto font-body text-brown dark:text-dark-50'>
             <p className='my-8 text-center'>
                 {model.isStakeTabActive
                     ? 'Stake TON and receive hTON while staking'
                     : 'Unstake hTON and receive TON and rewards'}
             </p>
-            <div className='dark:bg-tabbar dark:bg-dark-400 mx-auto my-8 w-max rounded-full bg-milky p-0.5 dark:text-white'>
+            <div className='dark:bg-tabbar mx-auto my-8 w-max rounded-full bg-milky p-0.5 dark:bg-dark-400 dark:text-white'>
                 <ul
                     className={
                         'tab-bar relative flex select-none flex-nowrap' +
@@ -60,7 +60,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                         (model.isWalletConnected ? maxHeight : ' max-h-0 overflow-hidden')
                     }
                 >
-                    <div className='dark:bg-dark-600 dark:text-dark-50 mx-4 -mb-10 rounded-t-2xl bg-brown px-8 pb-10 pt-4 text-sm text-white'>
+                    <div className='mx-4 -mb-10 rounded-t-2xl bg-brown px-8 pb-10 pt-4 text-sm text-white dark:bg-dark-600 dark:text-dark-50'>
                         <div
                             className={
                                 'relative flex flex-row flex-wrap' +
@@ -122,13 +122,13 @@ const StakeUnstake = observer(({ model }: Props) => {
                     </div>
                 </div>
 
-                <div className='dark:bg-dark-700 mx-4 rounded-2xl bg-white p-8 shadow-sm'>
+                <div className='mx-4 rounded-2xl bg-white p-8 shadow-sm dark:bg-dark-700'>
                     <p>{model.isStakeTabActive ? 'Stake' : 'Unstake'}</p>
 
                     <label>
                         <div
                             className={
-                                'dark:bg-dark-900 dark:border-dark-900 mb-8 mt-4 flex flex-row rounded-lg border border-milky p-4 focus-within:border-brown ' +
+                                'mb-8 mt-4 flex flex-row rounded-lg border border-milky p-4 focus-within:border-brown dark:border-dark-900 dark:bg-dark-900 ' +
                                 (model.isAmountValid
                                     ? ''
                                     : ' border-orange focus-within:border-orange dark:border-orange dark:focus-within:border-orange')
@@ -141,7 +141,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                                 placeholder='Amount'
                                 size={1}
                                 className={
-                                    'dark:text-dark-50 dark:bg-dark-900 h-full w-full flex-1 px-3 text-lg focus:outline-none' +
+                                    'h-full w-full flex-1 px-3 text-lg focus:outline-none dark:bg-dark-900 dark:text-dark-50' +
                                     (model.isAmountValid ? '' : ' text-orange dark:text-orange')
                                 }
                                 value={model.amount}
@@ -162,10 +162,10 @@ const StakeUnstake = observer(({ model }: Props) => {
                             />
                             <button
                                 className={
-                                    'dark:text-dark-600 rounded-lg bg-milky px-3 text-xs hover:bg-gray-200 focus:outline-none active:bg-gray-300' +
+                                    'rounded-lg bg-milky px-3 text-xs hover:bg-gray-200 focus:outline-none active:bg-gray-300 dark:text-dark-600' +
                                     (model.isAmountValid
                                         ? ''
-                                        : ' dark:hover:text-dark-50 active:!bg-dark-600 bg-orange text-white hover:!bg-brown')
+                                        : ' bg-orange text-white hover:!bg-brown active:!bg-dark-600 dark:hover:text-dark-50')
                                 }
                                 onClick={model.setAmountToMax}
                             >
@@ -176,7 +176,7 @@ const StakeUnstake = observer(({ model }: Props) => {
 
                     <button
                         id='submit'
-                        className='dark:text-dark-600 h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white disabled:opacity-80'
+                        className='h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white disabled:opacity-80 dark:text-dark-600'
                         disabled={!model.isButtonEnabled}
                         onClick={(e) => {
                             if (model.isWalletConnected) {

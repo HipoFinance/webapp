@@ -9,7 +9,7 @@ interface Props {
 
 const Stats = observer(({ model }: Props) => {
     return (
-        <div className='dark:text-dark-50 container mx-auto mb-16 font-body text-brown'>
+        <div className='container mx-auto mb-16 font-body text-brown dark:text-dark-50'>
             <div className='mx-auto flex max-w-lg flex-row px-4'>
                 <p className='text-lg font-bold'>Hipo statistics</p>
                 <a href={model.explorerHref} target='hipo_explorer' className='ml-auto text-xs font-light text-blue'>
@@ -18,7 +18,7 @@ const Stats = observer(({ model }: Props) => {
             </div>
 
             <div className='mx-auto max-w-lg text-sm font-medium'>
-                <div className='dark:bg-dark-800 m-4 rounded-2xl bg-white p-8 shadow-sm'>
+                <div className='m-4 rounded-2xl bg-white p-8 shadow-sm dark:bg-dark-800'>
                     <div className='my-4 flex flex-row'>
                         <p>APY 1 week</p>
                         <p className='ml-auto'>{model.apyWeek}</p>
