@@ -35,6 +35,7 @@ export class Model {
     activeTab: ActiveTab = 'stake'
     amount = ''
     waitForTransaction: WaitForTransaction = 'no'
+    ongoingRequests = 0
 
     // unobserved state
     dark = false
@@ -60,6 +61,7 @@ export class Model {
             activeTab: observable,
             amount: observable,
             waitForTransaction: observable,
+            ongoingRequests: observable,
 
             isWalletConnected: computed,
             isMainnet: computed,
@@ -95,6 +97,8 @@ export class Model {
             setAmount: action,
             setAmountToMax: action,
             setWaitForTransaction: action,
+            beginRequest: action,
+            endRequest: action,
         })
     }
 
@@ -346,6 +350,14 @@ export class Model {
         this.waitForTransaction = wait
     }
 
+    beginRequest = () => {
+        this.ongoingRequests += 1
+    }
+
+    endRequest = () => {
+        this.ongoingRequests -= 1
+    }
+
     connectTonAccess = () => {
         const network = this.network
         clearTimeout(this.timeoutConnectTonAccess)
@@ -375,6 +387,7 @@ export class Model {
         }
 
         try {
+            this.beginRequest()
             const value = await tonClient.getLastBlock()
             const lastBlock = value.last.seqno
             const treasury = tonClient.openAt(lastBlock, Treasury.createFromAddress(treasuryAddresses[this.network]))
@@ -409,6 +422,8 @@ export class Model {
         } catch (e) {
             clearTimeout(this.timeoutReadLastBlock)
             this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), retryDelay)
+        } finally {
+            this.endRequest()
         }
     }
 

@@ -5,6 +5,7 @@ import StakeUnstake from './StakeUnstake.tsx'
 import Wait from './Wait.tsx'
 import Stats from './Stats.tsx'
 import Footer from './Footer.tsx'
+import LoadingIndicator from './LoadingIndicator.tsx'
 import '@fontsource/poppins/300.css'
 import '@fontsource/poppins/400.css'
 import '@fontsource/poppins/500.css'
@@ -23,6 +24,7 @@ const App = observer(({ model }: Props) => {
             <Wait model={model} />
             <Stats model={model} />
             <Footer model={model} />
+            <LoadingIndicator model={model} />
         </>
     )
 })
