@@ -15,7 +15,7 @@ const treasuryAddresses = {
 }
 
 const depositCoinsFee = 0x76a14bbn
-const unstakeTokensFee = 0x5fb2ef3n
+const unstakeTokensFee = 0x7f2b933n
 
 type ActiveTab = 'stake' | 'unstake'
 
