@@ -184,9 +184,10 @@ export class Model {
         for (const time of times) {
             const value = staking.get(time)
             if (value != null) {
+                const until = this.treasuryState?.participations.get(time)?.stakeHeldUntil ?? 0n
                 result.push({
                     amount: formatAmount(value) + ' TON',
-                    estimated: time === 0n ? undefined : formatDate(new Date((Number(time) + 5 * 60) * 1000)),
+                    estimated: until === 0n ? undefined : formatDate(new Date((Number(until) + 5 * 60) * 1000)),
                 })
             }
         }
