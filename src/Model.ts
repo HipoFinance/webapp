@@ -14,8 +14,8 @@ const treasuryAddresses = {
     testnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
 }
 
-const depositCoinsFee = 0x9431a7bn
-const unstakeTokensFee = 0x7f2b933n
+const depositCoinsFee = 0x76a14bbn
+const unstakeTokensFee = 0x5fb2ef3n
 
 type ActiveTab = 'stake' | 'unstake'
 
