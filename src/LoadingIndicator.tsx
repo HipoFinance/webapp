@@ -11,12 +11,12 @@ const LoadingIndicator = observer(({ model }: Props) => {
     return (
         <div
             className={
-                'pointer-events-none fixed bottom-2 right-5 w-8 rounded-full bg-dark-950 bg-opacity-20 dark:bg-opacity-70' +
+                'pointer-events-none fixed bottom-2 right-5 w-10 rounded-full bg-dark-950 bg-opacity-20 dark:bg-opacity-70' +
                 (model.ongoingRequests > 0 ? '' : ' hidden')
             }
         >
-            <img src={loading} className='h-8 animate-spin dark:hidden' />
-            <img src={loadingDark} className='hidden h-8 animate-spin dark:block' />
+            <img src={loading} className='h-10 animate-spin dark:hidden' />
+            <img src={loadingDark} className='hidden h-10 animate-spin dark:block' />
         </div>
     )
 })
