@@ -18,7 +18,7 @@ const depositCoinsFee = 0x76a14bbn
 const unstakeTokensFee = 0x7f2b933n
 
 const errorMessageTonAccess = 'Unable to access blockchain'
-const errorMessageNetworkMismatch = 'Your wallet must also be on '
+const errorMessageNetworkMismatch = 'Your wallet must be on '
 
 type ActiveTab = 'stake' | 'unstake'
 
