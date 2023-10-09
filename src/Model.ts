@@ -140,8 +140,8 @@ export class Model {
     }
 
     get htonBalanceFormatted() {
-        if (this.htonWalletState != null) {
-            return formatAmount(this.htonWalletState[0]) + ' hTON'
+        if (this.tonBalance != null) {
+            return formatAmount(this.htonWalletState?.[0] ?? 0n) + ' hTON'
         }
     }
 
