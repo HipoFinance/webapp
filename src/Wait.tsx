@@ -19,8 +19,8 @@ const Wait = observer(({ model }: Props) => {
     if (model.waitForTransaction === 'wait') {
         img = (
             <div>
-                <img src={loading} className='m-4 mx-auto animate-spin dark:hidden' />
-                <img src={loadingDark} className='m-4 mx-auto hidden animate-spin dark:block' />
+                <img src={loading} className='m-4 mx-auto h-16 animate-spin dark:hidden' />
+                <img src={loadingDark} className='m-4 mx-auto hidden h-16 animate-spin dark:block' />
             </div>
         )
         heading = <h1 className='text-center text-xl font-bold'>Finalizing your transaction</h1>
