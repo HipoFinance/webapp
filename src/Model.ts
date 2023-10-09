@@ -111,11 +111,20 @@ export class Model {
             localStorage.theme === 'dark' ||
             (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
+        document.onvisibilitychange = () => {
+            if (document.hidden) {
+                this.pause()
+            } else {
+                this.resume()
+            }
+        }
+
         this.initTonConnect(buttonRootId)
 
         autorun(() => {
             this.connectTonAccess()
         })
+
         autorun(() => {
             void this.readLastBlock()
         })
@@ -502,11 +511,16 @@ export class Model {
                 ],
             }
             const tonBalance = this.tonBalance
-            void this.tonConnectUI.sendTransaction(tx).then(() => {
-                this.setAmount('')
-                this.setWaitForTransaction('wait')
-                return this.checkIfBalanceChanged(tonBalance, 1)
-            })
+            void this.tonConnectUI
+                .sendTransaction(tx, {
+                    skipRedirectToWallet: 'never',
+                    twaReturnUrl: 'https://t.me/HipoFinanceBot',
+                })
+                .then(() => {
+                    this.setAmount('')
+                    this.setWaitForTransaction('wait')
+                    return this.checkIfBalanceChanged(tonBalance, 1)
+                })
         }
     }
 
