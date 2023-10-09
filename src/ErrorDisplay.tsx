@@ -12,7 +12,7 @@ const ErrorDisplay = observer(({ model }: Props) => {
         <div
             className={
                 'fixed bottom-2 mx-4 flex max-w-screen-sm rounded-2xl bg-orange p-4 text-white drop-shadow dark:text-dark-600' +
-                (model.errorInTonAccess ? '' : ' hidden')
+                (model.errorMessage === '' ? ' hidden' : '')
             }
         >
             <img src={error} className='h-6 dark:hidden' />

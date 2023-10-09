@@ -17,6 +17,9 @@ const treasuryAddresses = {
 const depositCoinsFee = 0x76a14bbn
 const unstakeTokensFee = 0x7f2b933n
 
+const errorMessageTonAccess = 'Unable to access blockchain'
+const errorMessageNetworkMismatch = 'Your wallet must also be on '
+
 type ActiveTab = 'stake' | 'unstake'
 
 type WaitForTransaction = 'no' | 'wait' | 'timeout' | 'done'
@@ -36,19 +39,21 @@ export class Model {
     amount = ''
     waitForTransaction: WaitForTransaction = 'no'
     ongoingRequests = 0
-    errorInTonAccess = false
+    errorMessage = ''
 
     // unobserved state
     dark = false
+    tonConnectButtonRootId: string
     tonConnectUI?: TonConnectUI
     switchNetworkCounter = 0
     timeoutConnectTonAccess?: ReturnType<typeof setTimeout>
     timeoutReadLastBlock?: ReturnType<typeof setTimeout>
     timeoutSwitchNetwork?: ReturnType<typeof setTimeout>
-    timeoutErrorInTonAccess?: ReturnType<typeof setTimeout>
+    timeoutErrorMessage?: ReturnType<typeof setTimeout>
 
-    constructor(network: Network) {
+    constructor(network: Network, tonConnectButtonRootId: string) {
         this.network = network
+        this.tonConnectButtonRootId = tonConnectButtonRootId
 
         makeObservable(this, {
             network: observable,
@@ -64,7 +69,7 @@ export class Model {
             amount: observable,
             waitForTransaction: observable,
             ongoingRequests: observable,
-            errorInTonAccess: observable,
+            errorMessage: observable,
 
             isWalletConnected: computed,
             isMainnet: computed,
@@ -102,11 +107,11 @@ export class Model {
             setWaitForTransaction: action,
             beginRequest: action,
             endRequest: action,
-            setErrorInTonAccess: action,
+            setErrorMessage: action,
         })
     }
 
-    init(buttonRootId: string) {
+    init() {
         this.dark =
             localStorage.theme === 'dark' ||
             (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -119,7 +124,7 @@ export class Model {
             }
         }
 
-        this.initTonConnect(buttonRootId)
+        this.initTonConnect()
 
         autorun(() => {
             this.connectTonAccess()
@@ -328,6 +333,7 @@ export class Model {
     setNetwork = (network: Network) => {
         this.network = network
         this.tonClient = undefined
+        this.address = undefined
         this.tonBalance = undefined
         this.treasury = undefined
         this.treasuryState = undefined
@@ -335,8 +341,13 @@ export class Model {
         this.htonWallet = undefined
         this.htonWalletState = undefined
         this.amount = ''
+        this.errorMessage = ''
         clearTimeout(this.timeoutConnectTonAccess)
         clearTimeout(this.timeoutReadLastBlock)
+        clearTimeout(this.timeoutErrorMessage)
+        if (this.tonConnectUI?.connected === true) {
+            void this.tonConnectUI.disconnect()
+        }
     }
 
     setTonClient = (endpoint: string) => {
@@ -372,13 +383,13 @@ export class Model {
         this.ongoingRequests -= 1
     }
 
-    setErrorInTonAccess = (errorInTonAccess: boolean) => {
-        this.errorInTonAccess = errorInTonAccess
-        clearTimeout(this.timeoutErrorInTonAccess)
-        if (errorInTonAccess) {
-            this.timeoutErrorInTonAccess = setTimeout(() => {
-                this.setErrorInTonAccess(false)
-            }, retryDelay - 500)
+    setErrorMessage = (errorMessage: string, delay: number) => {
+        this.errorMessage = errorMessage
+        clearTimeout(this.timeoutErrorMessage)
+        if (errorMessage !== '') {
+            this.timeoutErrorMessage = setTimeout(() => {
+                this.setErrorMessage('', 0)
+            }, delay)
         }
     }
 
@@ -388,7 +399,7 @@ export class Model {
         getHttpV4Endpoint({ network })
             .then(this.setTonClient)
             .catch(() => {
-                this.setErrorInTonAccess(true)
+                this.setErrorMessage(errorMessageTonAccess, retryDelay - 500)
                 this.timeoutConnectTonAccess = setTimeout(this.connectTonAccess, retryDelay)
             })
     }
@@ -445,7 +456,7 @@ export class Model {
                 this.htonWalletState = htonWalletState
             })
         } catch (e) {
-            this.setErrorInTonAccess(true)
+            this.setErrorMessage(errorMessageTonAccess, retryDelay - 500)
             clearTimeout(this.timeoutReadLastBlock)
             this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), retryDelay)
         } finally {
@@ -533,13 +544,11 @@ export class Model {
         return this.checkIfBalanceChanged(tonBalance, counter + 1)
     }
 
-    initTonConnect = (buttonRootId: string) => {
-        if (document.getElementById(buttonRootId) != null) {
-            this.connectWallet(buttonRootId)
+    initTonConnect = () => {
+        if (document.getElementById(this.tonConnectButtonRootId) != null) {
+            this.connectWallet()
         } else {
-            setTimeout(() => {
-                this.initTonConnect(buttonRootId)
-            }, 10)
+            setTimeout(this.initTonConnect, 10)
         }
     }
 
@@ -549,10 +558,10 @@ export class Model {
         }
     }
 
-    connectWallet = (buttonRootId: string) => {
+    connectWallet = () => {
         this.tonConnectUI = new TonConnectUI({
             manifestUrl: 'https://app.hipo.finance/tonconnect-manifest.json',
-            buttonRootId,
+            buttonRootId: this.tonConnectButtonRootId,
             actionsConfiguration: {
                 skipRedirectToWallet: 'never',
                 twaReturnUrl: 'https://t.me/HipoFinanceBot',
@@ -622,7 +631,25 @@ export class Model {
             },
         })
         this.tonConnectUI.onStatusChange((wallet) => {
-            this.setAddress(wallet == null ? undefined : Address.parseRaw(wallet.account.address))
+            if (wallet != null) {
+                const chain = wallet.account.chain
+                if (
+                    (chain === CHAIN.MAINNET && this.network === 'mainnet') ||
+                    (chain === CHAIN.TESTNET && this.network === 'testnet')
+                ) {
+                    this.setAddress(Address.parseRaw(wallet.account.address))
+                } else {
+                    runInAction(() => {
+                        this.setAddress(undefined)
+                        this.setErrorMessage(
+                            errorMessageNetworkMismatch + (this.isMainnet ? 'MainNet' : 'TestNet'),
+                            10000,
+                        )
+                    })
+                }
+            } else {
+                this.setAddress(undefined)
+            }
         })
     }
 

@@ -5,8 +5,8 @@ import { Model } from './Model.ts'
 import '@twa-dev/sdk'
 import './index.css'
 
-const model = new Model('testnet')
-model.init('ton-connect-button')
+const model = new Model('testnet', 'ton-connect-button')
+model.init()
 
 ReactDOM.createRoot(document.querySelector('#root') ?? document.body).render(
     <React.StrictMode>
