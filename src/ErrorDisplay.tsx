@@ -17,7 +17,7 @@ const ErrorDisplay = observer(({ model }: Props) => {
         >
             <img src={error} className='h-6 dark:hidden' />
             <img src={errorDark} className='hidden h-6 dark:block' />
-            <p className='mx-1'>Unable to access blockchain</p>
+            <p className='mx-1'>model.errorMessage</p>
         </div>
     )
 })
