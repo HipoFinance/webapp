@@ -511,16 +511,11 @@ export class Model {
                 ],
             }
             const tonBalance = this.tonBalance
-            void this.tonConnectUI
-                .sendTransaction(tx, {
-                    skipRedirectToWallet: 'never',
-                    twaReturnUrl: 'https://t.me/HipoFinanceBot',
-                })
-                .then(() => {
-                    this.setAmount('')
-                    this.setWaitForTransaction('wait')
-                    return this.checkIfBalanceChanged(tonBalance, 1)
-                })
+            void this.tonConnectUI.sendTransaction(tx).then(() => {
+                this.setAmount('')
+                this.setWaitForTransaction('wait')
+                return this.checkIfBalanceChanged(tonBalance, 1)
+            })
         }
     }
 
@@ -558,6 +553,10 @@ export class Model {
         this.tonConnectUI = new TonConnectUI({
             manifestUrl: 'https://app.hipo.finance/tonconnect-manifest.json',
             buttonRootId,
+            actionsConfiguration: {
+                skipRedirectToWallet: 'never',
+                twaReturnUrl: 'https://t.me/HipoFinanceBot',
+            },
             uiPreferences: {
                 theme: this.dark ? THEME.DARK : THEME.LIGHT,
                 colorsSet: {
