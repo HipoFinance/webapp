@@ -639,6 +639,7 @@ export class Model {
                 ) {
                     this.setAddress(Address.parseRaw(wallet.account.address))
                 } else {
+                    void this.tonConnectUI?.disconnect()
                     runInAction(() => {
                         this.setAddress(undefined)
                         this.setErrorMessage(
