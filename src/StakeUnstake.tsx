@@ -126,7 +126,8 @@ const StakeUnstake = observer(({ model }: Props) => {
                                     : ' border-orange focus-within:border-orange dark:border-orange dark:focus-within:border-orange')
                             }
                         >
-                            <img src={model.isStakeTabActive ? ton : hton} className='w-7' />
+                            <img src={ton} className={'w-7' + (model.isStakeTabActive ? '' : ' hidden')} />
+                            <img src={hton} className={'w-7' + (model.isStakeTabActive ? ' hidden' : '')} />
                             <input
                                 type='text'
                                 inputMode='decimal'
