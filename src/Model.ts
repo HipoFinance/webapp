@@ -36,6 +36,7 @@ export class Model {
     amount = ''
     waitForTransaction: WaitForTransaction = 'no'
     ongoingRequests = 0
+    errorInTonAccess = false
 
     // unobserved state
     dark = false
@@ -44,6 +45,7 @@ export class Model {
     timeoutConnectTonAccess?: ReturnType<typeof setTimeout>
     timeoutReadLastBlock?: ReturnType<typeof setTimeout>
     timeoutSwitchNetwork?: ReturnType<typeof setTimeout>
+    timeoutErrorInTonAccess?: ReturnType<typeof setTimeout>
 
     constructor(network: Network) {
         this.network = network
@@ -62,6 +64,7 @@ export class Model {
             amount: observable,
             waitForTransaction: observable,
             ongoingRequests: observable,
+            errorInTonAccess: observable,
 
             isWalletConnected: computed,
             isMainnet: computed,
@@ -99,6 +102,7 @@ export class Model {
             setWaitForTransaction: action,
             beginRequest: action,
             endRequest: action,
+            setErrorInTonAccess: action,
         })
     }
 
@@ -359,12 +363,23 @@ export class Model {
         this.ongoingRequests -= 1
     }
 
+    setErrorInTonAccess = (errorInTonAccess: boolean) => {
+        this.errorInTonAccess = errorInTonAccess
+        clearTimeout(this.timeoutErrorInTonAccess)
+        if (errorInTonAccess) {
+            this.timeoutErrorInTonAccess = setTimeout(() => {
+                this.setErrorInTonAccess(false)
+            }, retryDelay - 500)
+        }
+    }
+
     connectTonAccess = () => {
         const network = this.network
         clearTimeout(this.timeoutConnectTonAccess)
         getHttpV4Endpoint({ network })
             .then(this.setTonClient)
             .catch(() => {
+                this.setErrorInTonAccess(true)
                 this.timeoutConnectTonAccess = setTimeout(this.connectTonAccess, retryDelay)
             })
     }
@@ -421,6 +436,7 @@ export class Model {
                 this.htonWalletState = htonWalletState
             })
         } catch (e) {
+            this.setErrorInTonAccess(true)
             clearTimeout(this.timeoutReadLastBlock)
             this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), retryDelay)
         } finally {

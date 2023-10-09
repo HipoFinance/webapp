@@ -6,6 +6,7 @@ import Wait from './Wait.tsx'
 import Stats from './Stats.tsx'
 import Footer from './Footer.tsx'
 import LoadingIndicator from './LoadingIndicator.tsx'
+import ErrorDisplay from './ErrorDisplay.tsx'
 import '@fontsource/poppins/300.css'
 import '@fontsource/poppins/400.css'
 import '@fontsource/poppins/500.css'
@@ -25,6 +26,7 @@ const App = observer(({ model }: Props) => {
             <Stats model={model} />
             <Footer model={model} />
             <LoadingIndicator model={model} />
+            <ErrorDisplay model={model} />
         </>
     )
 })
