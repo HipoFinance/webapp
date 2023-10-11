@@ -6,23 +6,35 @@ import { ParticipationState, Reward, Treasury, TreasuryConfig } from './wrappers
 import { Wallet } from './wrappers/Wallet'
 import { op } from './wrappers/common'
 
+type ActiveTab = 'stake' | 'unstake'
+
+type WaitForTransaction = 'no' | 'wait' | 'timeout' | 'done'
+
+interface FragmentState {
+    network?: Network
+    referrer?: Address
+    activeTab?: ActiveTab
+}
+
 const updateLastBlockDelay = 6 * 1000
 const retryDelay = 3 * 1000
+const checkBalanceChangeDelay = 1 * 1000
 
-const treasuryAddresses = {
+const treasuryAddresses: Record<Network, Address> = {
     mainnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
     testnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
 }
 
+const defaultNetwork: Network = 'testnet'
+const defaultActiveTab: ActiveTab = 'stake'
+
 const depositCoinsFee = 0x76a14bbn
 const unstakeTokensFee = 0x7f2b933n
 
+const tonConnectButtonRootId = 'ton-connect-button'
+
 const errorMessageTonAccess = 'Unable to access blockchain'
 const errorMessageNetworkMismatch = 'Your wallet must be on '
-
-type ActiveTab = 'stake' | 'unstake'
-
-type WaitForTransaction = 'no' | 'wait' | 'timeout' | 'done'
 
 export class Model {
     // observed state
@@ -35,7 +47,7 @@ export class Model {
     htonWalletAddress?: Address
     htonWallet?: OpenedContract<Wallet>
     htonWalletState?: [bigint, Dictionary<bigint, bigint>, bigint]
-    activeTab: ActiveTab = 'stake'
+    activeTab: ActiveTab
     amount = ''
     waitForTransaction: WaitForTransaction = 'no'
     ongoingRequests = 0
@@ -43,17 +55,19 @@ export class Model {
 
     // unobserved state
     dark = false
-    tonConnectButtonRootId: string
     tonConnectUI?: TonConnectUI
     switchNetworkCounter = 0
+    referrer?: Address
     timeoutConnectTonAccess?: ReturnType<typeof setTimeout>
     timeoutReadLastBlock?: ReturnType<typeof setTimeout>
     timeoutSwitchNetwork?: ReturnType<typeof setTimeout>
     timeoutErrorMessage?: ReturnType<typeof setTimeout>
 
-    constructor(network: Network, tonConnectButtonRootId: string) {
-        this.network = network
-        this.tonConnectButtonRootId = tonConnectButtonRootId
+    constructor() {
+        const fragmentState = this.readFragmentState()
+        this.network = fragmentState.network ?? defaultNetwork
+        this.activeTab = fragmentState.activeTab ?? defaultActiveTab
+        this.referrer = fragmentState.referrer
 
         makeObservable(this, {
             network: observable,
@@ -124,6 +138,16 @@ export class Model {
             }
         }
 
+        window.onhashchange = () => {
+            const fragmentState = this.readFragmentState()
+            runInAction(() => {
+                this.setActiveTab(fragmentState.activeTab ?? defaultActiveTab)
+                this.setNetwork(fragmentState.network ?? defaultNetwork)
+                this.referrer = fragmentState.referrer
+            })
+            this.writeFragmentState()
+        }
+
         this.initTonConnect()
 
         autorun(() => {
@@ -132,6 +156,10 @@ export class Model {
 
         autorun(() => {
             void this.readLastBlock()
+        })
+
+        autorun(() => {
+            this.writeFragmentState()
         })
     }
 
@@ -331,22 +359,24 @@ export class Model {
     }
 
     setNetwork = (network: Network) => {
-        this.network = network
-        this.tonClient = undefined
-        this.address = undefined
-        this.tonBalance = undefined
-        this.treasury = undefined
-        this.treasuryState = undefined
-        this.htonWalletAddress = undefined
-        this.htonWallet = undefined
-        this.htonWalletState = undefined
-        this.amount = ''
-        this.errorMessage = ''
-        clearTimeout(this.timeoutConnectTonAccess)
-        clearTimeout(this.timeoutReadLastBlock)
-        clearTimeout(this.timeoutErrorMessage)
-        if (this.tonConnectUI?.connected === true) {
-            void this.tonConnectUI.disconnect()
+        if (this.network !== network) {
+            this.network = network
+            this.tonClient = undefined
+            this.address = undefined
+            this.tonBalance = undefined
+            this.treasury = undefined
+            this.treasuryState = undefined
+            this.htonWalletAddress = undefined
+            this.htonWallet = undefined
+            this.htonWalletState = undefined
+            this.amount = ''
+            this.errorMessage = ''
+            clearTimeout(this.timeoutConnectTonAccess)
+            clearTimeout(this.timeoutReadLastBlock)
+            clearTimeout(this.timeoutErrorMessage)
+            if (this.tonConnectUI?.connected === true) {
+                void this.tonConnectUI.disconnect()
+            }
         }
     }
 
@@ -359,8 +389,10 @@ export class Model {
     }
 
     setActiveTab = (activeTab: ActiveTab) => {
-        this.activeTab = activeTab
-        this.amount = ''
+        if (this.activeTab !== activeTab) {
+            this.activeTab = activeTab
+            this.amount = ''
+        }
     }
 
     setAmount = (amount: string) => {
@@ -484,18 +516,17 @@ export class Model {
             this.tonConnectUI != null &&
             this.tonBalance != null
         ) {
-            let address
-            let amount
-            let payload
+            let address: string
+            let amount: string
+            let payload: string
             if (this.isStakeTabActive) {
                 address = this.treasury.address.toString()
                 amount = (this.amountInNano + depositCoinsFee).toString()
-                payload = beginCell()
-                    .storeUint(op.depositCoins, 32)
-                    .storeUint(0, 64)
-                    .endCell()
-                    .toBoc()
-                    .toString('base64')
+                let builder = beginCell().storeUint(op.depositCoins, 32).storeUint(0, 64)
+                if (this.referrer != null) {
+                    builder = builder.storeAddress(this.referrer)
+                }
+                payload = builder.endCell().toBoc().toString('base64')
             } else {
                 address = this.htonWallet.address.toString()
                 amount = unstakeTokensFee.toString()
@@ -531,7 +562,7 @@ export class Model {
     }
 
     checkIfBalanceChanged = async (tonBalance: bigint, counter: number): Promise<void> => {
-        await sleep(1 * 1000)
+        await sleep(checkBalanceChangeDelay)
         void this.readLastBlock()
         if (this.tonBalance !== tonBalance) {
             this.setWaitForTransaction('done')
@@ -545,7 +576,7 @@ export class Model {
     }
 
     initTonConnect = () => {
-        if (document.getElementById(this.tonConnectButtonRootId) != null) {
+        if (document.getElementById(tonConnectButtonRootId) != null) {
             this.connectWallet()
         } else {
             setTimeout(this.initTonConnect, 10)
@@ -561,7 +592,7 @@ export class Model {
     connectWallet = () => {
         this.tonConnectUI = new TonConnectUI({
             manifestUrl: 'https://app.hipo.finance/tonconnect-manifest.json',
-            buttonRootId: this.tonConnectButtonRootId,
+            buttonRootId: tonConnectButtonRootId,
             actionsConfiguration: {
                 skipRedirectToWallet: 'never',
                 twaReturnUrl: 'https://t.me/HipoFinanceBot',
@@ -619,7 +650,7 @@ export class Model {
                             secondary: '#ffedef', // dialog close
                             tertiary: '#f2f2f2', // loading indicator in connect button
                             success: '#4bb543', // success notification color
-                            error: '#e00', // error notification color
+                            error: '#f00', // error notification color
                         },
                         constant: {
                             black: '#333131', // qrcode color
@@ -686,6 +717,52 @@ export class Model {
                 this.switchNetworkCounter = 0
             }, 1000)
         }
+    }
+
+    readFragmentState = (): FragmentState => {
+        const fragmentState: FragmentState = {}
+        if (window.location.hash.startsWith('#')) {
+            const fragment = window.location.hash.substring(1)
+            const pairs = fragment.split(',')
+            for (const pair of pairs) {
+                const [key, value] = pair.split('=', 2)
+                if (key === 'network') {
+                    if (value === 'mainnet' || value === 'testnet') {
+                        fragmentState.network = value
+                    }
+                }
+                if (key === 'referrer') {
+                    try {
+                        fragmentState.referrer = Address.parseFriendly(value).address
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+                if (key === 'tab') {
+                    if (value === 'stake' || value === 'unstake') {
+                        fragmentState.activeTab = value
+                    }
+                }
+            }
+        }
+        return fragmentState
+    }
+
+    writeFragmentState = () => {
+        let hash = ''
+        if (this.network !== defaultNetwork) {
+            hash += ',network=' + this.network
+        }
+        if (this.referrer != null) {
+            hash += ',referrer=' + this.referrer.toString({ testOnly: !this.isMainnet, bounceable: false })
+        }
+        if (this.activeTab !== defaultActiveTab) {
+            hash += ',tab=' + this.activeTab
+        }
+        if (hash.startsWith(',')) {
+            hash = hash.substring(1)
+        }
+        window.location.hash = hash
     }
 }
 
