@@ -5,7 +5,7 @@ import { Model } from './Model.ts'
 import '@twa-dev/sdk'
 import './index.css'
 
-const model = new Model('testnet', 'ton-connect-button')
+const model = new Model()
 model.init()
 
 ReactDOM.createRoot(document.querySelector('#root') ?? document.body).render(
