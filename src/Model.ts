@@ -254,7 +254,7 @@ export class Model {
         const amount = this.amount.trim()
         try {
             return toNano(amount)
-        } catch (e) {
+        } catch {
             return undefined
         }
     }
@@ -459,26 +459,43 @@ export class Model {
             const value = await tonClient.getLastBlock()
             const lastBlock = value.last.seqno
             const treasury = tonClient.openAt(lastBlock, Treasury.createFromAddress(treasuryAddresses[this.network]))
-            const parallel: [Promise<TreasuryConfig>, Promise<bigint>?, Promise<Address>?] = [
-                treasury.getTreasuryState(),
+
+            const readTreasuryState = treasury.getTreasuryState()
+
+            const readTonBalance =
                 address == null
                     ? undefined
                     : tonClient
                           .getAccountLite(lastBlock, address)
                           .then((value: { account: { balance: { coins: string } } }) =>
                               BigInt(value.account.balance.coins),
-                          ),
-                address == null ? undefined : treasury.getWalletAddress(address),
-            ]
+                          )
 
-            const [treasuryState, tonBalance, htonWalletAddress] = await Promise.all(parallel)
-            const htonWallet =
-                htonWalletAddress == null
+            const readHtonWallet: Promise<[Address, OpenedContract<Wallet>, typeof this.htonWalletState]> | undefined =
+                address == null
                     ? undefined
-                    : tonClient.openAt(lastBlock, Wallet.createFromAddress(htonWalletAddress))
-            const htonWalletState = await htonWallet?.getWalletState().catch(() => {
-                return undefined
-            })
+                    : (this.htonWalletAddress != null
+                          ? Promise.resolve(this.htonWalletAddress)
+                          : treasury.getWalletAddress(address)
+                      ).then(async (htonWalletAddress) => {
+                          const htonWallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(htonWalletAddress))
+                          let htonWalletState: typeof this.htonWalletState
+                          try {
+                              htonWalletState = await htonWallet.getWalletState()
+                          } catch {
+                              htonWalletState = undefined
+                          }
+                          return [htonWalletAddress, htonWallet, htonWalletState]
+                      })
+
+            const parallel: [
+                Promise<TreasuryConfig>,
+                Promise<bigint>?,
+                Promise<[Address, OpenedContract<Wallet>, typeof this.htonWalletState]>?,
+            ] = [readTreasuryState, readTonBalance, readHtonWallet]
+            const [treasuryState, tonBalance, hton] = await Promise.all(parallel)
+            const [htonWalletAddress, htonWallet, htonWalletState] = hton ?? [undefined, undefined, undefined]
+
             runInAction(() => {
                 this.treasury = treasury
                 this.treasuryState = treasuryState
@@ -487,7 +504,7 @@ export class Model {
                 this.htonWallet = htonWallet
                 this.htonWalletState = htonWalletState
             })
-        } catch (e) {
+        } catch {
             this.setErrorMessage(errorMessageTonAccess, retryDelay - 500)
             clearTimeout(this.timeoutReadLastBlock)
             this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), retryDelay)
@@ -734,7 +751,7 @@ export class Model {
                 if (key === 'referrer') {
                     try {
                         fragmentState.referrer = Address.parseFriendly(value).address
-                    } catch (e) {
+                    } catch {
                         // ignore
                     }
                 }
