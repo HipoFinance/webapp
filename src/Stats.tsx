@@ -23,11 +23,11 @@ const Stats = observer(({ model }: Props) => {
                         <p>APY 1 week</p>
                         <p className='ml-auto'>{model.apyWeek}</p>
                     </div>
-                    <div className='my-4 flex flex-row'>
+                    <div className={'my-4 flex flex-row' + (model.apyMonth == null ? ' hidden' : '')}>
                         <p>APY 1 month</p>
                         <p className='ml-auto'>{model.apyMonth}</p>
                     </div>
-                    <div className='my-4 flex flex-row'>
+                    <div className={'my-4 flex flex-row' + (model.apyYear == null ? ' hidden' : '')}>
                         <p>APY 1 year</p>
                         <p className='ml-auto'>{model.apyYear}</p>
                     </div>

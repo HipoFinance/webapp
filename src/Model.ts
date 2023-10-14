@@ -789,16 +789,21 @@ function calculateApy(days: number, history?: Dictionary<bigint, Reward>) {
         let totalStaked = 0n
         let totalRecovered = 0n
         const keys = history.keys()
-        for (const key of keys) {
+        if (until < keys[0] && days > 7) {
+            return
+        }
+        for (const key of keys.reverse()) {
             if (key > until) {
                 const reward = history.get(key)
                 if (reward != null) {
                     totalStaked += reward.staked
                     totalRecovered += reward.recovered
                 }
+            } else {
+                break
             }
         }
-        const apy = (Number(totalRecovered) / Number(totalStaked) - 1) * 100
+        const apy = (Math.pow(Number(totalRecovered) / Number(totalStaked), 365 / days) - 1) * 100
         return apy.toFixed(5) + '%'
     }
 }
