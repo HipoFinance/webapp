@@ -313,13 +313,9 @@ export class Model {
     }
 
     get exchangeRateFormatted() {
-        const rate = this.exchangeRate
-        if (rate != null) {
-            if (this.isStakeTabActive) {
-                return '1 TON = ~ ' + rate.toFixed(4) + ' hTON'
-            } else {
-                return '1 hTON = ~ ' + rate.toFixed(4) + ' TON'
-            }
+        const state = this.treasuryState
+        if (state != null) {
+            return '1 hTON = ~ ' + (Number(state.totalCoins) / Number(state.totalTokens)).toFixed(4) + ' TON'
         }
     }
 
