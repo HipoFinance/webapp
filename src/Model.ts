@@ -736,7 +736,7 @@ export class Model {
         const fragmentState: FragmentState = {}
         if (window.location.hash.startsWith('#')) {
             const fragment = window.location.hash.substring(1)
-            const pairs = fragment.split(',')
+            const pairs = fragment.split('/')
             for (const pair of pairs) {
                 const [key, value] = pair.split('=', 2)
                 if (key === 'network') {
@@ -764,17 +764,15 @@ export class Model {
     writeFragmentState = () => {
         let hash = ''
         if (this.network !== defaultNetwork) {
-            hash += ',network=' + this.network
+            hash += '/network=' + this.network
         }
         if (this.referrer != null) {
-            hash += ',referrer=' + this.referrer.toString({ testOnly: !this.isMainnet, bounceable: false })
+            hash += '/referrer=' + this.referrer.toString({ testOnly: !this.isMainnet, bounceable: false })
         }
         if (this.activeTab !== defaultActiveTab) {
-            hash += ',tab=' + this.activeTab
+            hash += '/tab=' + this.activeTab
         }
-        if (hash.startsWith(',')) {
-            hash = hash.substring(1)
-        }
+        hash += '/'
         window.location.hash = hash
     }
 }
