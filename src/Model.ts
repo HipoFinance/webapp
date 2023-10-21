@@ -19,6 +19,7 @@ interface FragmentState {
 const updateLastBlockDelay = 6 * 1000
 const retryDelay = 3 * 1000
 const checkBalanceChangeDelay = 1 * 1000
+const sendValidUntil = 5 * 60
 
 const treasuryAddresses: Record<Network, Address> = {
     mainnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
@@ -554,7 +555,7 @@ export class Model {
                     .toString('base64')
             }
             const tx = {
-                validUntil: Math.floor(Date.now() / 1000) + 60,
+                validUntil: Math.floor(Date.now() / 1000) + sendValidUntil,
                 network: this.isMainnet ? CHAIN.MAINNET : CHAIN.TESTNET,
                 from: this.address.toRawString(),
                 messages: [
