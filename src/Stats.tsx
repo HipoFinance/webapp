@@ -20,6 +20,10 @@ const Stats = observer(({ model }: Props) => {
             <div className='mx-auto max-w-lg text-sm font-medium'>
                 <div className='m-4 rounded-2xl bg-white p-8 shadow-sm dark:bg-dark-800'>
                     <div className='my-4 flex flex-row'>
+                        <p>Recent APY</p>
+                        <p className='ml-auto'>{model.apyRecent}</p>
+                    </div>
+                    <div className='my-4 flex flex-row'>
                         <p>APY 1 week</p>
                         <p className='ml-auto'>{model.apyWeek}</p>
                     </div>

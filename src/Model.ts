@@ -115,6 +115,7 @@ export class Model {
             stakeEta: computed,
             unstakeEta: computed,
             explorerHref: computed,
+            apyRecent: computed,
             apyWeek: computed,
             apyMonth: computed,
             apyYear: computed,
@@ -395,16 +396,36 @@ export class Model {
         return (this.isMainnet ? 'https://tonviewer.com/' : 'https://testnet.tonviewer.com/') + address
     }
 
+    get apyRecent() {
+        const history = this.treasuryState?.rewardsHistory
+        const times = this.times
+        if (history != null && times != null) {
+            const keys = history.keys()
+            if (keys.length < 1) {
+                return
+            }
+            const reward = history.get(keys[keys.length - 1])
+            if (reward == null) {
+                return
+            }
+            const duration = 2 * Number(times.nextRoundSince - times.currentRoundSince)
+            const year = 365 * 24 * 60 * 60
+            const compoundingFrequency = year / duration
+            const apy = (Math.pow(Number(reward.recovered) / Number(reward.staked), compoundingFrequency) - 1) * 100
+            return apy.toFixed(5) + '%'
+        }
+    }
+
     get apyWeek() {
-        return calculateApy(7, this.treasuryState?.rewardsHistory)
+        return calculateApy(7, this.treasuryState?.rewardsHistory, this.times)
     }
 
     get apyMonth() {
-        return calculateApy(30, this.treasuryState?.rewardsHistory)
+        return calculateApy(30, this.treasuryState?.rewardsHistory, this.times)
     }
 
     get apyYear() {
-        return calculateApy(365, this.treasuryState?.rewardsHistory)
+        return calculateApy(365, this.treasuryState?.rewardsHistory, this.times)
     }
 
     get protocolFee() {
@@ -870,27 +891,25 @@ export class Model {
     }
 }
 
-function calculateApy(days: number, history?: Dictionary<bigint, Reward>) {
-    const until = BigInt(Math.floor(Date.now() / 1000) - 60 * 60 * 24 * days)
-    if (history != null) {
+function calculateApy(days: number, history?: Dictionary<bigint, Reward>, times?: Times) {
+    if (history != null && times != null) {
         let totalStaked = 0n
         let totalRecovered = 0n
         const keys = history.keys()
-        if (until < keys[0] && days > 7) {
-            return
-        }
+        const until = BigInt(Number(times.currentRoundSince) - 60 * 60 * 24 * days)
         for (const key of keys.reverse()) {
-            if (key > until) {
+            if (until < key) {
                 const reward = history.get(key)
-                if (reward != null) {
-                    totalStaked += reward.staked
-                    totalRecovered += reward.recovered
-                }
+                totalStaked += reward?.staked ?? 0n
+                totalRecovered += reward?.recovered ?? 0n
             } else {
                 break
             }
         }
-        const apy = (Math.pow(Number(totalRecovered) / Number(totalStaked), 365 / days) - 1) * 100
+        const duration = 2 * Number(times.nextRoundSince - times.currentRoundSince)
+        const year = 365 * 24 * 60 * 60
+        const compoundingFrequency = year / duration
+        const apy = (Math.pow(Number(totalRecovered) / Number(totalStaked), compoundingFrequency) - 1) * 100
         return apy.toFixed(5) + '%'
     }
 }
