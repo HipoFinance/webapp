@@ -62,7 +62,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p className='font-light opacity-70'>Unstaking in progress</p>
                             <img src={clock} className='peer ml-1 w-4 opacity-70 dark:hidden' />
                             <img src={clockDark} className='peer ml-1 hidden w-4 opacity-70 dark:block' />
-                            <div className='absolute left-1/3 top-6 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
+                            <div className='absolute left-1/3 top-6 z-10 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
                                 <p>
                                     {model.unstakingInProgressDetails?.estimated == null
                                         ? 'Expected in a moment'
@@ -88,7 +88,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p className='font-light opacity-70'>Staking in progress</p>
                             <img src={clock} className='peer ml-1 w-4 opacity-70 dark:hidden' />
                             <img src={clockDark} className='peer ml-1 hidden w-4 opacity-70 dark:block' />
-                            <div className='absolute left-1/3 top-6 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
+                            <div className='absolute left-1/3 top-6 z-10 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
                                 {model.stakingInProgressDetails.length === 1
                                     ? model.stakingInProgressDetails.map((value) => (
                                           <p key={'-' + value.estimated + value.amount}>

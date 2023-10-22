@@ -2,7 +2,7 @@ import { Network, getHttpEndpoint, getHttpV4Endpoint } from '@orbs-network/ton-a
 import { TonConnectUI, THEME, CHAIN } from '@tonconnect/ui'
 import { action, autorun, computed, makeObservable, observable, runInAction } from 'mobx'
 import { Address, Dictionary, OpenedContract, TonClient, TonClient4, beginCell, fromNano, toNano } from 'ton'
-import { ParticipationState, Reward, Times, Treasury, TreasuryConfig } from './wrappers/Treasury'
+import { ParticipationState, Times, Treasury, TreasuryConfig } from './wrappers/Treasury'
 import { Wallet } from './wrappers/Wallet'
 import { op } from './wrappers/common'
 
@@ -115,10 +115,8 @@ export class Model {
             stakeEta: computed,
             unstakeEta: computed,
             explorerHref: computed,
-            apyRecent: computed,
-            apyWeek: computed,
-            apyMonth: computed,
-            apyYear: computed,
+            apy: computed,
+            apyFormatted: computed,
             protocolFee: computed,
             currentlyStaked: computed,
 
@@ -396,7 +394,7 @@ export class Model {
         return (this.isMainnet ? 'https://tonviewer.com/' : 'https://testnet.tonviewer.com/') + address
     }
 
-    get apyRecent() {
+    get apy() {
         const history = this.treasuryState?.rewardsHistory
         const times = this.times
         if (history != null && times != null) {
@@ -411,21 +409,14 @@ export class Model {
             const duration = 2 * Number(times.nextRoundSince - times.currentRoundSince)
             const year = 365 * 24 * 60 * 60
             const compoundingFrequency = year / duration
-            const apy = (Math.pow(Number(reward.recovered) / Number(reward.staked), compoundingFrequency) - 1) * 100
-            return apy.toFixed(5) + '%'
+            return Math.pow(Number(reward.recovered) / Number(reward.staked), compoundingFrequency) - 1
         }
     }
 
-    get apyWeek() {
-        return calculateApy(7, this.treasuryState?.rewardsHistory, this.times)
-    }
-
-    get apyMonth() {
-        return calculateApy(30, this.treasuryState?.rewardsHistory, this.times)
-    }
-
-    get apyYear() {
-        return calculateApy(365, this.treasuryState?.rewardsHistory, this.times)
+    get apyFormatted() {
+        if (this.apy != null) {
+            return (this.apy * 100).toFixed(5) + '%'
+        }
     }
 
     get protocolFee() {
@@ -888,29 +879,6 @@ export class Model {
         }
         hash += '/'
         window.location.hash = hash
-    }
-}
-
-function calculateApy(days: number, history?: Dictionary<bigint, Reward>, times?: Times) {
-    if (history != null && times != null) {
-        let totalStaked = 0n
-        let totalRecovered = 0n
-        const keys = history.keys()
-        const until = BigInt(Number(times.currentRoundSince) - 60 * 60 * 24 * days)
-        for (const key of keys.reverse()) {
-            if (until < key) {
-                const reward = history.get(key)
-                totalStaked += reward?.staked ?? 0n
-                totalRecovered += reward?.recovered ?? 0n
-            } else {
-                break
-            }
-        }
-        const duration = 2 * Number(times.nextRoundSince - times.currentRoundSince)
-        const year = 365 * 24 * 60 * 60
-        const compoundingFrequency = year / duration
-        const apy = (Math.pow(Number(totalRecovered) / Number(totalStaked), compoundingFrequency) - 1) * 100
-        return apy.toFixed(5) + '%'
     }
 }
 
