@@ -197,10 +197,23 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p>Transaction cost</p>
                             <img src={question} className='peer ml-1 w-4 dark:hidden' />
                             <img src={questionDark} className='peer ml-1 hidden w-4 dark:block' />
-                            <p className='absolute left-1/3 top-6 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
+                            <p className='absolute left-1/3 top-6 z-10 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
                                 This fee covers sending your transaction on TON network.
                             </p>
                             <p className='ml-auto'>{model.isStakeTabActive ? model.stakeFee : model.unstakeFee}</p>
+                        </div>
+                        <div className='relative my-4 flex flex-row flex-wrap'>
+                            <p>Estimated Time</p>
+                            <img src={question} className='peer ml-1 w-4 dark:hidden' />
+                            <img src={questionDark} className='peer ml-1 hidden w-4 dark:block' />
+                            <p className='absolute left-1/3 top-6 z-10 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
+                                The remaining time that you will receive your
+                                {model.isStakeTabActive ? ' hTON ' : ' TON '}
+                                if you
+                                {model.isStakeTabActive ? ' stake ' : ' unstake '}
+                                now.
+                            </p>
+                            <p className='ml-auto'>{model.isStakeTabActive ? model.stakeEta : model.unstakeEta}</p>
                         </div>
                     </div>
                 </div>
