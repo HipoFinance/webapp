@@ -345,31 +345,9 @@ export class Model {
         const times = this.times
         const participations = this.treasuryState?.participations
         if (times != null && participations != null) {
-            let waitForRound = false
-            for (const key of participations.keys().reverse()) {
-                const participation = participations.get(key)
-                const state = participation?.state ?? ParticipationState.Open
-                if (state > ParticipationState.Open) {
-                    waitForRound = true
-                    break
-                }
-            }
-            if (waitForRound) {
-                const now = Math.floor(Date.now() / 1000)
-                let eta = Number(times.currentRoundSince) + Number(times.stakeHeldFor) + 5 * 60
-                if (now > Number(times.participateSince) - 5 * 60 && participations.get(times.nextRoundSince) != null) {
-                    eta = Number(times.nextRoundSince) + Number(times.stakeHeldFor) + 5 * 60
-                }
-                eta = Math.max(0, eta - now)
-                const formatted = formatEta(eta)
-                if (formatted !== '') {
-                    return formatted
-                } else {
-                    return 'about a minute'
-                }
-            } else {
-                return 'about a minute'
-            }
+            const currentParticipation = participations.get(times.currentRoundSince)
+            const eta = currentParticipation?.stakeHeldUntil ?? 0n
+            return formatEta(eta)
         }
     }
 
@@ -377,15 +355,18 @@ export class Model {
         const times = this.times
         const participations = this.treasuryState?.participations
         if (times != null && participations != null) {
-            const now = Math.floor(Date.now() / 1000)
-            let eta = Number(times.currentRoundSince) + Number(times.stakeHeldFor) + 5 * 60
-            eta = Math.max(0, eta - now)
-            const formatted = formatEta(eta)
-            if (formatted !== '') {
-                return formatted
-            } else {
-                return 'about a minute'
+            const currentParticipation = participations.get(times.currentRoundSince)
+            let eta = currentParticipation?.stakeHeldUntil
+            if (eta != null) {
+                return formatEta(eta)
             }
+            const now = Math.floor(Date.now() / 1000)
+            const nextParticipation = participations.get(times.nextRoundSince)
+            if (nextParticipation == null || now < Number(times.participateSince) - 5 * 60) {
+                return formatEta(0n)
+            }
+            eta = times.nextRoundUntil + times.stakeHeldFor + 5n * 60n
+            return formatEta(eta)
         }
     }
 
@@ -901,7 +882,12 @@ function formatDate(date: Date): string {
     })
 }
 
-function formatEta(seconds: number): string {
+function formatEta(time: bigint): string {
+    if (time > 0) {
+        time += 5n * 60n // add 5 minutes as a gap for better estimation
+    }
+    const now = Math.floor(Date.now() / 1000)
+    const seconds = Math.max(0, Number(time) - now)
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor(seconds / 60) % 60
     const parts = []
@@ -915,7 +901,7 @@ function formatEta(seconds: number): string {
     } else if (minutes === 1) {
         parts.push('1 minute')
     }
-    return parts.join(' ')
+    return parts.join(' ') || 'about a minute'
 }
 
 function sleep(ms: number) {
