@@ -345,9 +345,13 @@ export class Model {
         const times = this.times
         const participations = this.treasuryState?.participations
         if (times != null && participations != null) {
-            const currentParticipation = participations.get(times.currentRoundSince)
-            const eta = currentParticipation?.stakeHeldUntil ?? 0n
-            return formatEta(eta)
+            for (const key of participations.keys().reverse()) {
+                const participation = participations.get(key)
+                if (participation?.state != null && participation.state > ParticipationState.Open) {
+                    return formatEta(participation.stakeHeldUntil ?? 0n)
+                }
+            }
+            return formatEta(0n)
         }
     }
 
