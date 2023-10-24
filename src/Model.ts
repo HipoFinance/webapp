@@ -600,10 +600,12 @@ export class Model {
     }
 
     pause = () => {
+        clearTimeout(this.timeoutReadTimes)
         clearTimeout(this.timeoutReadLastBlock)
     }
 
     resume = () => {
+        this.readTimes()
         void this.readLastBlock()
     }
 
