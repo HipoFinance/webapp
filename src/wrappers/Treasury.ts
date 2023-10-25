@@ -622,7 +622,7 @@ export class Treasury implements Contract {
             sendMode?: SendMode
             queryId?: bigint
             newCode: Cell
-            rest?: Builder
+            newData?: Cell
         },
     ) {
         await this.sendMessage(provider, via, {
@@ -633,7 +633,7 @@ export class Treasury implements Contract {
                 .storeUint(op.upgradeCode, 32)
                 .storeUint(opts.queryId ?? 0, 64)
                 .storeRef(opts.newCode)
-                .storeBuilder(opts.rest ?? beginCell())
+                .storeMaybeRef(opts.newData)
                 .endCell(),
         })
     }
