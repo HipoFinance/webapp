@@ -24,7 +24,7 @@ const Wait = observer(({ model }: Props) => {
             </div>
         )
         heading = <h1 className='text-center text-xl font-bold'>Finalizing your transaction</h1>
-        message = <p className='mt-4 text-center'>Awaiting the processing of your payment in the next block.</p>
+        message = <p className='mt-4 text-center'>Awaiting the processing of your transaction in the next block.</p>
     } else if (model.waitForTransaction === 'timeout') {
         img = (
             <div>
