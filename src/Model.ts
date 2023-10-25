@@ -380,21 +380,14 @@ export class Model {
     }
 
     get apy() {
-        const history = this.treasuryState?.rewardsHistory
         const times = this.times
-        if (history != null && times != null) {
-            const keys = history.keys()
-            if (keys.length < 1) {
-                return
-            }
-            const reward = history.get(keys[keys.length - 1])
-            if (reward == null) {
-                return
-            }
+        const lastStaked = this.treasuryState?.lastStaked
+        const lastRecovered = this.treasuryState?.lastRecovered
+        if (times != null && lastStaked != null && lastRecovered != null) {
             const duration = 2 * Number(times.nextRoundSince - times.currentRoundSince)
             const year = 365 * 24 * 60 * 60
             const compoundingFrequency = year / duration
-            return Math.pow(Number(reward.recovered) / Number(reward.staked), compoundingFrequency) - 1
+            return Math.pow(Number(lastRecovered) / Number(lastStaked), compoundingFrequency) - 1
         }
     }
 
