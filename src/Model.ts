@@ -620,11 +620,13 @@ export class Model {
             if (this.isStakeTabActive) {
                 address = this.treasury.address.toString()
                 amount = (this.amountInNano + depositCoinsFee).toString()
-                let builder = beginCell().storeUint(op.depositCoins, 32).storeUint(0, 64)
-                if (this.referrer != null) {
-                    builder = builder.storeAddress(this.referrer)
-                }
-                payload = builder.endCell().toBoc().toString('base64')
+                payload = beginCell()
+                    .storeUint(op.depositCoins, 32)
+                    .storeUint(0, 64)
+                    .storeAddress(this.referrer)
+                    .endCell()
+                    .toBoc()
+                    .toString('base64')
             } else {
                 address = this.htonWallet.address.toString()
                 amount = unstakeTokensFee.toString()
