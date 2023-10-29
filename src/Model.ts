@@ -654,8 +654,7 @@ export class Model {
             this.htonWallet != null &&
             this.tonConnectUI != null &&
             this.tonBalance != null &&
-            this.fees != null &&
-            this.htonWalletFees != null
+            this.fees != null
         ) {
             let address: string
             let amount: string
@@ -672,9 +671,9 @@ export class Model {
                     .toString('base64')
             } else {
                 address = this.htonWallet.address.toString()
-                const unstakeTokensFee = this.htonWalletFees.unstakeTokensFee
-                const storageFee = this.htonWalletFees.storageFee
-                const htonWalletTonBalance = this.htonWalletFees.tonBalance
+                const unstakeTokensFee = this.htonWalletFees?.unstakeTokensFee ?? 0n
+                const storageFee = this.htonWalletFees?.storageFee ?? 0n
+                const htonWalletTonBalance = this.htonWalletFees?.tonBalance ?? 0n
                 if (htonWalletTonBalance >= storageFee) {
                     amount = unstakeTokensFee.toString()
                 } else {
