@@ -325,9 +325,9 @@ export class Model {
         const state = this.treasuryState
         if (state != null) {
             if (this.isStakeTabActive) {
-                return Number(state.totalTokens) / Number(state.totalCoins)
+                return Number(state.totalTokens) / Number(state.totalCoins) || 1
             } else {
-                return Number(state.totalCoins) / Number(state.totalTokens)
+                return Number(state.totalCoins) / Number(state.totalTokens) || 1
             }
         }
     }
@@ -335,7 +335,7 @@ export class Model {
     get exchangeRateFormatted() {
         const state = this.treasuryState
         if (state != null) {
-            return '1 hTON = ~ ' + (Number(state.totalCoins) / Number(state.totalTokens)).toFixed(4) + ' TON'
+            return '1 hTON = ~ ' + (Number(state.totalCoins) / Number(state.totalTokens) || 1).toFixed(4) + ' TON'
         }
     }
 
@@ -346,8 +346,8 @@ export class Model {
     }
 
     get unstakeFee() {
-        if (this.htonWalletFees != null) {
-            return formatAmount(this.htonWalletFees.unstakeTokensFee) + ' TON'
+        if (this.fees != null) {
+            return formatAmount(this.htonWalletFees?.unstakeTokensFee ?? this.fees.unstakeTokensFee) + ' TON'
         }
     }
 
@@ -397,7 +397,7 @@ export class Model {
             const duration = 2 * Number(times.nextRoundSince - times.currentRoundSince)
             const year = 365 * 24 * 60 * 60
             const compoundingFrequency = year / duration
-            return Math.pow(Number(lastRecovered) / Number(lastStaked), compoundingFrequency) - 1
+            return Math.pow(Number(lastRecovered) / Number(lastStaked) || 1, compoundingFrequency) - 1
         }
     }
 
