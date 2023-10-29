@@ -23,7 +23,7 @@ const checkBalanceChangeDelay = 1 * 1000
 const sendValidUntil = 5 * 60
 
 const treasuryAddresses: Record<Network, Address> = {
-    mainnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
+    mainnet: Address.parse('EQBNo5qAG8I8J6IxGaz15SfQVB-kX98YhKV_mT36Xo5vYxUa'),
     testnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
 }
 
