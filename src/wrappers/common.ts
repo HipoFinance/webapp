@@ -17,7 +17,7 @@ export const op = {
     provideWalletAddress: 0x2c76b973,
     takeWalletAddress: 0xd1735400,
 
-    depositCoins: 0x1375a585,
+    depositCoins: 0x103af428,
     saveCoins: 0x7f30ee55,
     stakeCoins: 0x4cae3ab1,
     stakeFirstCoins: 0x70c09713,
@@ -28,6 +28,7 @@ export const op = {
     burnFailed: 0x272e3dda,
     withdrawFailed: 0xc6caea4d,
     withdrawalNotification: 0x2ec2a5a0,
+    withdrawJettons: 0x768a50b2,
 
     requestLoan: 0x12b808d3,
     participateInElection: 0x574a297b,
@@ -53,7 +54,7 @@ export const op = {
     setRoundsImbalance: 0x4ea0efd0,
     sendMessageToLoan: 0x2b93b447,
     sendProcessLoanRequests: 0x06cbff48,
-    upgradeCode: 0x282600ff,
+    upgradeCode: 0x36e4c27d,
 
     withdrawSurplus: 0x302b2fea,
     topUp: 0x5372158c,
