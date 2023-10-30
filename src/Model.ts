@@ -27,7 +27,7 @@ const treasuryAddresses: Record<Network, Address> = {
     testnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
 }
 
-const defaultNetwork: Network = 'testnet'
+const defaultNetwork: Network = 'mainnet'
 const defaultActiveTab: ActiveTab = 'stake'
 
 const tonConnectButtonRootId = 'ton-connect-button'
