@@ -42,11 +42,14 @@ const Footer = observer(({ model }: Props) => {
 
                     <div className='m-8'>
                         <h3 className='text-lg font-bold'>About</h3>
-                        <a className='my-4 block' href='https://hipo.finance/#roadmap' target='hipo_roadmap'>
-                            Roadmap
-                        </a>
                         <a className='my-4 block' href='https://hipo.finance/#HowHipoWorks' target='hipo_how'>
                             How Hipo Works?
+                        </a>
+                        <a className='my-4 block' href='https://hipo.finance/#audit' target='hipo_audits'>
+                            Audits
+                        </a>
+                        <a className='my-4 block' href='https://hipo.finance/#roadmap' target='hipo_roadmap'>
+                            Roadmap
                         </a>
                         <a className='my-4 block' href='https://hipo.finance/#WhyHipo' target='hipo_why'>
                             Why Choose Hipo?
