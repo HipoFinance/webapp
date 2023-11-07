@@ -9,7 +9,7 @@ interface Props {
 
 const Stats = observer(({ model }: Props) => {
     return (
-        <div className='container mx-auto mb-16 font-body text-brown dark:text-dark-50'>
+        <div className='mx-auto mb-16 w-full max-w-screen-lg font-body text-brown dark:text-dark-50'>
             <div className='mx-auto flex max-w-lg flex-row px-4'>
                 <p className='text-lg font-bold'>Hipo statistics</p>
                 <a href={model.explorerHref} target='hipo_explorer' className='ml-auto text-xs font-light text-blue'>

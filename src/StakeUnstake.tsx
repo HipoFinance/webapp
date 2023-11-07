@@ -13,7 +13,7 @@ interface Props {
 
 const StakeUnstake = observer(({ model }: Props) => {
     return (
-        <div className='container mx-auto font-body text-brown dark:text-dark-50'>
+        <div className='mx-auto w-full max-w-screen-lg font-body text-brown dark:text-dark-50'>
             <p className='my-8 text-center'>
                 {model.isStakeTabActive
                     ? 'Stake TON and receive hTON while staking'

@@ -8,7 +8,7 @@ interface Props {
 const Footer = observer(({ model }: Props) => {
     return (
         <div className='mt-auto bg-brown font-body text-white dark:bg-dark-900 dark:text-dark-50'>
-            <div className='container mx-auto pb-16 pt-8'>
+            <div className='mx-auto w-full max-w-screen-lg pb-16 pt-8'>
                 <div className='grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4'>
                     <div className='m-8'>
                         <h3 className='text-lg font-bold'>Social</h3>
