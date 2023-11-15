@@ -37,7 +37,7 @@ const errorMessageNetworkMismatch = 'Your wallet must be on '
 
 export class Model {
     // observed state
-    network: Network
+    network: Network = defaultNetwork
     tonClient2?: TonClient
     tonClient4?: TonClient4
     address?: Address
@@ -50,7 +50,7 @@ export class Model {
     htonWallet?: OpenedContract<Wallet>
     htonWalletState?: [bigint, Dictionary<bigint, bigint>, bigint]
     htonWalletFees?: WalletFees
-    activeTab: ActiveTab
+    activeTab: ActiveTab = defaultActiveTab
     amount = ''
     waitForTransaction: WaitForTransaction = 'no'
     ongoingRequests = 0
@@ -68,11 +68,6 @@ export class Model {
     timeoutErrorMessage?: ReturnType<typeof setTimeout>
 
     constructor() {
-        const fragmentState = this.readFragmentState()
-        this.network = fragmentState.network ?? defaultNetwork
-        this.activeTab = fragmentState.activeTab ?? defaultActiveTab
-        this.referrer = fragmentState.referrer
-
         makeObservable(this, {
             network: observable,
             tonClient2: observable,
@@ -122,6 +117,7 @@ export class Model {
             currentlyStaked: computed,
 
             setNetwork: action,
+            setReferrer: action,
             setTonClients: action,
             setAddress: action,
             setTimes: action,
@@ -153,10 +149,11 @@ export class Model {
             runInAction(() => {
                 this.setActiveTab(fragmentState.activeTab ?? defaultActiveTab)
                 this.setNetwork(fragmentState.network ?? defaultNetwork)
-                this.referrer = fragmentState.referrer
+                this.setReferrer(fragmentState.referrer)
             })
             this.writeFragmentState()
         }
+        window.dispatchEvent(new HashChangeEvent("hashchange"))
 
         this.initTonConnect()
 
@@ -438,6 +435,19 @@ export class Model {
             clearTimeout(this.timeoutErrorMessage)
             if (this.tonConnectUI?.connected === true) {
                 void this.tonConnectUI.disconnect()
+            }
+        }
+    }
+
+    setReferrer = (referrer?: Address) => {
+        if (referrer != null) {
+            this.referrer = referrer
+            localStorage.setItem('referrer', referrer.toString({ testOnly: !this.isMainnet, bounceable: false }))
+        } else {
+            try {
+                this.referrer = Address.parseFriendly(localStorage.getItem('referrer') ?? '').address
+            } catch {
+                this.referrer = undefined
             }
         }
     }
@@ -901,9 +911,6 @@ export class Model {
         let hash = ''
         if (this.network !== defaultNetwork) {
             hash += '/network=' + this.network
-        }
-        if (this.referrer != null) {
-            hash += '/referrer=' + this.referrer.toString({ testOnly: !this.isMainnet, bounceable: false })
         }
         if (this.activeTab !== defaultActiveTab) {
             hash += '/tab=' + this.activeTab
