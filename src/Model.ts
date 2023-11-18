@@ -400,7 +400,7 @@ export class Model {
 
     get apyFormatted() {
         if (this.apy != null) {
-            return (this.apy * 100).toFixed(5) + '%'
+            return (this.apy * 100).toFixed(2) + '%'
         }
     }
 
