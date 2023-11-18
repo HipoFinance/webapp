@@ -307,14 +307,13 @@ export class Model {
     get youWillReceive() {
         const rate = this.exchangeRate
         const nano = this.amountInNano
-        let value = ''
-        if (rate != null && nano != null && this.isAmountValid && this.isAmountPositive) {
-            value = '~ ' + ((Number(nano) / 1000000000) * rate).toFixed(4)
-        }
-        if (this.isStakeTabActive) {
-            return `${value} hTON`
+        const isStakeTabActive = this.isStakeTabActive
+        if (rate == null) {
+            return
+        } else if (nano == null || !this.isAmountValid || !this.isAmountPositive) {
+            return isStakeTabActive ? 'hTON' : 'TON'
         } else {
-            return `${value} TON`
+            return `~ ${(Number(nano) * rate / 1000000000).toFixed(4)} ${isStakeTabActive ? 'hTON' : 'TON'}`
         }
     }
 
