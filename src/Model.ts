@@ -940,25 +940,13 @@ function formatDate(date: Date): string {
 }
 
 function formatEta(time: bigint): string {
-    if (time > 0) {
-        time += 5n * 60n // add 5 minutes as a gap for better estimation
-    }
+    time += 5n * 60n // add 5 minutes as a gap for better estimation
     const now = Math.floor(Date.now() / 1000)
-    const seconds = Math.max(0, Number(time) - now)
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor(seconds / 60) % 60
-    const parts = []
-    if (hours > 1) {
-        parts.push(hours.toString() + ' hours')
-    } else if (hours === 1) {
-        parts.push('1 hour')
+    if (time < now) {
+        return 'about a minute'
+    } else {
+        return formatDate(new Date(Number(time) * 1000))
     }
-    if (minutes > 1) {
-        parts.push(minutes.toString() + ' minutes')
-    } else if (minutes === 1) {
-        parts.push('1 minute')
-    }
-    return parts.join(' ') || 'about a minute'
 }
 
 function sleep(ms: number) {
