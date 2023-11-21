@@ -449,6 +449,11 @@ export class Model {
                 this.referrer = undefined
             }
         }
+
+        if (this.referrer != null && this.address != null && this.referrer.equals(this.address)) {
+            this.referrer = undefined
+            localStorage.removeItem('referrer')
+        }
     }
 
     setTonClients = ([endpoint2, endpoint4]: [string, string]) => {
@@ -458,6 +463,7 @@ export class Model {
 
     setAddress = (address?: Address) => {
         this.address = address
+        this.setReferrer()
     }
 
     setTimes = (times?: Times) => {
