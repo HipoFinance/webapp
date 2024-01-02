@@ -382,7 +382,7 @@ export class Model {
 
     get explorerHref() {
         const address = treasuryAddresses[this.network].toString({ testOnly: !this.isMainnet })
-        return (this.isMainnet ? 'https://tonviewer.com/' : 'https://testnet.tonviewer.com/') + address
+        return (this.isMainnet ? 'https://tonscan.org/jetton/' : 'https://testnet.tonscan.org/jetton/') + address
     }
 
     get apy() {
