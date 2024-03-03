@@ -200,7 +200,11 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p className='absolute left-1/3 top-6 z-10 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
                                 This fee covers sending your transaction on TON network.
                             </p>
-                            <p className='ml-auto'>{model.isStakeTabActive ? model.stakeFee : model.unstakeFee}</p>
+                            <p className='ml-auto'>
+                                {model.isStakeTabActive
+                                    ? model.averageStakeFeeFormatted
+                                    : model.averageUnstakeFeeFormatted}
+                            </p>
                         </div>
                         <div className='relative my-4 flex flex-row flex-wrap'>
                             <p>Estimated time</p>

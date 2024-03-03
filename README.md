@@ -11,13 +11,13 @@ To read more about the protocol, visit the [contract](https://github.com/HipoFin
 To install dependencies run:
 
 ```sh
-yarn
+npm i
 ```
 
 To start the webapp in dev mode, run:
 
 ```sh
-yarn dev
+npm run dev
 ```
 
 ### License

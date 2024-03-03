@@ -9,37 +9,38 @@ import {
     Sender,
     SendMode,
     Slice,
-} from 'ton-core'
+} from '@ton/core'
 import { op, tonValue } from './common'
 
 export interface WalletFees {
+    sendTokensFee: bigint
     unstakeTokensFee: bigint
-    storageFee: bigint
-    tonBalance: bigint
+    upgradeWalletFee: bigint
+    walletStorageFee: bigint
+}
+
+export enum UnstakeMode {
+    Auto,
+    Instant,
+    Best,
 }
 
 interface WalletConfig {
     owner: Address
-    treasury: Address
+    parent: Address
     tokens: bigint
     staking: Dictionary<bigint, bigint>
     unstaking: bigint
-    walletCode: Cell
 }
 
 export function walletConfigToCell(config: WalletConfig): Cell {
     return beginCell()
         .storeAddress(config.owner)
-        .storeAddress(config.treasury)
+        .storeAddress(config.parent)
         .storeCoins(config.tokens)
         .storeDict(config.staking)
         .storeCoins(config.unstaking)
-        .storeRef(config.walletCode)
         .endCell()
-}
-
-function toStakingDict(dict: Cell | null): Dictionary<bigint, bigint> {
-    return Dictionary.loadDirect(Dictionary.Keys.BigUint(32), Dictionary.Values.BigVarUint(4), dict)
 }
 
 export class Wallet implements Contract {
@@ -92,31 +93,6 @@ export class Wallet implements Contract {
         })
     }
 
-    async sendStakeCoins(
-        provider: ContractProvider,
-        via: Sender,
-        opts: {
-            value: bigint | string
-            bounce?: boolean
-            sendMode?: SendMode
-            queryId?: bigint
-            roundSince: bigint
-            returnExcess?: Address
-        },
-    ) {
-        await this.sendMessage(provider, via, {
-            value: opts.value,
-            bounce: opts.bounce,
-            sendMode: opts.sendMode,
-            body: beginCell()
-                .storeUint(op.stakeCoins, 32)
-                .storeUint(opts.queryId ?? 0, 64)
-                .storeUint(opts.roundSince, 32)
-                .storeAddress(opts.returnExcess)
-                .endCell(),
-        })
-    }
-
     async sendSendTokens(
         provider: ContractProvider,
         via: Sender,
@@ -160,9 +136,17 @@ export class Wallet implements Contract {
             queryId?: bigint
             tokens: bigint | string
             returnExcess?: Address
-            customPayload?: Cell
+            mode?: UnstakeMode
+            ownershipAssignedAmount?: bigint
         },
     ) {
+        let customPayload: Cell | null = null
+        if (opts.ownershipAssignedAmount != null || opts.mode != null) {
+            customPayload = beginCell()
+                .storeUint(opts.mode ?? 0, 4)
+                .storeCoins(opts.ownershipAssignedAmount ?? 0)
+                .endCell()
+        }
         await this.sendMessage(provider, via, {
             value: opts.value,
             bounce: opts.bounce,
@@ -172,12 +156,12 @@ export class Wallet implements Contract {
                 .storeUint(opts.queryId ?? 0, 64)
                 .storeCoins(tonValue(opts.tokens))
                 .storeAddress(opts.returnExcess)
-                .storeMaybeRef(opts.customPayload)
+                .storeMaybeRef(customPayload)
                 .endCell(),
         })
     }
 
-    async sendWithdrawTokens(
+    async sendWithdrawSurplus(
         provider: ContractProvider,
         via: Sender,
         opts: {
@@ -193,14 +177,14 @@ export class Wallet implements Contract {
             bounce: opts.bounce,
             sendMode: opts.sendMode,
             body: beginCell()
-                .storeUint(op.withdrawTokens, 32)
+                .storeUint(op.withdrawSurplus, 32)
                 .storeUint(opts.queryId ?? 0, 64)
                 .storeAddress(opts.returnExcess)
                 .endCell(),
         })
     }
 
-    async sendWithdrawSurplus(
+    async sendUpgradeWallet(
         provider: ContractProvider,
         via: Sender,
         opts: {
@@ -215,7 +199,7 @@ export class Wallet implements Contract {
             bounce: opts.bounce,
             sendMode: opts.sendMode,
             body: beginCell()
-                .storeUint(op.withdrawSurplus, 32)
+                .storeUint(op.upgradeWallet, 32)
                 .storeUint(opts.queryId ?? 0, 64)
                 .endCell(),
         })
@@ -248,29 +232,6 @@ export class Wallet implements Contract {
         })
     }
 
-    async sendUpgradeWallet(
-        provider: ContractProvider,
-        via: Sender,
-        opts: {
-            value: bigint | string
-            bounce?: boolean
-            sendMode?: SendMode
-            queryId?: bigint
-            returnExcess?: Address
-        },
-    ) {
-        await this.sendMessage(provider, via, {
-            value: opts.value,
-            bounce: opts.bounce,
-            sendMode: opts.sendMode,
-            body: beginCell()
-                .storeUint(op.upgradeWallet, 32)
-                .storeUint(opts.queryId ?? 0, 64)
-                .storeAddress(opts.returnExcess)
-                .endCell(),
-        })
-    }
-
     async getWalletData(provider: ContractProvider): Promise<[bigint, Address, Address, Cell]> {
         const { stack } = await provider.get('get_wallet_data', [])
         return [stack.readBigNumber(), stack.readAddress(), stack.readAddress(), stack.readCell()]
@@ -278,15 +239,20 @@ export class Wallet implements Contract {
 
     async getWalletState(provider: ContractProvider): Promise<[bigint, Dictionary<bigint, bigint>, bigint]> {
         const { stack } = await provider.get('get_wallet_state', [])
-        return [stack.readBigNumber(), toStakingDict(stack.readCellOpt()), stack.readBigNumber()]
+        return [
+            stack.readBigNumber(),
+            Dictionary.loadDirect(Dictionary.Keys.BigUint(32), Dictionary.Values.BigVarUint(4), stack.readCellOpt()),
+            stack.readBigNumber(),
+        ]
     }
 
     async getWalletFees(provider: ContractProvider): Promise<WalletFees> {
         const { stack } = await provider.get('get_wallet_fees', [])
         return {
+            sendTokensFee: stack.readBigNumber(),
             unstakeTokensFee: stack.readBigNumber(),
-            storageFee: stack.readBigNumber(),
-            tonBalance: stack.readBigNumber(),
+            upgradeWalletFee: stack.readBigNumber(),
+            walletStorageFee: stack.readBigNumber(),
         }
     }
 
