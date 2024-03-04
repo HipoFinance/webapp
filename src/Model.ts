@@ -722,10 +722,17 @@ export class Model {
                 ],
             }
             const tonBalance = this.tonBalance
-            void this.tonConnectUI.sendTransaction(tx).then(() => {
-                this.setWaitForTransaction('wait')
-                return this.checkIfBalanceChanged(tonBalance, 1)
-            })
+            void this.tonConnectUI
+                .sendTransaction(tx)
+                .then(() => {
+                    this.setWaitForTransaction('wait')
+                    return this.checkIfBalanceChanged(tonBalance, 1)
+                })
+                .then(() => {
+                    this.oldWalletAddress = undefined
+                    this.oldWalletTokens = undefined
+                    this.newWalletTokens = undefined
+                })
         }
     }
 
