@@ -21,15 +21,21 @@ const updateTimesDelay = 60 * 1000
 const updateLastBlockDelay = 6 * 1000
 const retryDelay = 3 * 1000
 const checkBalanceChangeDelay = 1 * 1000
-const sendValidUntil = 5 * 60
+const txValidUntil = 5 * 60
 
 const averageStakeFee = 140000000n
 const averageUnstakeFee = 150000000n
+const stakeFee = 200000000n
 const unstakeFee = 300000000n
 
 const treasuryAddresses: Record<Network, Address> = {
-    mainnet: Address.parse('kQBObZVVcDo4KsyfHHj2gdyWPJTYCF4s7g9n0WKHphk5_LfM'),
-    testnet: Address.parse('kQBObZVVcDo4KsyfHHj2gdyWPJTYCF4s7g9n0WKHphk5_LfM'),
+    mainnet: Address.parse('kQAlDMBKCT8WJ4nwdwNRp0lvKMP4vUnHYspFPhEnyR36cg44'),
+    testnet: Address.parse('kQAlDMBKCT8WJ4nwdwNRp0lvKMP4vUnHYspFPhEnyR36cg44'),
+}
+
+const oldTreasuryAddresses: Record<Network, Address> = {
+    mainnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
+    testnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
 }
 
 const defaultNetwork: Network = 'testnet'
@@ -48,11 +54,13 @@ export class Model {
     tonBalance?: bigint
     treasury?: OpenedContract<Treasury>
     treasuryState?: TreasuryConfig
-    depositCoinsFee?: bigint
     times?: Times
     walletAddress?: Address
     wallet?: OpenedContract<Wallet>
     walletState?: [bigint, Dictionary<bigint, bigint>, bigint]
+    oldWalletAddress?: Address
+    oldWalletTokens?: bigint
+    newWalletTokens?: bigint
     activeTab: ActiveTab = defaultActiveTab
     amount = ''
     waitForTransaction: WaitForTransaction = 'no'
@@ -78,11 +86,13 @@ export class Model {
             tonBalance: observable,
             treasury: observable,
             treasuryState: observable,
-            depositCoinsFee: observable,
             times: observable,
             walletAddress: observable,
             wallet: observable,
             walletState: observable,
+            oldWalletAddress: observable,
+            oldWalletTokens: observable,
+            newWalletTokens: observable,
             activeTab: observable,
             amount: observable,
             waitForTransaction: observable,
@@ -94,6 +104,8 @@ export class Model {
             isStakeTabActive: computed,
             tonBalanceFormatted: computed,
             htonBalanceFormatted: computed,
+            oldWalletTokensFormatted: computed,
+            newWalletTokensFormatted: computed,
             unstakingInProgressFormatted: computed,
             unstakingInProgressDetails: computed,
             stakingInProgressFormatted: computed,
@@ -195,6 +207,18 @@ export class Model {
     get htonBalanceFormatted() {
         if (this.tonBalance != null) {
             return formatNano(this.walletState?.[0] ?? 0n) + ' hTON'
+        }
+    }
+
+    get oldWalletTokensFormatted() {
+        if (this.oldWalletTokens != null) {
+            return formatNano(this.oldWalletTokens) + ' hTON'
+        }
+    }
+
+    get newWalletTokensFormatted() {
+        if (this.newWalletTokens != null) {
+            return formatNano(this.newWalletTokens) + ' hTON'
         }
     }
 
@@ -551,6 +575,7 @@ export class Model {
         const tonClient = this.tonClient
         const address = this.address
         const treasuryAddress = treasuryAddresses[this.network]
+        const oldTreasuryAddress = oldTreasuryAddresses[this.network]
         clearTimeout(this.timeoutReadLastBlock)
         this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), updateLastBlockDelay)
 
@@ -562,6 +587,9 @@ export class Model {
                 this.walletAddress = undefined
                 this.wallet = undefined
                 this.walletState = undefined
+                this.oldWalletAddress = undefined
+                this.oldWalletTokens = undefined
+                this.newWalletTokens = undefined
             })
             return
         }
@@ -578,11 +606,6 @@ export class Model {
                     ? Promise.resolve(undefined)
                     : tonClient.getAccountLite(lastBlock, address).then((value) => BigInt(value.account.balance.coins))
 
-            const readDepositCoinsFee =
-                this.depositCoinsFee != null
-                    ? Promise.resolve(this.depositCoinsFee)
-                    : treasury.getTreasuryFees(0n).then((treasuryFees) => treasuryFees.depositCoinsFee)
-
             const readWallet: Promise<[Address, OpenedContract<Wallet>, typeof this.walletState] | undefined> =
                 address == null || this.treasuryState?.parent == null
                     ? Promise.resolve(undefined)
@@ -593,18 +616,41 @@ export class Model {
                                 .getWalletAddress(address)
                       ).then(async (walletAddress) => {
                           const wallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(walletAddress))
-                          const walletState = await wallet.getWalletState().catch(() => undefined)
+                          // Wallet may not exist or tonClient may throw an exception,
+                          // so return previous this.walletState which is good for both cases.
+                          const walletState = await wallet.getWalletState().catch(() => this.walletState)
                           return [walletAddress, wallet, walletState]
                       })
+
+            const readOldWallet: Promise<[Address | undefined, bigint | undefined, bigint | undefined]> =
+                address == null || this.oldWalletAddress != null
+                    ? Promise.resolve([this.oldWalletAddress, this.oldWalletTokens, this.newWalletTokens])
+                    : Promise.resolve(tonClient.openAt(lastBlock, Parent.createFromAddress(oldTreasuryAddress))).then(
+                          async (oldTreasury) => {
+                              const oldWalletAddress = await oldTreasury.getWalletAddress(address)
+                              const oldWallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(oldWalletAddress))
+                              const oldWalletTokens = await oldWallet
+                                  .getWalletState()
+                                  .then(([oldWalletTokens]) => oldWalletTokens)
+                                  .catch(() => 0n)
+                              let newWalletTokens = 0n
+                              if (oldWalletTokens > 0n) {
+                                  const [oldTotalCoins, oldTotalTokens] = await oldTreasury.getOldTotalCoinsAndTokens()
+                                  newWalletTokens = (oldWalletTokens * oldTotalCoins) / oldTotalTokens
+                              }
+                              return [oldWalletAddress, oldWalletTokens, newWalletTokens]
+                          },
+                      )
 
             const parallel: [
                 Promise<TreasuryConfig>,
                 Promise<bigint | undefined>,
-                Promise<bigint>,
                 Promise<[Address, OpenedContract<Wallet>, typeof this.walletState] | undefined>,
-            ] = [readTreasuryState, readTonBalance, readDepositCoinsFee, readWallet]
-            const [treasuryState, tonBalance, depositCoinsFee, hton] = await Promise.all(parallel)
+                Promise<[Address | undefined, bigint | undefined, bigint | undefined]>,
+            ] = [readTreasuryState, readTonBalance, readWallet, readOldWallet]
+            const [treasuryState, tonBalance, hton, oldWallet] = await Promise.all(parallel)
             let [walletAddress, wallet, walletState] = hton ?? []
+            const [oldWalletAddress, oldWalletTokens, newWalletTokens] = oldWallet
 
             if (walletAddress == null && address != null && treasuryState.parent != null) {
                 ;[walletAddress, wallet, walletState] = await tonClient
@@ -619,12 +665,14 @@ export class Model {
 
             runInAction(() => {
                 this.tonBalance = tonBalance
-                this.depositCoinsFee = depositCoinsFee
                 this.treasury = treasury
                 this.treasuryState = treasuryState
                 this.walletAddress = walletAddress
                 this.wallet = wallet
                 this.walletState = walletState
+                this.oldWalletAddress = oldWalletAddress
+                this.oldWalletTokens = oldWalletTokens
+                this.newWalletTokens = newWalletTokens
             })
         } catch {
             this.setErrorMessage(errorMessageTonAccess, retryDelay - 500)
@@ -645,9 +693,44 @@ export class Model {
         void this.readLastBlock()
     }
 
+    upgradeOldWallet = () => {
+        if (
+            this.address != null &&
+            this.oldWalletAddress != null &&
+            this.tonConnectUI != null &&
+            this.tonBalance != null &&
+            this.oldWalletTokens != null
+        ) {
+            const tx: SendTransactionRequest = {
+                validUntil: Math.floor(Date.now() / 1000) + txValidUntil,
+                network: this.isMainnet ? CHAIN.MAINNET : CHAIN.TESTNET,
+                from: this.address.toRawString(),
+                messages: [
+                    {
+                        address: this.oldWalletAddress.toString(),
+                        amount: unstakeFee.toString(),
+                        payload: beginCell()
+                            .storeUint(op.unstakeTokens, 32)
+                            .storeUint(0, 64)
+                            .storeCoins(this.oldWalletTokens / 100n) // temporarily upgrade only 1%
+                            .storeAddress(undefined)
+                            .storeMaybeRef(undefined)
+                            .endCell()
+                            .toBoc()
+                            .toString('base64'),
+                    },
+                ],
+            }
+            const tonBalance = this.tonBalance
+            void this.tonConnectUI.sendTransaction(tx).then(() => {
+                this.setWaitForTransaction('wait')
+                return this.checkIfBalanceChanged(tonBalance, 1)
+            })
+        }
+    }
+
     send = () => {
         if (
-            this.isWalletConnected &&
             this.address != null &&
             this.isAmountValid &&
             this.isAmountPositive &&
@@ -655,18 +738,19 @@ export class Model {
             this.treasury != null &&
             this.wallet != null &&
             this.tonConnectUI != null &&
-            this.tonBalance != null &&
-            this.depositCoinsFee != null
+            this.tonBalance != null
         ) {
             let address: string
             let amount: string
             let payload: string
             if (this.isStakeTabActive) {
                 address = this.treasury.address.toString()
-                amount = (this.amountInNano + this.depositCoinsFee).toString()
+                amount = (this.amountInNano + stakeFee).toString()
                 payload = beginCell()
                     .storeUint(op.depositCoins, 32)
                     .storeUint(0, 64)
+                    .storeAddress(null)
+                    .storeCoins(this.amountInNano)
                     .storeCoins(0)
                     .storeAddress(this.referrer)
                     .endCell()
@@ -686,7 +770,7 @@ export class Model {
                     .toString('base64')
             }
             const tx: SendTransactionRequest = {
-                validUntil: Math.floor(Date.now() / 1000) + sendValidUntil,
+                validUntil: Math.floor(Date.now() / 1000) + txValidUntil,
                 network: this.isMainnet ? CHAIN.MAINNET : CHAIN.TESTNET,
                 from: this.address.toRawString(),
                 messages: [

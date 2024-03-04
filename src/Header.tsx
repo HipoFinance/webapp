@@ -37,8 +37,6 @@ const Header = observer(({ model }: Props) => {
                 </div>
                 <div id='ton-connect-button' className='min-w-max'></div>
             </div>
-
-            <p className='pt-4 text-center text-3xl font-bold'>Hipo</p>
         </div>
     )
 })

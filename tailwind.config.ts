@@ -13,6 +13,8 @@ export default {
             milky: '#efebe5',
             blue: '#0a88ca',
             lightblue: '#d6ecf7',
+            attention: '#ffd2d4',
+            attentiondark: '#ffedef',
             black: '#000000',
             gray: colors.gray,
             dark: {

@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import { Model } from './Model.ts'
 import Header from './Header.tsx'
+import OldWalletUpgrade from './OldWalletUpgrade.tsx'
 import StakeUnstake from './StakeUnstake.tsx'
 import Wait from './Wait.tsx'
 import Stats from './Stats.tsx'
@@ -21,6 +22,7 @@ const App = observer(({ model }: Props) => {
     return (
         <>
             <Header model={model} />
+            <OldWalletUpgrade model={model} />
             <StakeUnstake model={model} />
             <Wait model={model} />
             <Stats model={model} />
