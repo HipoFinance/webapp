@@ -49,8 +49,8 @@ const StakeUnstake = observer(({ model }: Props) => {
             <div className='mx-auto mb-12 mt-8 max-w-lg'>
                 <div
                     className={
-                        'transition-all motion-reduce:transition-none' +
-                        (model.isWalletConnected ? ' max-h-96' : ' max-h-0 overflow-hidden')
+                        'overflow-hidden transition-all duration-700 motion-reduce:transition-none' +
+                        (model.isWalletConnected ? ' max-h-[100rem]' : ' max-h-0')
                     }
                 >
                     <div className='mx-4 -mb-10 rounded-t-2xl bg-brown px-8 pb-10 pt-4 text-sm text-white dark:bg-dark-600 dark:text-dark-50'>
