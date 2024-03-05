@@ -4,7 +4,6 @@ import { action, autorun, computed, makeObservable, observable, runInAction } fr
 import { Address, Dictionary, OpenedContract, TonClient4, beginCell, fromNano, toNano } from '@ton/ton'
 import { ParticipationState, Times, Treasury, TreasuryConfig } from './wrappers/Treasury'
 import { Wallet } from './wrappers/Wallet'
-import { op } from './wrappers/common'
 import { Parent } from './wrappers/Parent'
 
 type ActiveTab = 'stake' | 'unstake'
@@ -27,6 +26,11 @@ const averageStakeFee = 140000000n
 const averageUnstakeFee = 150000000n
 const stakeFee = 200000000n
 const unstakeFee = 300000000n
+
+const op = {
+    depositCoins: 0x3d3761a6,
+    unstakeTokens: 0x595f07bc,
+}
 
 const treasuryAddresses: Record<Network, Address> = {
     mainnet: Address.parse('kQAlDMBKCT8WJ4nwdwNRp0lvKMP4vUnHYspFPhEnyR36cg44'),
@@ -451,7 +455,7 @@ export class Model {
         if (this.network !== network) {
             this.network = network
             this.tonClient = undefined
-            this.address = undefined
+            this.setAddress(undefined)
             this.tonBalance = undefined
             this.treasury = undefined
             this.treasuryState = undefined
@@ -495,6 +499,9 @@ export class Model {
 
     setAddress = (address?: Address) => {
         this.address = address
+        this.oldWalletAddress = undefined
+        this.oldWalletTokens = undefined
+        this.newWalletTokens = undefined
         this.setReferrer()
     }
 
