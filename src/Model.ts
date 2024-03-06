@@ -719,7 +719,7 @@ export class Model {
                         payload: beginCell()
                             .storeUint(op.unstakeTokens, 32)
                             .storeUint(0, 64)
-                            .storeCoins(this.oldWalletTokens / 100n) // temporarily upgrade only 1%
+                            .storeCoins(this.oldWalletTokens)
                             .storeAddress(undefined)
                             .storeMaybeRef(undefined)
                             .endCell()
