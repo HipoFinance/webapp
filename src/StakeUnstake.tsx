@@ -2,8 +2,6 @@ import { observer } from 'mobx-react-lite'
 import { Model } from './Model'
 import ton from './assets/ton.svg'
 import hton from './assets/hton.svg'
-import clock from './assets/clock.svg'
-import clockDark from './assets/clock-dark.svg'
 import question from './assets/question.svg'
 import questionDark from './assets/question-dark.svg'
 
@@ -53,23 +51,25 @@ const StakeUnstake = observer(({ model }: Props) => {
                         (model.isWalletConnected ? ' max-h-[100rem]' : ' max-h-0')
                     }
                 >
-                    <div className='mx-4 -mb-10 rounded-t-2xl bg-brown px-8 pb-10 pt-4 text-sm text-white dark:bg-dark-600 dark:text-dark-50'>
+                    <div className='mx-4 rounded-t-2xl bg-brown px-8 pb-10 pt-4 text-sm text-white dark:bg-dark-600 dark:text-dark-50'>
                         <div
                             className={
-                                'relative flex flex-row flex-wrap' +
-                                (model.unstakingInProgressDetails != null ? '' : ' hidden')
+                                'flex flex-row flex-wrap' + (model.unstakingInProgressDetails != null ? '' : ' hidden')
                             }
                         >
                             <p className='font-light opacity-70'>Unstaking in progress</p>
-                            <img src={clock} className='peer ml-1 w-4 opacity-70 dark:hidden' />
-                            <img src={clockDark} className='peer ml-1 hidden w-4 opacity-70 dark:block' />
-                            <div className='absolute left-1/3 top-6 z-10 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
-                                <p>
-                                    {model.unstakingInProgressDetails?.estimated == null
-                                        ? 'Expected in a moment'
-                                        : 'Expected by ' + model.unstakingInProgressDetails.estimated}
-                                </p>
-                            </div>
+                        </div>
+
+                        <div
+                            className={
+                                'flex flex-row flex-wrap' + (model.unstakingInProgressDetails != null ? '' : ' hidden')
+                            }
+                        >
+                            <p className='pl-4 font-light opacity-70'>
+                                {model.unstakingInProgressDetails?.estimated == null
+                                    ? 'Expected in a moment'
+                                    : 'Expected by ' + model.unstakingInProgressDetails.estimated}
+                            </p>
                             <p className='ml-auto font-medium opacity-70'>{model.unstakingInProgressFormatted}</p>
                         </div>
 
@@ -82,31 +82,22 @@ const StakeUnstake = observer(({ model }: Props) => {
 
                         <div
                             className={
-                                'relative flex flex-row flex-wrap' +
-                                (model.stakingInProgressDetails.length > 0 ? '' : ' hidden')
+                                'flex flex-row flex-wrap' + (model.stakingInProgressDetails.length > 0 ? '' : ' hidden')
                             }
                         >
                             <p className='font-light opacity-70'>Staking in progress</p>
-                            <img src={clock} className='peer ml-1 w-4 opacity-70 dark:hidden' />
-                            <img src={clockDark} className='peer ml-1 hidden w-4 opacity-70 dark:block' />
-                            <div className='absolute left-1/3 top-6 z-10 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
-                                {model.stakingInProgressDetails.length === 1
-                                    ? model.stakingInProgressDetails.map((value) => (
-                                          <p key={'-' + value.estimated + value.amount}>
-                                              {value.estimated == null
-                                                  ? 'Expected in a moment'
-                                                  : 'Expected by ' + value.estimated}
-                                          </p>
-                                      ))
-                                    : model.stakingInProgressDetails.map((value) => (
-                                          <p key={value.estimated + value.amount}>
-                                              <b>{value.amount}</b>{' '}
-                                              {value.estimated == null ? 'in a moment' : 'by' + value.estimated}
-                                          </p>
-                                      ))}
-                            </div>
-                            <p className='ml-auto font-medium opacity-70'>{model.stakingInProgressFormatted}</p>
                         </div>
+
+                        {model.stakingInProgressDetails.map((value) => (
+                            <div key={value.estimated + value.amount} className='flex flex-row flex-wrap'>
+                                <p className='pl-4 font-light opacity-70'>
+                                    {value.estimated == null
+                                        ? 'Expected in a moment'
+                                        : 'Expected by ' + value.estimated}
+                                </p>
+                                <p className='ml-auto font-medium opacity-70'>{value.amount}</p>
+                            </div>
+                        ))}
 
                         <div className='flex flex-row flex-wrap pb-4'>
                             <p className='font-light'>hTON balance</p>
@@ -115,7 +106,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                     </div>
                 </div>
 
-                <div className='mx-4 rounded-2xl bg-white p-8 shadow-sm dark:bg-dark-700'>
+                <div className='mx-4 -mt-8 rounded-2xl bg-white p-8 shadow-sm dark:bg-dark-700'>
                     <p>{model.isStakeTabActive ? 'Stake' : 'Unstake'}</p>
 
                     <label>
