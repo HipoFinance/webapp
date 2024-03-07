@@ -58,18 +58,16 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p className='ml-auto font-medium'>{model.tonBalanceFormatted}</p>
                         </div>
 
-                        <div
-                            className={
-                                'flex flex-row flex-wrap' + (model.unstakingInProgressDetails != null ? '' : ' hidden')
-                            }
-                        >
-                            <p className='font-light opacity-70'>
-                                {model.unstakingInProgressDetails?.estimated == null
-                                    ? 'In progress'
-                                    : 'In progress. Done by ' + model.unstakingInProgressDetails.estimated}
-                            </p>
-                            <p className='ml-auto font-medium opacity-70'>{model.unstakingInProgressFormatted}</p>
-                        </div>
+                        {model.stakingInProgressDetails.map((value) => (
+                            <div key={value.estimated + value.amount} className='flex flex-row flex-wrap'>
+                                <p className='font-light opacity-70'>
+                                    {value.estimated == null
+                                        ? 'In progress'
+                                        : 'In progress, done by ' + value.estimated}
+                                </p>
+                                <p className='ml-auto font-medium opacity-70'>{value.amount}</p>
+                            </div>
+                        ))}
 
                         <div className='my-4 h-px bg-white opacity-40'></div>
 
@@ -78,16 +76,18 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p className='ml-auto font-medium'>{model.htonBalanceFormatted}</p>
                         </div>
 
-                        {model.stakingInProgressDetails.map((value) => (
-                            <div key={value.estimated + value.amount} className='flex flex-row flex-wrap'>
-                                <p className='font-light opacity-70'>
-                                    {value.estimated == null
-                                        ? 'In progress'
-                                        : 'In progress. Done by ' + value.estimated}
-                                </p>
-                                <p className='ml-auto font-medium opacity-70'>{value.amount}</p>
-                            </div>
-                        ))}
+                        <div
+                            className={
+                                'flex flex-row flex-wrap' + (model.unstakingInProgressDetails != null ? '' : ' hidden')
+                            }
+                        >
+                            <p className='font-light opacity-70'>
+                                {model.unstakingInProgressDetails?.estimated == null
+                                    ? 'In progress'
+                                    : 'In progress, done by ' + model.unstakingInProgressDetails.estimated}
+                            </p>
+                            <p className='ml-auto font-medium opacity-70'>{model.unstakingInProgressFormatted}</p>
+                        </div>
                     </div>
                 </div>
 
