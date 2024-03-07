@@ -1021,7 +1021,7 @@ function formatPercent(amount: number): string {
 
 function formatDate(date: Date): string {
     return date.toLocaleString(navigator.language, {
-        weekday: 'long',
+        weekday: 'short',
         hour12: false,
         hour: '2-digit',
         minute: '2-digit',

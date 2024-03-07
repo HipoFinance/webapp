@@ -66,7 +66,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <p className='font-light opacity-70'>
                                 {model.unstakingInProgressDetails?.estimated == null
                                     ? 'In progress'
-                                    : 'In progress, done by ' + model.unstakingInProgressDetails.estimated}
+                                    : 'In progress. Done by ' + model.unstakingInProgressDetails.estimated}
                             </p>
                             <p className='ml-auto font-medium opacity-70'>{model.unstakingInProgressFormatted}</p>
                         </div>
@@ -83,7 +83,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                                 <p className='font-light opacity-70'>
                                     {value.estimated == null
                                         ? 'In progress'
-                                        : 'In progress, done by ' + value.estimated}
+                                        : 'In progress. Done by ' + value.estimated}
                                 </p>
                                 <p className='ml-auto font-medium opacity-70'>{value.amount}</p>
                             </div>
