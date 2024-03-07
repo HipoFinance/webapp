@@ -52,58 +52,42 @@ const StakeUnstake = observer(({ model }: Props) => {
                         (model.isWalletConnected ? ' max-h-[100rem]' : ' max-h-0')
                     }
                 >
-                    <div className='mx-4 rounded-t-2xl bg-brown px-8 pb-10 pt-4 text-sm text-white dark:bg-dark-600 dark:text-dark-50'>
-                        <div
-                            className={
-                                'flex flex-row flex-wrap' + (model.unstakingInProgressDetails != null ? '' : ' hidden')
-                            }
-                        >
-                            <p className='font-light opacity-70'>Unstaking in progress</p>
-                        </div>
-
-                        <div
-                            className={
-                                'flex flex-row flex-wrap' + (model.unstakingInProgressDetails != null ? '' : ' hidden')
-                            }
-                        >
-                            <p className='pl-4 font-light opacity-70'>
-                                {model.unstakingInProgressDetails?.estimated == null
-                                    ? 'Expected in a moment'
-                                    : 'Expected by ' + model.unstakingInProgressDetails.estimated}
-                            </p>
-                            <p className='ml-auto font-medium opacity-70'>{model.unstakingInProgressFormatted}</p>
-                        </div>
-
+                    <div className='mx-4 rounded-t-2xl bg-brown px-8 pb-12 pt-4 text-sm text-white dark:bg-dark-600 dark:text-dark-50'>
                         <div className='flex flex-row flex-wrap'>
                             <p className='font-light'>TON balance</p>
                             <p className='ml-auto font-medium'>{model.tonBalanceFormatted}</p>
                         </div>
 
-                        <div className='my-4 h-px bg-white opacity-40'></div>
-
                         <div
                             className={
-                                'flex flex-row flex-wrap' + (model.stakingInProgressDetails.length > 0 ? '' : ' hidden')
+                                'flex flex-row flex-wrap' + (model.unstakingInProgressDetails != null ? '' : ' hidden')
                             }
                         >
-                            <p className='font-light opacity-70'>Staking in progress</p>
+                            <p className='font-light opacity-70'>
+                                {model.unstakingInProgressDetails?.estimated == null
+                                    ? 'In progress'
+                                    : 'In progress, done by ' + model.unstakingInProgressDetails.estimated}
+                            </p>
+                            <p className='ml-auto font-medium opacity-70'>{model.unstakingInProgressFormatted}</p>
+                        </div>
+
+                        <div className='my-4 h-px bg-white opacity-40'></div>
+
+                        <div className='flex flex-row flex-wrap'>
+                            <p className='font-light'>hTON balance</p>
+                            <p className='ml-auto font-medium'>{model.htonBalanceFormatted}</p>
                         </div>
 
                         {model.stakingInProgressDetails.map((value) => (
                             <div key={value.estimated + value.amount} className='flex flex-row flex-wrap'>
-                                <p className='pl-4 font-light opacity-70'>
+                                <p className='font-light opacity-70'>
                                     {value.estimated == null
-                                        ? 'Expected in a moment'
-                                        : 'Expected by ' + value.estimated}
+                                        ? 'In progress'
+                                        : 'In progress, done by ' + value.estimated}
                                 </p>
                                 <p className='ml-auto font-medium opacity-70'>{value.amount}</p>
                             </div>
                         ))}
-
-                        <div className='flex flex-row flex-wrap pb-4'>
-                            <p className='font-light'>hTON balance</p>
-                            <p className='ml-auto font-medium'>{model.htonBalanceFormatted}</p>
-                        </div>
                     </div>
                 </div>
 
