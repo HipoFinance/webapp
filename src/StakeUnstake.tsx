@@ -18,6 +18,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                     ? 'Stake TON and receive hTON while staking'
                     : 'Unstake hTON and receive TON and rewards'}
             </p>
+
             <div className='dark:bg-tabbar mx-auto my-8 w-max rounded-full bg-milky p-0.5 dark:bg-dark-400 dark:text-white'>
                 <ul
                     className={
@@ -106,7 +107,12 @@ const StakeUnstake = observer(({ model }: Props) => {
                     </div>
                 </div>
 
-                <div className='mx-4 -mt-8 rounded-2xl bg-white p-8 shadow-sm dark:bg-dark-700'>
+                <div
+                    className={
+                        'mx-4 rounded-2xl bg-white p-8 shadow-sm dark:bg-dark-700' +
+                        (model.isWalletConnected ? ' -mt-8' : '')
+                    }
+                >
                     <p>{model.isStakeTabActive ? 'Stake' : 'Unstake'}</p>
 
                     <label>
