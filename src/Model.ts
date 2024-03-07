@@ -629,6 +629,25 @@ export class Model {
                           return [walletAddress, wallet, walletState]
                       })
 
+            const parallel: [
+                Promise<TreasuryConfig>,
+                Promise<bigint | undefined>,
+                Promise<[Address, OpenedContract<Wallet>, typeof this.walletState] | undefined>,
+            ] = [readTreasuryState, readTonBalance, readWallet]
+            const [treasuryState, tonBalance, hton] = await Promise.all(parallel)
+            let [walletAddress, wallet, walletState] = hton ?? []
+
+            if (walletAddress == null && address != null && treasuryState.parent != null) {
+                ;[walletAddress, wallet, walletState] = await tonClient
+                    .openAt(lastBlock, Parent.createFromAddress(treasuryState.parent))
+                    .getWalletAddress(address)
+                    .then(async (walletAddress) => {
+                        const wallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(walletAddress))
+                        const walletState = await wallet.getWalletState().catch(() => undefined)
+                        return [walletAddress, wallet, walletState]
+                    })
+            }
+
             const readOldWallet: Promise<[Address | undefined, bigint | undefined, bigint | undefined]> =
                 address == null || this.oldWalletAddress != null
                     ? Promise.resolve([this.oldWalletAddress, this.oldWalletTokens, this.newWalletTokens])
@@ -643,32 +662,15 @@ export class Model {
                               let newWalletTokens = 0n
                               if (oldWalletTokens > 0n) {
                                   const [oldTotalCoins, oldTotalTokens] = await oldTreasury.getOldTotalCoinsAndTokens()
-                                  newWalletTokens = (oldWalletTokens * oldTotalCoins) / oldTotalTokens
+                                  if (oldTotalTokens > 0n && treasuryState.totalCoins > 0n) {
+                                      const coins = (oldWalletTokens * oldTotalCoins) / oldTotalTokens
+                                      newWalletTokens = (coins * treasuryState.totalTokens) / treasuryState.totalCoins
+                                  }
                               }
                               return [oldWalletAddress, oldWalletTokens, newWalletTokens]
                           },
                       )
-
-            const parallel: [
-                Promise<TreasuryConfig>,
-                Promise<bigint | undefined>,
-                Promise<[Address, OpenedContract<Wallet>, typeof this.walletState] | undefined>,
-                Promise<[Address | undefined, bigint | undefined, bigint | undefined]>,
-            ] = [readTreasuryState, readTonBalance, readWallet, readOldWallet]
-            const [treasuryState, tonBalance, hton, oldWallet] = await Promise.all(parallel)
-            let [walletAddress, wallet, walletState] = hton ?? []
-            const [oldWalletAddress, oldWalletTokens, newWalletTokens] = oldWallet
-
-            if (walletAddress == null && address != null && treasuryState.parent != null) {
-                ;[walletAddress, wallet, walletState] = await tonClient
-                    .openAt(lastBlock, Parent.createFromAddress(treasuryState.parent))
-                    .getWalletAddress(address)
-                    .then(async (walletAddress) => {
-                        const wallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(walletAddress))
-                        const walletState = await wallet.getWalletState().catch(() => undefined)
-                        return [walletAddress, wallet, walletState]
-                    })
-            }
+            const [oldWalletAddress, oldWalletTokens, newWalletTokens] = await readOldWallet
 
             runInAction(() => {
                 this.tonBalance = tonBalance
