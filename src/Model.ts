@@ -313,11 +313,13 @@ export class Model {
     }
 
     get isButtonEnabled() {
+        const isAmountValid = this.isAmountValid
+        const isAmountPositive = this.isAmountPositive
         const tonBalance = this.tonBalance
         const htonBalance = this.walletState?.[0]
         const haveBalance = this.isStakeTabActive ? tonBalance != null : htonBalance != null
         if (this.isWalletConnected) {
-            return this.isAmountValid && this.isAmountPositive && haveBalance
+            return isAmountValid && isAmountPositive && haveBalance
         } else {
             return true
         }
