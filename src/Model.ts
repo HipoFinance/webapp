@@ -1039,7 +1039,7 @@ function formatEta(time: bigint): string {
     time += 5n * 60n // add 5 minutes as a gap for better estimation
     const now = Math.floor(Date.now() / 1000)
     if (time < now) {
-        return 'about a minute'
+        return 'Instant'
     } else {
         return formatDate(new Date(Number(time) * 1000))
     }
