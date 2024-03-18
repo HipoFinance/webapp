@@ -33,16 +33,16 @@ const op = {
 }
 
 const treasuryAddresses: Record<Network, Address> = {
-    mainnet: Address.parse('kQAlDMBKCT8WJ4nwdwNRp0lvKMP4vUnHYspFPhEnyR36cg44'),
+    mainnet: Address.parse('EQCLyZHP4Xe8fpchQz76O-_RmUhaVc_9BAoGyJrwJrcbz2eZ'),
     testnet: Address.parse('kQAlDMBKCT8WJ4nwdwNRp0lvKMP4vUnHYspFPhEnyR36cg44'),
 }
 
 const oldTreasuryAddresses: Record<Network, Address> = {
-    mainnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
+    mainnet: Address.parse('EQBNo5qAG8I8J6IxGaz15SfQVB-kX98YhKV_mT36Xo5vYxUa'),
     testnet: Address.parse('kQAjvBlA6Gt0BZhvM9_PgBDVv1_EkRuMYZ3XxdaXlKRyCeaI'),
 }
 
-const defaultNetwork: Network = 'testnet'
+const defaultNetwork: Network = 'mainnet'
 const defaultActiveTab: ActiveTab = 'stake'
 
 const tonConnectButtonRootId = 'ton-connect-button'
