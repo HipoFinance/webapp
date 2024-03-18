@@ -74,6 +74,7 @@ export class Model {
     // unobserved state
     dark = false
     tonConnectUI?: TonConnectUI
+    lastBlock = 0
     switchNetworkCounter = 0
     referrer?: Address
     timeoutConnectTonAccess?: ReturnType<typeof setTimeout>
@@ -606,6 +607,9 @@ export class Model {
         try {
             this.beginRequest()
             const lastBlock = (await tonClient.getLastBlock()).last.seqno
+            if (lastBlock <= this.lastBlock) {
+                return
+            }
             const treasury = tonClient.openAt(lastBlock, Treasury.createFromAddress(treasuryAddress))
 
             const readTreasuryState = treasury.getTreasuryState()
@@ -684,6 +688,7 @@ export class Model {
                 this.oldWalletAddress = oldWalletAddress
                 this.oldWalletTokens = oldWalletTokens
                 this.newWalletTokens = newWalletTokens
+                this.lastBlock = lastBlock
             })
         } catch {
             this.setErrorMessage(errorMessageTonAccess, retryDelay - 500)
