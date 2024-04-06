@@ -45,11 +45,18 @@ const StakeUnstake = observer(({ model }: Props) => {
                 </ul>
             </div>
 
-            <div className='mx-auto mb-12 mt-8 max-w-lg'>
+            <div
+                className={
+                    'h-8 transition-all duration-700 motion-reduce:transition-none' +
+                    (model.isWalletConnected ? ' max-h-0' : ' max-h-8')
+                }
+            ></div>
+
+            <div className='mx-auto mb-12 max-w-lg'>
                 <div
                     className={
                         'overflow-hidden transition-all duration-700 motion-reduce:transition-none' +
-                        (model.isWalletConnected ? ' max-h-[100rem]' : ' max-h-0')
+                        (model.isWalletConnected ? ' max-h-[20rem]' : ' max-h-0')
                     }
                 >
                     <div className='mx-4 rounded-t-2xl bg-brown px-8 pb-12 pt-4 text-sm text-white dark:bg-dark-600 dark:text-dark-50'>
@@ -91,12 +98,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                     </div>
                 </div>
 
-                <div
-                    className={
-                        'mx-4 rounded-2xl bg-white p-8 shadow-sm dark:bg-dark-700' +
-                        (model.isWalletConnected ? ' -mt-8' : '')
-                    }
-                >
+                <div className='mx-4 -mt-8 rounded-2xl bg-white p-8 shadow-sm dark:bg-dark-700'>
                     <p>{model.isStakeTabActive ? 'Stake' : 'Unstake'}</p>
 
                     <label>
