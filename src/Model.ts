@@ -502,9 +502,14 @@ export class Model {
 
     setAddress = (address?: Address) => {
         this.address = address
+        this.tonBalance = undefined
+        this.walletAddress = undefined
+        this.wallet = undefined
+        this.walletState = undefined
         this.oldWalletAddress = undefined
         this.oldWalletTokens = undefined
         this.newWalletTokens = undefined
+        this.lastBlock = 0
         this.setReferrer()
     }
 
@@ -607,8 +612,8 @@ export class Model {
         try {
             this.beginRequest()
             const lastBlock = (await tonClient.getLastBlock()).last.seqno
-            if (lastBlock <= this.lastBlock) {
-                return
+            if (lastBlock < this.lastBlock) {
+                throw new Error('older block')
             }
             const treasury = tonClient.openAt(lastBlock, Treasury.createFromAddress(treasuryAddress))
 
