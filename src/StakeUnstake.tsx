@@ -115,7 +115,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                             <input
                                 type='text'
                                 inputMode='decimal'
-                                placeholder='Amount'
+                                placeholder=' Amount'
                                 size={1}
                                 className={
                                     'h-full w-full flex-1 px-3 text-lg focus:outline-none dark:bg-dark-900 dark:text-dark-50' +
@@ -151,13 +151,47 @@ const StakeUnstake = observer(({ model }: Props) => {
                         </div>
                     </label>
 
+                    <div
+                        className={
+                            'flex flex-row gap-4 overflow-hidden transition-all motion-reduce:transition-none' +
+                            (model.isStakeTabActive ? ' max-h-0 pb-0' : ' max-h-32 pb-8')
+                        }
+                    >
+                        <div
+                            className={
+                                'flex-1 cursor-pointer select-none rounded-lg bg-milky p-4 text-sm' +
+                                (model.unstakeOption === 'unstake' ? ' border border-brown' : '')
+                            }
+                            onClick={() => {
+                                model.setUnstakeOption('unstake')
+                            }}
+                        >
+                            Unstake {model.unstakeHours}
+                        </div>
+                        <div
+                            className={
+                                'flex-1 cursor-pointer select-none rounded-lg bg-milky p-4 text-sm' +
+                                (model.unstakeOption === 'swap' ? ' border border-brown' : '')
+                            }
+                            onClick={() => {
+                                model.setUnstakeOption('swap')
+                            }}
+                        >
+                            Swap Now
+                        </div>
+                    </div>
+
                     <button
                         id='submit'
                         className='h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white disabled:opacity-80 dark:text-dark-600'
                         disabled={!model.isButtonEnabled}
                         onClick={(e) => {
                             if (model.isWalletConnected) {
-                                model.send()
+                                if (model.isStakeTabActive || model.unstakeOption === 'unstake') {
+                                    model.send()
+                                } else {
+                                    window.open(model.swapUrl, 'hipo_swap')
+                                }
                             } else {
                                 model.connect()
                             }
@@ -189,16 +223,6 @@ const StakeUnstake = observer(({ model }: Props) => {
                                     ? model.averageStakeFeeFormatted
                                     : model.averageUnstakeFeeFormatted}
                             </p>
-                        </div>
-                        <div className='relative my-4 flex flex-row flex-wrap'>
-                            <p>Estimated time</p>
-                            <img src={question} className='peer ml-1 w-4 dark:hidden' />
-                            <img src={questionDark} className='peer ml-1 hidden w-4 dark:block' />
-                            <p className='absolute left-1/3 top-6 z-10 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
-                                When you will receive your {model.isStakeTabActive ? 'hTON' : 'TON'} if you{' '}
-                                {model.isStakeTabActive ? 'stake' : 'unstake'} now.
-                            </p>
-                            <p className='ml-auto'>{model.isStakeTabActive ? model.stakeEta : model.unstakeEta}</p>
                         </div>
                     </div>
                 </div>

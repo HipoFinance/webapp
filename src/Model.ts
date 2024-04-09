@@ -8,6 +8,8 @@ import { Parent } from './wrappers/Parent'
 
 type ActiveTab = 'stake' | 'unstake'
 
+type UnstakeOption = 'unstake' | 'swap'
+
 type WaitForTransaction = 'no' | 'wait' | 'timeout' | 'done'
 
 interface FragmentState {
@@ -67,6 +69,7 @@ export class Model {
     newWalletTokens?: bigint
     activeTab: ActiveTab = defaultActiveTab
     amount = ''
+    unstakeOption: UnstakeOption = 'unstake'
     waitForTransaction: WaitForTransaction = 'no'
     ongoingRequests = 0
     errorMessage = ''
@@ -100,6 +103,7 @@ export class Model {
             newWalletTokens: observable,
             activeTab: observable,
             amount: observable,
+            unstakeOption: observable,
             waitForTransaction: observable,
             ongoingRequests: observable,
             errorMessage: observable,
@@ -121,13 +125,13 @@ export class Model {
             isAmountPositive: computed,
             isButtonEnabled: computed,
             buttonLabel: computed,
+            swapUrl: computed,
             youWillReceive: computed,
             exchangeRate: computed,
             exchangeRateFormatted: computed,
             averageStakeFeeFormatted: computed,
             averageUnstakeFeeFormatted: computed,
-            stakeEta: computed,
-            unstakeEta: computed,
+            unstakeHours: computed,
             explorerHref: computed,
             apy: computed,
             apyFormatted: computed,
@@ -139,6 +143,7 @@ export class Model {
             setAddress: action,
             setTimes: action,
             setActiveTab: action,
+            setUnstakeOption: action,
             setAmount: action,
             setAmountToMax: action,
             setWaitForTransaction: action,
@@ -319,8 +324,10 @@ export class Model {
         const tonBalance = this.tonBalance
         const htonBalance = this.walletState?.[0]
         const haveBalance = this.isStakeTabActive ? tonBalance != null : htonBalance != null
+        const isStakeTabActive = this.isStakeTabActive
+        const unstakeOption = this.unstakeOption
         if (this.isWalletConnected) {
-            return isAmountValid && isAmountPositive && haveBalance
+            return (isAmountValid && isAmountPositive && haveBalance) || (!isStakeTabActive && unstakeOption === 'swap')
         } else {
             return true
         }
@@ -328,10 +335,27 @@ export class Model {
 
     get buttonLabel() {
         if (this.isWalletConnected) {
+            if (this.isStakeTabActive) {
+                return 'Stake'
+            } else {
+                if (this.unstakeOption === 'unstake') {
+                    return 'Unstake'
+                } else {
+                    return 'Swap'
+                }
+            }
             return this.isStakeTabActive ? 'Stake' : 'Unstake'
         } else {
             return 'Connect Wallet'
         }
+    }
+
+    get swapUrl() {
+        let url = 'https://dedust.io/swap/hTON/TON'
+        if (this.isAmountValid && this.isAmountPositive) {
+            url += '?amount=' + this.amountInNano
+        }
+        return url
     }
 
     get youWillReceive() {
@@ -378,39 +402,22 @@ export class Model {
         }
     }
 
-    get stakeEta() {
-        const times = this.times
-        const participations = this.treasuryState?.participations
-        const instantMint = this.treasuryState?.instantMint
-        if (instantMint) {
-            return 'Instant'
-        } else if (times != null && participations != null) {
-            for (const key of participations.keys().reverse()) {
-                const participation = participations.get(key)
-                if (participation?.state != null && participation.state > ParticipationState.Open) {
-                    return formatEta(participation.stakeHeldUntil ?? 0n)
-                }
-            }
-            return formatEta(0n)
-        }
-    }
-
-    get unstakeEta() {
+    get unstakeHours() {
         const times = this.times
         const participations = this.treasuryState?.participations
         if (times != null && participations != null) {
             const currentParticipation = participations.get(times.currentRoundSince)
             let eta = currentParticipation?.stakeHeldUntil
             if (eta != null) {
-                return formatEta(eta)
+                return formatUnstakeHours(eta)
             }
             const now = Math.floor(Date.now() / 1000)
             const nextParticipation = participations.get(times.nextRoundSince)
             if (nextParticipation == null || now < Number(times.participateSince) - 5 * 60) {
-                return formatEta(0n)
+                return formatUnstakeHours(0n)
             }
             eta = times.nextRoundUntil + times.stakeHeldFor + 5n * 60n
-            return formatEta(eta)
+            return formatUnstakeHours(eta)
         }
     }
 
@@ -521,6 +528,12 @@ export class Model {
         if (this.activeTab !== activeTab) {
             this.activeTab = activeTab
             this.amount = ''
+        }
+    }
+
+    setUnstakeOption = (unstakeOption: UnstakeOption) => {
+        if (this.unstakeOption !== unstakeOption) {
+            this.unstakeOption = unstakeOption
         }
     }
 
@@ -1045,14 +1058,12 @@ function formatDate(date: Date): string {
     })
 }
 
-function formatEta(time: bigint): string {
+function formatUnstakeHours(time: bigint): string {
     time += 5n * 60n // add 5 minutes as a gap for better estimation
     const now = Math.floor(Date.now() / 1000)
-    if (time < now) {
-        return 'Instant'
-    } else {
-        return formatDate(new Date(Number(time) * 1000))
-    }
+    const diff = Number(time) - now
+    const hours = Math.max(0, Math.ceil(diff / 3600))
+    return 'in ' + hours + 'h'
 }
 
 function sleep(ms: number) {
