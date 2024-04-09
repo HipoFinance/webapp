@@ -159,7 +159,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                     >
                         <div
                             className={
-                                'flex-1 cursor-pointer select-none rounded-lg bg-milky p-4 text-sm' +
+                                'flex-1 cursor-pointer select-none rounded-lg bg-milky p-4 text-sm dark:bg-dark-600 dark:text-dark-50' +
                                 (model.unstakeOption === 'unstake' ? ' border border-brown' : '')
                             }
                             onClick={() => {
@@ -170,7 +170,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                         </div>
                         <div
                             className={
-                                'flex-1 cursor-pointer select-none rounded-lg bg-milky p-4 text-sm' +
+                                'flex-1 cursor-pointer select-none rounded-lg bg-milky p-4 text-sm dark:bg-dark-600 dark:text-dark-50' +
                                 (model.unstakeOption === 'swap' ? ' border border-brown' : '')
                             }
                             onClick={() => {
