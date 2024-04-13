@@ -4,6 +4,7 @@ import ton from './assets/ton.svg'
 import hton from './assets/hton.svg'
 import question from './assets/question.svg'
 import questionDark from './assets/question-dark.svg'
+import check from './assets/check.svg'
 
 interface Props {
     model: Model
@@ -159,25 +160,41 @@ const StakeUnstake = observer(({ model }: Props) => {
                     >
                         <div
                             className={
-                                'flex-1 cursor-pointer select-none rounded-lg bg-milky p-4 text-sm dark:bg-dark-600 dark:text-dark-50' +
-                                (model.unstakeOption === 'unstake' ? ' border border-brown' : '')
+                                'flex flex-1 cursor-pointer select-none flex-row flex-nowrap rounded-lg border-2 bg-milky p-4 pr-2 text-sm dark:text-brown' +
+                                (model.unstakeOption === 'unstake' ? ' border-orange' : ' border-milky')
                             }
                             onClick={() => {
                                 model.setUnstakeOption('unstake')
                             }}
                         >
-                            Unstake {model.unstakeHours}
+                            <p className='grow'>
+                                {model.unstakeHours ? (
+                                    <>
+                                        <span className='hidden min-[420px]:inline'>
+                                            Unstake in {model.unstakeHours}h
+                                        </span>
+                                        <span className='inline min-[420px]:hidden'>In {model.unstakeHours}h</span>
+                                    </>
+                                ) : (
+                                    'Unstake'
+                                )}
+                            </p>
+                            <img
+                                src={check}
+                                className={'w-5' + (model.unstakeOption === 'unstake' ? '' : ' invisible')}
+                            />
                         </div>
                         <div
                             className={
-                                'flex-1 cursor-pointer select-none rounded-lg bg-milky p-4 text-sm dark:bg-dark-600 dark:text-dark-50' +
-                                (model.unstakeOption === 'swap' ? ' border border-brown' : '')
+                                'flex flex-1 cursor-pointer select-none flex-row flex-nowrap rounded-lg border-2 bg-milky p-4 pr-2 text-sm dark:text-brown' +
+                                (model.unstakeOption === 'swap' ? ' border-orange' : ' border-milky')
                             }
                             onClick={() => {
                                 model.setUnstakeOption('swap')
                             }}
                         >
-                            Swap Now
+                            <p className='grow'>Swap Now</p>
+                            <img src={check} className={'w-5' + (model.unstakeOption === 'swap' ? '' : ' invisible')} />
                         </div>
                     </div>
 

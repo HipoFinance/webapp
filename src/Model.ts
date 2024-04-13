@@ -1063,7 +1063,7 @@ function formatUnstakeHours(time: bigint): string {
     const now = Math.floor(Date.now() / 1000)
     const diff = Number(time) - now
     const hours = Math.max(0, Math.ceil(diff / 3600))
-    return 'in ' + hours + 'h'
+    return hours + ''
 }
 
 function sleep(ms: number) {
