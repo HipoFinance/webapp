@@ -11,12 +11,14 @@ import staked from './assets/staked.svg'
 import stakedDark from './assets/staked-dark.svg'
 import earned from './assets/earned.svg'
 import earnedDark from './assets/earned-dark.svg'
+import checkWhite from './assets/check-white.svg'
 
 interface Props {
     model: Model
 }
 
 const Referral = observer(({ model }: Props) => {
+    let copiedTimeout: ReturnType<typeof setTimeout>
     return (
         <div className='mx-auto w-full max-w-screen-lg p-4 pb-32 font-body text-brown dark:text-dark-50'>
             <p className='pt-4 text-center text-3xl font-bold'>Hipo Referral Program</p>
@@ -64,24 +66,39 @@ const Referral = observer(({ model }: Props) => {
                 <>
                     <div className='mt-20 px-8'>
                         <h3 className='my-8 text-center text-2xl font-bold'>Your Referral Link</h3>
-                        <div className='mx-auto flex w-full flex-col items-center justify-center gap-4 sm:w-2/3 sm:flex-row'>
+                        <div className='group mx-auto flex w-full flex-col items-center justify-center gap-4 sm:w-2/3 sm:flex-row'>
                             <input
-                                className='w-full grow overflow-hidden text-ellipsis whitespace-nowrap rounded-2xl bg-white p-4 text-xs font-light shadow-lg dark:text-dark-600'
+                                className='h-14 w-full grow overflow-hidden text-ellipsis whitespace-nowrap rounded-2xl bg-white p-4 text-xs font-light shadow-lg outline-none dark:text-dark-600'
                                 readOnly
                                 onClick={(e) => {
-                                    const target = e.target as HTMLInputElement
-                                    target.select()
                                     model.copyReferralUrl()
+                                    const target = e.target as HTMLInputElement
+                                    target.parentElement?.classList.add('copied')
+                                    clearTimeout(copiedTimeout)
+                                    copiedTimeout = setTimeout(() => {
+                                        target.parentElement?.classList.remove('copied')
+                                    }, 1000)
+                                    target.select()
                                 }}
                                 value={model.referralUrl}
                             />
                             <button
-                                className='w-24 rounded-2xl bg-orange p-4 text-lg text-white dark:text-dark-600'
-                                onClick={() => {
+                                className='h-14 w-24 rounded-2xl bg-orange text-lg text-white dark:text-dark-600'
+                                onClick={(e) => {
                                     model.copyReferralUrl()
+                                    const target = e.target as HTMLInputElement
+                                    target.parentElement?.classList.add('copied')
+                                    clearTimeout(copiedTimeout)
+                                    copiedTimeout = setTimeout(() => {
+                                        target.parentElement?.classList.remove('copied')
+                                    }, 1000)
                                 }}
                             >
-                                <img src={copy} className='mx-auto' />
+                                <img src={copy} className='h10 pointer-events-none mx-auto group-[.copied]:hidden' />
+                                <img
+                                    src={checkWhite}
+                                    className='pointer-events-none mx-auto hidden h-10 group-[.copied]:block'
+                                />
                             </button>
                         </div>
                     </div>

@@ -4,7 +4,7 @@ import ton from './assets/ton.svg'
 import hton from './assets/hton.svg'
 import question from './assets/question.svg'
 import questionDark from './assets/question-dark.svg'
-import check from './assets/check.svg'
+import checkOrange from './assets/check-orange.svg'
 
 interface Props {
     model: Model
@@ -180,7 +180,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                                 )}
                             </p>
                             <img
-                                src={check}
+                                src={checkOrange}
                                 className={'w-5' + (model.unstakeOption === 'unstake' ? '' : ' invisible')}
                             />
                         </div>
@@ -194,7 +194,10 @@ const StakeUnstake = observer(({ model }: Props) => {
                             }}
                         >
                             <p className='grow'>Swap now</p>
-                            <img src={check} className={'w-5' + (model.unstakeOption === 'swap' ? '' : ' invisible')} />
+                            <img
+                                src={checkOrange}
+                                className={'w-5' + (model.unstakeOption === 'swap' ? '' : ' invisible')}
+                            />
                         </div>
                     </div>
 
