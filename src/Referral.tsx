@@ -23,8 +23,8 @@ const Referral = observer(({ model }: Props) => {
             <p className='my-8 text-center text-xl'>Earn Rewards by Sharing Hipo</p>
 
             <div className='my-8 flex-row items-center sm:flex'>
-                <img src={invite} className='w-full dark:hidden sm:flex-1' />
-                <img src={inviteDark} className='hidden w-full dark:block sm:flex-1' />
+                <img src={invite} className='w-full dark:hidden sm:w-0 sm:flex-1' />
+                <img src={inviteDark} className='hidden w-full dark:block sm:w-0 sm:flex-1' />
                 <div className='p-8 sm:flex-1'>
                     <h3 className='py-4 text-2xl font-bold'>1. Invite Others</h3>
                     <p className='text-lg'>
@@ -34,8 +34,8 @@ const Referral = observer(({ model }: Props) => {
             </div>
 
             <div className='my-8 flex-row-reverse items-center sm:flex'>
-                <img src={reward} className='w-full dark:hidden sm:flex-1' />
-                <img src={rewardDark} className='hidden w-full dark:block sm:flex-1' />
+                <img src={reward} className='w-full dark:hidden sm:w-0 sm:flex-1' />
+                <img src={rewardDark} className='hidden w-full dark:block sm:w-0 sm:flex-1' />
                 <div className='p-8 sm:flex-1'>
                     <h3 className='py-4 text-2xl font-bold'>2. Earn Rewards</h3>
                     <p className='text-lg'>Receive 50% of the Hipo protocol fee for every successful referral.</p>
