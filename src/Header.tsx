@@ -30,7 +30,7 @@ const Header = observer(({ model }: Props) => {
                 <ul className='dark:bg-choco dark:border-c2 border-c1 sm:bg-transparent sm:dark:bg-transparent fixed bottom-0 left-0 z-10 flex w-full select-none flex-row border-t bg-milky text-sm font-thin sm:static sm:ml-4 sm:w-auto sm:border-0'>
                     <li
                         className={
-                            'flex-1 cursor-pointer whitespace-nowrap pt-3 text-center sm:ml-4 sm:flex-none' +
+                            'flex-1 cursor-pointer whitespace-nowrap pt-3 text-center sm:ml-4 sm:flex-none sm:pt-0' +
                             (model.activePage === 'stake' ? ' text-dark-600' : ' text-brown')
                         }
                         onClick={() => {
@@ -69,7 +69,7 @@ const Header = observer(({ model }: Props) => {
                     </li>
                     <li
                         className={
-                            'flex-1 cursor-pointer whitespace-nowrap pt-3 text-center sm:ml-4 sm:flex-none' +
+                            'flex-1 cursor-pointer whitespace-nowrap pt-3 text-center sm:ml-4 sm:flex-none sm:pt-0' +
                             (model.activePage === 'referral' ? ' text-dark-600' : ' text-brown')
                         }
                         onClick={() => {
