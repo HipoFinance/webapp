@@ -193,7 +193,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                                 model.setUnstakeOption('swap')
                             }}
                         >
-                            <p className='grow'>Swap Now</p>
+                            <p className='grow'>Swap now</p>
                             <img src={check} className={'w-5' + (model.unstakeOption === 'swap' ? '' : ' invisible')} />
                         </div>
                     </div>

@@ -6,6 +6,8 @@ import { ParticipationState, Times, Treasury, TreasuryConfig } from './wrappers/
 import { Wallet } from './wrappers/Wallet'
 import { Parent } from './wrappers/Parent'
 
+type ActivePage = 'stake' | 'referral'
+
 type ActiveTab = 'stake' | 'unstake'
 
 type UnstakeOption = 'unstake' | 'swap'
@@ -15,6 +17,7 @@ type WaitForTransaction = 'no' | 'wait' | 'timeout' | 'done'
 interface FragmentState {
     network?: Network
     referrer?: Address
+    activePage?: ActivePage
     activeTab?: ActiveTab
 }
 
@@ -45,6 +48,7 @@ const oldTreasuryAddresses: Record<Network, Address> = {
 }
 
 const defaultNetwork: Network = 'mainnet'
+const defaultActivePage: ActivePage = 'stake'
 const defaultActiveTab: ActiveTab = 'stake'
 
 const tonConnectButtonRootId = 'ton-connect-button'
@@ -67,6 +71,7 @@ export class Model {
     oldWalletAddress?: Address
     oldWalletTokens?: bigint
     newWalletTokens?: bigint
+    activePage: ActivePage = defaultActivePage
     activeTab: ActiveTab = defaultActiveTab
     amount = ''
     unstakeOption: UnstakeOption = 'unstake'
@@ -101,6 +106,7 @@ export class Model {
             oldWalletAddress: observable,
             oldWalletTokens: observable,
             newWalletTokens: observable,
+            activePage: observable,
             activeTab: observable,
             amount: observable,
             unstakeOption: observable,
@@ -137,11 +143,13 @@ export class Model {
             apyFormatted: computed,
             protocolFee: computed,
             currentlyStaked: computed,
+            referralUrl: computed,
 
             setNetwork: action,
             setTonClient: action,
             setAddress: action,
             setTimes: action,
+            setActivePage: action,
             setActiveTab: action,
             setUnstakeOption: action,
             setAmount: action,
@@ -158,17 +166,13 @@ export class Model {
             localStorage.theme === 'dark' ||
             (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
-        document.onvisibilitychange = () => {
-            if (document.hidden) {
-                this.pause()
-            } else {
-                this.resume()
-            }
-        }
+        document.onvisibilitychange = this.controlBackgroundJobs
+        this.controlBackgroundJobs()
 
         window.onhashchange = () => {
             const fragmentState = this.readFragmentState()
             runInAction(() => {
+                this.setActivePage(fragmentState.activePage ?? defaultActivePage)
                 this.setActiveTab(fragmentState.activeTab ?? defaultActiveTab)
                 this.setNetwork(fragmentState.network ?? defaultNetwork)
                 this.setReferrer(fragmentState.referrer)
@@ -461,6 +465,16 @@ export class Model {
         }
     }
 
+    get referralUrl() {
+        const currentUrl = new URL(document.URL)
+        let url = currentUrl.origin + '/#'
+        if (this.address != null) {
+            url += '/referrer=' + this.address.toString({ bounceable: false })
+        }
+        url += '/'
+        return url
+    }
+
     setNetwork = (network: Network) => {
         if (this.network !== network) {
             this.network = network
@@ -524,6 +538,13 @@ export class Model {
         this.times = times
     }
 
+    setActivePage = (activePage: ActivePage) => {
+        if (this.activePage !== activePage) {
+            this.activePage = activePage
+            this.controlBackgroundJobs()
+        }
+    }
+
     setActiveTab = (activeTab: ActiveTab) => {
         if (this.activeTab !== activeTab) {
             this.activeTab = activeTab
@@ -570,6 +591,9 @@ export class Model {
     connectTonAccess = () => {
         const network = this.network
         clearTimeout(this.timeoutConnectTonAccess)
+        if (document.hidden || this.activePage !== 'stake') {
+            return
+        }
         getHttpV4Endpoint({ network })
             .then(this.setTonClient)
             .catch(() => {
@@ -582,6 +606,9 @@ export class Model {
         const tonClient = this.tonClient
         const treasuryAddress = treasuryAddresses[this.network]
         clearTimeout(this.timeoutReadTimes)
+        if (document.hidden || this.activePage !== 'stake') {
+            return
+        }
         this.timeoutReadTimes = setTimeout(this.readTimes, updateTimesDelay)
 
         if (tonClient == null) {
@@ -605,6 +632,9 @@ export class Model {
         const treasuryAddress = treasuryAddresses[this.network]
         const oldTreasuryAddress = oldTreasuryAddresses[this.network]
         clearTimeout(this.timeoutReadLastBlock)
+        if (document.hidden || this.activePage !== 'stake') {
+            return
+        }
         this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), updateLastBlockDelay)
 
         if (tonClient == null) {
@@ -725,6 +755,14 @@ export class Model {
     resume = () => {
         this.readTimes()
         void this.readLastBlock()
+    }
+
+    controlBackgroundJobs = () => {
+        if (!document.hidden && this.activePage === 'stake') {
+            this.resume()
+        } else {
+            this.pause()
+        }
     }
 
     upgradeOldWallet = () => {
@@ -1013,6 +1051,11 @@ export class Model {
                         // ignore
                     }
                 }
+                if (key === 'page') {
+                    if (value === 'stake' || value === 'referral') {
+                        fragmentState.activePage = value
+                    }
+                }
                 if (key === 'tab') {
                     if (value === 'stake' || value === 'unstake') {
                         fragmentState.activeTab = value
@@ -1028,11 +1071,18 @@ export class Model {
         if (this.network !== defaultNetwork) {
             hash += '/network=' + this.network
         }
+        if (this.activePage !== defaultActivePage) {
+            hash += '/page=' + this.activePage
+        }
         if (this.activeTab !== defaultActiveTab) {
             hash += '/tab=' + this.activeTab
         }
         hash += '/'
         window.location.hash = hash
+    }
+
+    copyReferralUrl = () => {
+        void navigator.clipboard.writeText(this.referralUrl)
     }
 }
 

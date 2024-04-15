@@ -10,6 +10,7 @@ export default {
             white: '#ffffff',
             orange: '#ff7e73',
             brown: '#776464',
+            choco: '#291f20',
             milky: '#efebe5',
             blue: '#0a88ca',
             lightblue: '#d6ecf7',
@@ -30,6 +31,10 @@ export default {
                 '900': '#2d2a2a',
                 '950': '#221f1f',
             },
+            c1: '#b8aa9c',
+            c2: '#71665f',
+            c3: '#f4f1ed',
+            transparent: 'transparent',
         },
         fontFamily: {
             body: ['Poppins', ...fontFamily.sans],

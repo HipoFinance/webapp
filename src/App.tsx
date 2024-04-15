@@ -3,6 +3,7 @@ import { Model } from './Model.ts'
 import Header from './Header.tsx'
 import OldWalletUpgrade from './OldWalletUpgrade.tsx'
 import StakeUnstake from './StakeUnstake.tsx'
+import Referral from './Referral.tsx'
 import Wait from './Wait.tsx'
 import Stats from './Stats.tsx'
 import Footer from './Footer.tsx'
@@ -19,13 +20,22 @@ interface Props {
 }
 
 const App = observer(({ model }: Props) => {
-    return (
+    let page = (
         <>
-            <Header model={model} />
             <OldWalletUpgrade model={model} />
             <StakeUnstake model={model} />
             <Wait model={model} />
             <Stats model={model} />
+        </>
+    )
+    if (model.activePage === 'referral') {
+        page = <Referral model={model} />
+    }
+
+    return (
+        <>
+            <Header model={model} />
+            {page}
             <Footer model={model} />
             <LoadingIndicator model={model} />
             <ErrorDisplay model={model} />

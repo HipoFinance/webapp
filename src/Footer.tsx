@@ -7,11 +7,11 @@ interface Props {
 
 const Footer = observer(({ model }: Props) => {
     return (
-        <div className='mt-auto bg-brown font-body text-white dark:bg-dark-900 dark:text-dark-50'>
+        <div className='mt-auto bg-milky font-body text-brown dark:bg-dark-900 dark:text-dark-50'>
             <div className='mx-auto w-full max-w-screen-lg pb-16 pt-8'>
                 <div className='grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4'>
                     <div className='m-8'>
-                        <h3 className='text-lg font-bold'>Social</h3>
+                        <h3 className='text-lg font-bold text-orange dark:text-brown'>Social</h3>
                         <a className='my-4 block' href='https://t.me/HipoFinance' target='hipo_telegram'>
                             Telegram
                         </a>
@@ -21,7 +21,7 @@ const Footer = observer(({ model }: Props) => {
                     </div>
 
                     <div className='m-8'>
-                        <h3 className='text-lg font-bold'>Community</h3>
+                        <h3 className='text-lg font-bold text-orange dark:text-brown'>Community</h3>
                         <a className='my-4 block' href='https://t.me/hipo_chat' target='hipo_chat'>
                             Hipo Chat
                         </a>
@@ -31,7 +31,7 @@ const Footer = observer(({ model }: Props) => {
                     </div>
 
                     <div className='m-8'>
-                        <h3 className='text-lg font-bold'>Docs</h3>
+                        <h3 className='text-lg font-bold text-orange dark:text-brown'>Docs</h3>
                         <a className='my-4 block' href='https://github.com/HipoFinance' target='hipo_github'>
                             GitHub
                         </a>
@@ -41,7 +41,7 @@ const Footer = observer(({ model }: Props) => {
                     </div>
 
                     <div className='m-8'>
-                        <h3 className='text-lg font-bold'>About</h3>
+                        <h3 className='text-lg font-bold text-orange dark:text-brown'>About</h3>
                         <a className='my-4 block' href='https://hipo.finance/#HowHipoWorks' target='hipo_how'>
                             How Hipo Works?
                         </a>
@@ -63,7 +63,7 @@ const Footer = observer(({ model }: Props) => {
 
                 <div className='mx-8 my-4 h-1 rounded bg-orange'></div>
 
-                <p className='text-center text-xs opacity-40'>Copyright 2023, All Rights Reserved</p>
+                <p className='text-center text-xs opacity-70'>Copyright 2024, All Rights Reserved</p>
             </div>
         </div>
     )
