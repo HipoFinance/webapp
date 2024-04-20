@@ -3,6 +3,7 @@ import { Model } from './Model.ts'
 import Header from './Header.tsx'
 import OldWalletUpgrade from './OldWalletUpgrade.tsx'
 import StakeUnstake from './StakeUnstake.tsx'
+import Defi from './Defi.tsx'
 import Referral from './Referral.tsx'
 import Wait from './Wait.tsx'
 import Stats from './Stats.tsx'
@@ -28,7 +29,9 @@ const App = observer(({ model }: Props) => {
             <Stats model={model} />
         </>
     )
-    if (model.activePage === 'referral') {
+    if (model.activePage === 'defi') {
+        page = <Defi model={model} />
+    } else if (model.activePage === 'referral') {
         page = <Referral model={model} />
     }
 

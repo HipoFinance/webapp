@@ -9,6 +9,10 @@ import pageStakeBrown from './assets/page-stake-brown.svg'
 import pageStakeOrange from './assets/page-stake-orange.svg'
 import pageStakeWhite from './assets/page-stake-white.svg'
 import pageStakeBlack from './assets/page-stake-black.svg'
+import pageDefiBrown from './assets/page-defi-brown.svg'
+import pageDefiOrange from './assets/page-defi-orange.svg'
+import pageDefiWhite from './assets/page-defi-white.svg'
+import pageDefiBlack from './assets/page-defi-black.svg'
 import pageReferralBrown from './assets/page-referral-brown.svg'
 import pageReferralOrange from './assets/page-referral-orange.svg'
 import pageReferralWhite from './assets/page-referral-white.svg'
@@ -27,7 +31,7 @@ const Header = observer(({ model }: Props) => {
 
                 <TestnetBadge model={model} />
 
-                <ul className='dark:bg-choco dark:border-c2 border-c1 sm:bg-transparent sm:dark:bg-transparent fixed bottom-0 left-0 z-10 flex w-full select-none flex-row border-t bg-milky text-sm font-thin sm:static sm:ml-4 sm:w-auto sm:border-0'>
+                <ul className='dark:bg-choco dark:border-c2 border-c1 sm:bg-transparent sm:dark:bg-transparent fixed bottom-0 left-0 z-10 flex w-full select-none flex-row border-t bg-milky text-sm font-thin sm:static sm:ml-2 sm:w-auto sm:border-0'>
                     <li
                         className={
                             'flex-1 cursor-pointer whitespace-nowrap pt-3 text-center sm:ml-4 sm:flex-none sm:pt-0' +
@@ -64,6 +68,43 @@ const Header = observer(({ model }: Props) => {
                             className={
                                 'mt-1 hidden h-1 rounded-full bg-orange' +
                                 (model.activePage === 'stake' ? ' sm:!block' : '')
+                            }
+                        ></div>
+                    </li>
+                    <li
+                        className={
+                            'flex-1 cursor-pointer whitespace-nowrap pt-3 text-center sm:ml-4 sm:flex-none sm:pt-0' +
+                            (model.activePage === 'defi' ? ' text-dark-600' : ' text-brown')
+                        }
+                        onClick={() => {
+                            model.setActivePage('defi')
+                        }}
+                    >
+                        <div className='flex flex-col items-center sm:flex-row sm:pl-2'>
+                            <img
+                                src={pageDefiBrown}
+                                className={'h-4 dark:!hidden' + (model.activePage !== 'defi' ? ' block' : ' hidden')}
+                            />
+                            <img
+                                src={pageDefiWhite}
+                                className={
+                                    'hidden h-4' + (model.activePage !== 'defi' ? ' dark:!block' : ' sm:dark:!block')
+                                }
+                            />
+                            <img
+                                src={pageDefiOrange}
+                                className={'h-4 sm:hidden' + (model.activePage === 'defi' ? ' block' : ' hidden')}
+                            />
+                            <img
+                                src={pageDefiBlack}
+                                className={'hidden h-4' + (model.activePage === 'defi' ? ' dark:!hidden sm:block' : '')}
+                            />
+                            <span className='p-2 dark:text-white'>DeFi</span>
+                        </div>
+                        <div
+                            className={
+                                'mt-1 hidden h-1 rounded-full bg-orange' +
+                                (model.activePage === 'defi' ? ' sm:!block' : '')
                             }
                         ></div>
                     </li>

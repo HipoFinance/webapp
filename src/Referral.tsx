@@ -21,8 +21,8 @@ const Referral = observer(({ model }: Props) => {
     let copiedTimeout: ReturnType<typeof setTimeout>
     return (
         <div className='mx-auto w-full max-w-screen-lg p-4 pb-32 font-body text-brown dark:text-dark-50'>
-            <p className='pt-4 text-center text-3xl font-bold'>Hipo Referral Program</p>
-            <p className='my-8 text-center text-xl'>Earn Rewards by Sharing Hipo</p>
+            <p className='px-8 pt-4 text-center text-3xl font-bold'>Hipo Referral Program</p>
+            <p className='my-8 px-8 text-center text-xl'>Earn Rewards by Sharing Hipo</p>
 
             <div className='my-8 flex-row items-center sm:flex'>
                 <img src={invite} className='w-full dark:hidden sm:w-0 sm:flex-1' />
