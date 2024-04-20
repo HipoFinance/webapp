@@ -18,6 +18,7 @@ interface Props {
 }
 
 const Referral = observer(({ model }: Props) => {
+    model.loadReferralStats()
     let copiedTimeout: ReturnType<typeof setTimeout>
     return (
         <div className='mx-auto w-full max-w-screen-lg p-4 pb-32 font-body text-brown dark:text-dark-50'>
@@ -106,26 +107,31 @@ const Referral = observer(({ model }: Props) => {
                     <div className='mt-20 px-8'>
                         <h3 className='my-8 text-center text-2xl font-bold'>Track Your Progress</h3>
                         <div className='flex flex-col items-center justify-center gap-8 sm:flex-row sm:items-start'>
-                            <div className='flex w-52 flex-1 flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md blur-[2px] dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
+                            <div className='flex w-52 flex-1 flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
                                 <img src={invites} className='h-10 dark:hidden' />
                                 <img src={invitesDark} className='hidden h-10 dark:block' />
                                 <p className='my-2'>Number of Invites</p>
-                                <h4 className='text-lg font-bold'>0 Users</h4>
+                                <h4 className='text-lg font-bold'>
+                                    {model.referralStats == null
+                                        ? 'Loading'
+                                        : model.referralStats.wallets.length + ' Users'}
+                                </h4>
                             </div>
-                            <div className='flex w-52 flex-1 flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md blur-[2px] dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
-                                <img src={staked} className='h-10 dark:hidden' />
-                                <img src={stakedDark} className='hidden h-10 dark:block' />
-                                <p className='my-2'>Total Staked Amount</p>
-                                <h4 className='text-lg font-bold'>0 TON</h4>
+                            <div className='flex w-52 flex-1 flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
+                                <img src={staked} className='h-10 blur-[2px] dark:hidden' />
+                                <img src={stakedDark} className='hidden h-10 blur-[2px] dark:block' />
+                                <p className='my-2 blur-[2px]'>Total Staked Amount</p>
+                                {/* <h4 className='text-lg font-bold'>0 TON</h4> */}
+                                <h4 className='text-lg'>Coming Soon</h4>
                             </div>
-                            <div className='flex w-52 flex-1 flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md blur-[2px] dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
-                                <img src={earned} className='h-10 dark:hidden' />
-                                <img src={earnedDark} className='hidden h-10 dark:block' />
-                                <p className='my-2'>Earned Revenue</p>
-                                <h4 className='text-lg font-bold'>0 TON</h4>
+                            <div className='flex w-52 flex-1 flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
+                                <img src={earned} className='h-10 blur-[2px] dark:hidden' />
+                                <img src={earnedDark} className='hidden h-10 blur-[2px] dark:block' />
+                                <p className='my-2 blur-[2px]'>Earned Revenue</p>
+                                {/* <h4 className='text-lg font-bold'>0 TON</h4> */}
+                                <h4 className='text-lg'>Coming Soon</h4>
                             </div>
                         </div>
-                        <p className='m-8 text-center'>Coming Soon</p>
                     </div>
                 </>
             )}

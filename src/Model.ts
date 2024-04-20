@@ -14,6 +14,10 @@ type UnstakeOption = 'unstake' | 'swap'
 
 type WaitForTransaction = 'no' | 'wait' | 'timeout' | 'done'
 
+interface ReferralStats {
+    wallets: Address[]
+}
+
 interface FragmentState {
     network?: Network
     referrer?: Address
@@ -78,6 +82,7 @@ export class Model {
     waitForTransaction: WaitForTransaction = 'no'
     ongoingRequests = 0
     errorMessage = ''
+    referralStats?: ReferralStats
 
     // unobserved state
     dark = false
@@ -90,6 +95,7 @@ export class Model {
     timeoutReadLastBlock?: ReturnType<typeof setTimeout>
     timeoutSwitchNetwork?: ReturnType<typeof setTimeout>
     timeoutErrorMessage?: ReturnType<typeof setTimeout>
+    timeoutReferralStats?: ReturnType<typeof setTimeout>
 
     readonly dedustSwapUrl = 'https://dedust.io/swap/hTON/TON'
     readonly dedustPoolUrl = 'https://dedust.io/pools/EQBWsAdyAg-8fs3G-m-eUBCXZuVaOldF5-tCMJBJzxQG7nLX'
@@ -120,6 +126,7 @@ export class Model {
             waitForTransaction: observable,
             ongoingRequests: observable,
             errorMessage: observable,
+            referralStats: observable,
 
             isWalletConnected: computed,
             isMainnet: computed,
@@ -1091,6 +1098,32 @@ export class Model {
 
     copyReferralUrl = () => {
         void navigator.clipboard.writeText(this.referralUrl)
+    }
+
+    loadReferralStats = () => {
+        clearTimeout(this.timeoutReferralStats)
+        if (this.referralStats != null || !this.isWalletConnected) {
+            return
+        }
+        fetch(
+            'https://api.hipo.finance/referral?referrer=' +
+                this.address?.toString({ bounceable: false, testOnly: !this.isMainnet }),
+        )
+            .then((res) => res.json())
+            .then((res: { ok: boolean; result: { wallets: { wallet: string }[] } }) => {
+                if (res.ok && res.result.wallets.length >= 0) {
+                    runInAction(() => {
+                        this.referralStats = {
+                            wallets: res.result.wallets.map((w) => Address.parseFriendly(w.wallet).address),
+                        }
+                    })
+                }
+                throw new Error('invalid response')
+            })
+            .catch(() => {
+                clearTimeout(this.timeoutReferralStats)
+                this.timeoutReferralStats = setTimeout(this.loadReferralStats, 60000)
+            })
     }
 }
 
