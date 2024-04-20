@@ -549,6 +549,7 @@ export class Model {
         if (this.activePage !== activePage) {
             this.activePage = activePage
             this.controlBackgroundJobs()
+            window.scrollTo(0, 0)
         }
     }
 
