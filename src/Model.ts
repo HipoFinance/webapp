@@ -99,8 +99,7 @@ export class Model {
 
     readonly dedustSwapUrl = 'https://dedust.io/swap/hTON/TON'
     readonly dedustPoolUrl = 'https://dedust.io/pools/EQBWsAdyAg-8fs3G-m-eUBCXZuVaOldF5-tCMJBJzxQG7nLX'
-    readonly stonSwapUrl =
-        'https://app.ston.fi/swap?chartVisible=false&ft=EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w&tt=TON'
+    readonly stonSwapUrl = 'https://app.ston.fi/swap?chartVisible=false&ft=hTON&tt=TON'
     readonly stonPoolUrl = 'https://app.ston.fi/pools/EQDjmQDt12Ys1-gyKZskDSIDAVQaciI3cIUpk46LCWtnKpGF'
     readonly evaaLoanUrl = 'https://app.evaa.finance/'
 
