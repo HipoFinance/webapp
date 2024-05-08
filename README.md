@@ -1,4 +1,4 @@
-# hTON WebApp
+# Hipo WebApp
 
 Hipo is a decentralized, permission-less, open-source liquid staking protocol on TON blockchain. Visit [Hipo.Finance](https://hipo.finance) for more information or read the [docs](https://docs.hipo.finance).
 
@@ -19,7 +19,3 @@ To start the webapp in dev mode, run:
 ```sh
 npm run dev
 ```
-
-### License
-
-MIT
