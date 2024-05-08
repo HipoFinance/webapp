@@ -12,6 +12,7 @@
     "dependencies": {
         "@fontsource/eczar": "^5.0.18",
         "@fontsource/poppins": "^5.0.8",
+        "@hipo-finance/sdk": "^1.0.0",
         "@orbs-network/ton-access": "^2.3.3",
         "@ton/core": "^0.56.1",
         "@ton/crypto": "^3.2.0",

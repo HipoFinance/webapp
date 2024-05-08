@@ -1,10 +1,10 @@
-import { Address, Contract, ContractProvider, TupleBuilder } from '@ton/core'
+import { Address, Contract, ContractProvider, TupleBuilder } from '@ton/ton'
 
-export class Parent implements Contract {
+export class OldTreasury implements Contract {
     constructor(readonly address: Address) {}
 
     static createFromAddress(address: Address) {
-        return new Parent(address)
+        return new OldTreasury(address)
     }
 
     async getWalletAddress(provider: ContractProvider, owner: Address): Promise<Address> {
@@ -14,7 +14,7 @@ export class Parent implements Contract {
         return stack.readAddress()
     }
 
-    async getOldTotalCoinsAndTokens(provider: ContractProvider): Promise<[bigint, bigint]> {
+    async getTotalCoinsAndTokens(provider: ContractProvider): Promise<[bigint, bigint]> {
         const { stack } = await provider.get('get_treasury_state', [])
         return [stack.readBigNumber(), stack.readBigNumber()]
     }

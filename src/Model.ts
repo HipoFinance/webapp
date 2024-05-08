@@ -2,9 +2,22 @@ import { Network, getHttpV4Endpoint } from '@orbs-network/ton-access'
 import { TonConnectUI, THEME, CHAIN, SendTransactionRequest } from '@tonconnect/ui'
 import { action, autorun, computed, makeObservable, observable, runInAction } from 'mobx'
 import { Address, Dictionary, OpenedContract, TonClient4, beginCell, fromNano, toNano } from '@ton/ton'
-import { ParticipationState, Times, Treasury, TreasuryConfig } from './wrappers/Treasury'
-import { Wallet } from './wrappers/Wallet'
-import { Parent } from './wrappers/Parent'
+import {
+    ParticipationState,
+    Times,
+    Treasury,
+    Wallet,
+    Parent,
+    TreasuryConfig,
+    WalletState,
+    maxAmountToStake,
+    opUnstakeTokens,
+    opDepositCoins,
+    treasuryAddresses,
+    feeUnstake,
+    feeStake,
+} from '@hipo-finance/sdk'
+import { OldTreasury } from './OldTreasury'
 
 type ActivePage = 'stake' | 'defi' | 'referral'
 
@@ -25,26 +38,14 @@ interface FragmentState {
     activeTab?: ActiveTab
 }
 
-const updateTimesDelay = 60 * 1000
-const updateLastBlockDelay = 6 * 1000
+const updateTimesDelay = 5 * 60 * 1000
+const updateLastBlockDelay = 30 * 1000
 const retryDelay = 3 * 1000
-const checkBalanceChangeDelay = 1 * 1000
+const checkBalanceChangeDelay = 6 * 1000
 const txValidUntil = 5 * 60
 
 const averageStakeFee = 140000000n
 const averageUnstakeFee = 150000000n
-const stakeFee = 200000000n
-const unstakeFee = 300000000n
-
-const op = {
-    depositCoins: 0x3d3761a6,
-    unstakeTokens: 0x595f07bc,
-}
-
-const treasuryAddresses: Record<Network, Address> = {
-    mainnet: Address.parse('EQCLyZHP4Xe8fpchQz76O-_RmUhaVc_9BAoGyJrwJrcbz2eZ'),
-    testnet: Address.parse('kQAlDMBKCT8WJ4nwdwNRp0lvKMP4vUnHYspFPhEnyR36cg44'),
-}
 
 const oldTreasuryAddresses: Record<Network, Address> = {
     mainnet: Address.parse('EQBNo5qAG8I8J6IxGaz15SfQVB-kX98YhKV_mT36Xo5vYxUa'),
@@ -71,7 +72,7 @@ export class Model {
     times?: Times
     walletAddress?: Address
     wallet?: OpenedContract<Wallet>
-    walletState?: [bigint, Dictionary<bigint, bigint>, bigint]
+    walletState?: WalletState
     oldWalletAddress?: Address
     oldWalletTokens?: bigint
     newWalletTokens?: bigint
@@ -233,7 +234,7 @@ export class Model {
 
     get htonBalanceFormatted() {
         if (this.tonBalance != null) {
-            return formatNano(this.walletState?.[0] ?? 0n) + ' hTON'
+            return formatNano(this.walletState?.tokens ?? 0n) + ' hTON'
         }
     }
 
@@ -250,11 +251,11 @@ export class Model {
     }
 
     get unstakingInProgressFormatted() {
-        return formatNano(this.walletState?.[2] ?? 0n) + ' hTON'
+        return formatNano(this.walletState?.unstaking ?? 0n) + ' hTON'
     }
 
     get unstakingInProgressDetails() {
-        const value = this.walletState?.[2]
+        const value = this.walletState?.unstaking
         if (value == null || value === 0n || this.treasuryState == null) {
             return
         }
@@ -273,7 +274,7 @@ export class Model {
     get stakingInProgressFormatted() {
         let result = 0n
         const empty = Dictionary.empty(Dictionary.Keys.BigUint(32), Dictionary.Values.BigVarUint(4))
-        const staking = this.walletState?.[1] ?? empty
+        const staking = this.walletState?.staking ?? empty
         const times = staking.keys()
         for (const time of times) {
             const value = staking.get(time)
@@ -287,7 +288,7 @@ export class Model {
     get stakingInProgressDetails() {
         const result = []
         const empty = Dictionary.empty(Dictionary.Keys.BigUint(32), Dictionary.Values.BigVarUint(4))
-        const staking = this.walletState?.[1] ?? empty
+        const staking = this.walletState?.staking ?? empty
         const times = staking.keys()
         for (const time of times) {
             const value = staking.get(time)
@@ -307,12 +308,10 @@ export class Model {
         const tonBalance = this.tonBalance
         const walletState = this.walletState
         if (isStakeTabActive) {
-            // reserve 0.5 TON for user's ton wallet storage fee + enough funds for future unstake
-            const m = (tonBalance ?? 0n) - 500000000n
-            return m > 0n ? m : 0n
+            // reserve enough TON for user's ton wallet storage fee + enough funds for future unstake
+            return maxAmountToStake(tonBalance ?? 0n)
         } else {
-            const m = walletState?.[0] ?? 0n
-            return m > 0n ? m : 0n
+            return walletState?.tokens ?? 0n
         }
     }
 
@@ -339,7 +338,7 @@ export class Model {
         const isAmountValid = this.isAmountValid
         const isAmountPositive = this.isAmountPositive
         const tonBalance = this.tonBalance
-        const htonBalance = this.walletState?.[0]
+        const htonBalance = this.walletState?.tokens
         const haveBalance = this.isStakeTabActive ? tonBalance != null : htonBalance != null
         const isStakeTabActive = this.isStakeTabActive
         const unstakeOption = this.unstakeOption
@@ -718,25 +717,25 @@ export class Model {
             const readOldWallet: Promise<[Address | undefined, bigint | undefined, bigint | undefined]> =
                 address == null || this.oldWalletAddress != null
                     ? Promise.resolve([this.oldWalletAddress, this.oldWalletTokens, this.newWalletTokens])
-                    : Promise.resolve(tonClient.openAt(lastBlock, Parent.createFromAddress(oldTreasuryAddress))).then(
-                          async (oldTreasury) => {
-                              const oldWalletAddress = await oldTreasury.getWalletAddress(address)
-                              const oldWallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(oldWalletAddress))
-                              const oldWalletTokens = await oldWallet
-                                  .getWalletState()
-                                  .then(([oldWalletTokens]) => oldWalletTokens)
-                                  .catch(() => 0n)
-                              let newWalletTokens = 0n
-                              if (oldWalletTokens > 0n) {
-                                  const [oldTotalCoins, oldTotalTokens] = await oldTreasury.getOldTotalCoinsAndTokens()
-                                  if (oldTotalTokens > 0n && treasuryState.totalCoins > 0n) {
-                                      const coins = (oldWalletTokens * oldTotalCoins) / oldTotalTokens
-                                      newWalletTokens = (coins * treasuryState.totalTokens) / treasuryState.totalCoins
-                                  }
+                    : Promise.resolve(
+                          tonClient.openAt(lastBlock, OldTreasury.createFromAddress(oldTreasuryAddress)),
+                      ).then(async (oldTreasury) => {
+                          const oldWalletAddress = await oldTreasury.getWalletAddress(address)
+                          const oldWallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(oldWalletAddress))
+                          const oldWalletTokens = await oldWallet
+                              .getWalletState()
+                              .then((walletState) => walletState.tokens)
+                              .catch(() => 0n)
+                          let newWalletTokens = 0n
+                          if (oldWalletTokens > 0n) {
+                              const [oldTotalCoins, oldTotalTokens] = await oldTreasury.getTotalCoinsAndTokens()
+                              if (oldTotalTokens > 0n && treasuryState.totalCoins > 0n) {
+                                  const coins = (oldWalletTokens * oldTotalCoins) / oldTotalTokens
+                                  newWalletTokens = (coins * treasuryState.totalTokens) / treasuryState.totalCoins
                               }
-                              return [oldWalletAddress, oldWalletTokens, newWalletTokens]
-                          },
-                      )
+                          }
+                          return [oldWalletAddress, oldWalletTokens, newWalletTokens]
+                      })
             const [oldWalletAddress, oldWalletTokens, newWalletTokens] = await readOldWallet
 
             runInAction(() => {
@@ -793,9 +792,9 @@ export class Model {
                 messages: [
                     {
                         address: this.oldWalletAddress.toString(),
-                        amount: unstakeFee.toString(),
+                        amount: feeUnstake.toString(),
                         payload: beginCell()
-                            .storeUint(op.unstakeTokens, 32)
+                            .storeUint(opUnstakeTokens, 32)
                             .storeUint(0, 64)
                             .storeCoins(this.oldWalletTokens)
                             .storeAddress(undefined)
@@ -837,9 +836,9 @@ export class Model {
             let payload: string
             if (this.isStakeTabActive) {
                 address = this.treasury.address.toString()
-                amount = (this.amountInNano + stakeFee).toString()
+                amount = (this.amountInNano + feeStake).toString()
                 payload = beginCell()
-                    .storeUint(op.depositCoins, 32)
+                    .storeUint(opDepositCoins, 32)
                     .storeUint(0, 64)
                     .storeAddress(null)
                     .storeCoins(this.amountInNano)
@@ -850,10 +849,10 @@ export class Model {
                     .toString('base64')
             } else {
                 address = this.wallet.address.toString()
-                amount = unstakeFee.toString()
+                amount = feeUnstake.toString()
                 const details = beginCell().storeUint(0, 4).storeCoins(1n)
                 payload = beginCell()
-                    .storeUint(op.unstakeTokens, 32)
+                    .storeUint(opUnstakeTokens, 32)
                     .storeUint(0, 64)
                     .storeCoins(this.amountInNano)
                     .storeAddress(undefined)
@@ -920,7 +919,6 @@ export class Model {
             manifestUrl: 'https://app.hipo.finance/tonconnect-manifest.json',
             buttonRootId: tonConnectButtonRootId,
             actionsConfiguration: {
-                skipRedirectToWallet: 'never',
                 twaReturnUrl: 'https://t.me/HipoFinanceBot',
             },
             uiPreferences: {
