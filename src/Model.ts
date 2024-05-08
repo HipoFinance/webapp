@@ -361,7 +361,6 @@ export class Model {
                     return 'Swap'
                 }
             }
-            return this.isStakeTabActive ? 'Stake' : 'Unstake'
         } else {
             return 'Connect Wallet'
         }
