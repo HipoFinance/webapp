@@ -10,7 +10,7 @@ interface Props {
 const Stats = observer(({ model }: Props) => {
     return (
         <div className='mx-auto mb-16 w-full max-w-screen-lg font-body text-brown dark:text-dark-50'>
-            <div className='mx-auto flex max-w-lg flex-row px-4'>
+            <div className='mx-auto flex max-w-lg flex-row items-center px-4'>
                 <p className='text-lg font-bold'>Hipo statistics</p>
                 <a href={model.explorerHref} target='hipo_explorer' className='ml-auto text-xs font-light text-blue'>
                     TON Explorer
@@ -40,6 +40,13 @@ const Stats = observer(({ model }: Props) => {
                     <div className='my-4 flex flex-row'>
                         <p>Currently staked</p>
                         <p className='ml-auto'>{model.currentlyStaked}</p>
+                    </div>
+                    <div className='my-4 flex flex-row justify-center'>
+                        <p>
+                            <a href='https://stats.hipo.finance' className='text-blue' target='hipo_stats'>
+                                More Stats
+                            </a>
+                        </p>
                     </div>
                 </div>
             </div>
