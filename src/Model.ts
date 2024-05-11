@@ -12,10 +12,10 @@ import {
     WalletState,
     maxAmountToStake,
     opUnstakeTokens,
-    opDepositCoins,
     treasuryAddresses,
     feeUnstake,
-    feeStake,
+    createDepositMessage,
+    createUnstakeMessage,
 } from '@hipo-finance/sdk'
 import { OldTreasury } from './OldTreasury'
 
@@ -437,7 +437,11 @@ export class Model {
     }
 
     get explorerHref() {
-        const address = treasuryAddresses[this.network].toString({ testOnly: !this.isMainnet })
+        const treasuryAddress = treasuryAddresses.get(this.network)
+        let address = ''
+        if (treasuryAddress != null) {
+            address = treasuryAddress.toString({ testOnly: !this.isMainnet })
+        }
         return (this.isMainnet ? 'https://tonviewer.com/' : 'https://testnet.tonviewer.com/') + address
     }
 
@@ -616,14 +620,14 @@ export class Model {
 
     readTimes = () => {
         const tonClient = this.tonClient
-        const treasuryAddress = treasuryAddresses[this.network]
+        const treasuryAddress = treasuryAddresses.get(this.network)
         clearTimeout(this.timeoutReadTimes)
         if (document.hidden || this.activePage !== 'stake') {
             return
         }
         this.timeoutReadTimes = setTimeout(this.readTimes, updateTimesDelay)
 
-        if (tonClient == null) {
+        if (tonClient == null || treasuryAddress == null) {
             this.setTimes(undefined)
             return
         }
@@ -641,7 +645,7 @@ export class Model {
     readLastBlock = async () => {
         const tonClient = this.tonClient
         const address = this.address
-        const treasuryAddress = treasuryAddresses[this.network]
+        const treasuryAddress = treasuryAddresses.get(this.network)
         const oldTreasuryAddress = oldTreasuryAddresses[this.network]
         clearTimeout(this.timeoutReadLastBlock)
         if (document.hidden || this.activePage !== 'stake') {
@@ -649,7 +653,7 @@ export class Model {
         }
         this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), updateLastBlockDelay)
 
-        if (tonClient == null) {
+        if (tonClient == null || treasuryAddress == null) {
             runInAction(() => {
                 this.tonBalance = undefined
                 this.treasury = undefined
@@ -831,47 +835,15 @@ export class Model {
             this.tonConnectUI != null &&
             this.tonBalance != null
         ) {
-            let address: string
-            let amount: string
-            let payload: string
-            if (this.isStakeTabActive) {
-                address = this.treasury.address.toString()
-                amount = (this.amountInNano + feeStake).toString()
-                payload = beginCell()
-                    .storeUint(opDepositCoins, 32)
-                    .storeUint(0, 64)
-                    .storeAddress(null)
-                    .storeCoins(this.amountInNano)
-                    .storeCoins(1n)
-                    .storeAddress(this.referrer)
-                    .endCell()
-                    .toBoc()
-                    .toString('base64')
-            } else {
-                address = this.wallet.address.toString()
-                amount = feeUnstake.toString()
-                const details = beginCell().storeUint(0, 4).storeCoins(1n)
-                payload = beginCell()
-                    .storeUint(opUnstakeTokens, 32)
-                    .storeUint(0, 64)
-                    .storeCoins(this.amountInNano)
-                    .storeAddress(undefined)
-                    .storeMaybeRef(details)
-                    .endCell()
-                    .toBoc()
-                    .toString('base64')
-            }
+            const message = this.isStakeTabActive
+                ? createDepositMessage(this.treasury.address, this.amountInNano, this.referrer)
+                : createUnstakeMessage(this.wallet.address, this.amountInNano)
+
             const tx: SendTransactionRequest = {
                 validUntil: Math.floor(Date.now() / 1000) + txValidUntil,
                 network: this.isMainnet ? CHAIN.MAINNET : CHAIN.TESTNET,
                 from: this.address.toRawString(),
-                messages: [
-                    {
-                        address,
-                        amount,
-                        payload,
-                    },
-                ],
+                messages: [message],
             }
             const tonBalance = this.tonBalance
             void this.tonConnectUI
