@@ -44,8 +44,8 @@ const retryDelay = 3 * 1000
 const checkBalanceChangeDelay = 6 * 1000
 const txValidUntil = 5 * 60
 
-const averageStakeFee = 140000000n
-const averageUnstakeFee = 150000000n
+const averageStakeFee = 15000000n
+const averageUnstakeFee = 42000000n
 
 const oldTreasuryAddresses: Record<Network, Address> = {
     mainnet: Address.parse('EQBNo5qAG8I8J6IxGaz15SfQVB-kX98YhKV_mT36Xo5vYxUa'),
@@ -400,20 +400,20 @@ export class Model {
     get exchangeRateFormatted() {
         const state = this.treasuryState
         if (state != null) {
-            const rate = Number(state.totalCoins) / Number(state.totalTokens) || 1
-            return '1 hTON = ~ ' + rate.toLocaleString(undefined, { maximumFractionDigits: 4 }) + ' TON'
+            const rate = (Number(state.totalCoins) / Number(state.totalTokens)) * 1000000000 || 1
+            return '1 hTON = ~ ' + formatNano(rate, 4) + ' TON'
         }
     }
 
     get averageStakeFeeFormatted() {
         if (this.treasuryState != null) {
-            return formatNano(averageStakeFee) + ' TON'
+            return formatNano(averageStakeFee, 3) + ' TON'
         }
     }
 
     get averageUnstakeFeeFormatted() {
         if (this.treasuryState != null) {
-            return formatNano(averageUnstakeFee) + ' TON'
+            return formatNano(averageUnstakeFee, 3) + ' TON'
         }
     }
 
@@ -1095,9 +1095,9 @@ export class Model {
     }
 }
 
-function formatNano(amount: bigint | number): string {
+function formatNano(amount: bigint | number, maximumFractionDigits = 2): string {
     return (Number(amount) / 1000000000).toLocaleString(undefined, {
-        maximumFractionDigits: 2,
+        maximumFractionDigits,
     })
 }
 
