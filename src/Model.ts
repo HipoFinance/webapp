@@ -646,7 +646,6 @@ export class Model {
         const tonClient = this.tonClient
         const address = this.address
         const treasuryAddress = treasuryAddresses.get(this.network)
-        const oldTreasuryAddress = oldTreasuryAddresses[this.network]
         clearTimeout(this.timeoutReadLastBlock)
         if (document.hidden || this.activePage !== 'stake') {
             return
@@ -708,39 +707,19 @@ export class Model {
             let [walletAddress, wallet, walletState] = hton ?? []
 
             if (walletAddress == null && address != null && treasuryState.parent != null) {
-                ;[walletAddress, wallet, walletState] = await tonClient
-                    .openAt(lastBlock, Parent.createFromAddress(treasuryState.parent))
-                    .getWalletAddress(address)
-                    .then(async (walletAddress) => {
-                        const wallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(walletAddress))
-                        const walletState = await wallet.getWalletState().catch(() => undefined)
-                        return [walletAddress, wallet, walletState]
-                    })
+                try {
+                    ;[walletAddress, wallet, walletState] = await tonClient
+                        .openAt(lastBlock, Parent.createFromAddress(treasuryState.parent))
+                        .getWalletAddress(address)
+                        .then(async (walletAddress) => {
+                            const wallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(walletAddress))
+                            const walletState = await wallet.getWalletState().catch(() => undefined)
+                            return [walletAddress, wallet, walletState]
+                        })
+                } catch {
+                    // ignore
+                }
             }
-
-            const readOldWallet: Promise<[Address | undefined, bigint | undefined, bigint | undefined]> =
-                address == null || this.oldWalletAddress != null
-                    ? Promise.resolve([this.oldWalletAddress, this.oldWalletTokens, this.newWalletTokens])
-                    : Promise.resolve(
-                          tonClient.openAt(lastBlock, OldTreasury.createFromAddress(oldTreasuryAddress)),
-                      ).then(async (oldTreasury) => {
-                          const oldWalletAddress = await oldTreasury.getWalletAddress(address)
-                          const oldWallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(oldWalletAddress))
-                          const oldWalletTokens = await oldWallet
-                              .getWalletState()
-                              .then((walletState) => walletState.tokens)
-                              .catch(() => 0n)
-                          let newWalletTokens = 0n
-                          if (oldWalletTokens > 0n) {
-                              const [oldTotalCoins, oldTotalTokens] = await oldTreasury.getTotalCoinsAndTokens()
-                              if (oldTotalTokens > 0n && treasuryState.totalCoins > 0n) {
-                                  const coins = (oldWalletTokens * oldTotalCoins) / oldTotalTokens
-                                  newWalletTokens = (coins * treasuryState.totalTokens) / treasuryState.totalCoins
-                              }
-                          }
-                          return [oldWalletAddress, oldWalletTokens, newWalletTokens]
-                      })
-            const [oldWalletAddress, oldWalletTokens, newWalletTokens] = await readOldWallet
 
             runInAction(() => {
                 this.tonBalance = tonBalance
@@ -749,11 +728,11 @@ export class Model {
                 this.walletAddress = walletAddress
                 this.wallet = wallet
                 this.walletState = walletState
-                this.oldWalletAddress = oldWalletAddress
-                this.oldWalletTokens = oldWalletTokens
-                this.newWalletTokens = newWalletTokens
                 this.lastBlock = lastBlock
             })
+
+            void this.readOldWallet(tonClient, lastBlock, treasuryState)
+
         } catch {
             this.setErrorMessage(errorMessageTonAccess, retryDelay - 500)
             clearTimeout(this.timeoutReadLastBlock)
@@ -761,6 +740,41 @@ export class Model {
         } finally {
             this.endRequest()
         }
+    }
+
+    readOldWallet = async (tonClient: TonClient4, lastBlock: number, treasuryState: TreasuryConfig) => {
+        const address = this.address
+        const oldTreasuryAddress = oldTreasuryAddresses[this.network]
+
+        const readOldWallet: Promise<[Address | undefined, bigint | undefined, bigint | undefined]> =
+            address == null || this.oldWalletAddress != null
+                ? Promise.resolve([this.oldWalletAddress, this.oldWalletTokens, this.newWalletTokens])
+                : Promise.resolve(
+                        tonClient.openAt(lastBlock, OldTreasury.createFromAddress(oldTreasuryAddress)),
+                    ).then(async (oldTreasury) => {
+                        const oldWalletAddress = await oldTreasury.getWalletAddress(address)
+                        const oldWallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(oldWalletAddress))
+                        const oldWalletTokens = await oldWallet
+                            .getWalletState()
+                            .then((walletState) => walletState.tokens)
+                            .catch(() => 0n)
+                        let newWalletTokens = 0n
+                        if (oldWalletTokens > 0n) {
+                            const [oldTotalCoins, oldTotalTokens] = await oldTreasury.getTotalCoinsAndTokens()
+                            if (oldTotalTokens > 0n && treasuryState.totalCoins > 0n) {
+                                const coins = (oldWalletTokens * oldTotalCoins) / oldTotalTokens
+                                newWalletTokens = (coins * treasuryState.totalTokens) / treasuryState.totalCoins
+                            }
+                        }
+                        return [oldWalletAddress, oldWalletTokens, newWalletTokens]
+                    })
+        const [oldWalletAddress, oldWalletTokens, newWalletTokens] = await readOldWallet
+
+        runInAction(() => {
+            this.oldWalletAddress = oldWalletAddress
+            this.oldWalletTokens = oldWalletTokens
+            this.newWalletTokens = newWalletTokens
+        })
     }
 
     pause = () => {
