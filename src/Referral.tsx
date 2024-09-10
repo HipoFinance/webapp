@@ -114,7 +114,7 @@ const Referral = observer(({ model }: Props) => {
                                 <h4 className='text-lg font-bold'>
                                     {model.referralStats == null
                                         ? 'Loading'
-                                        : model.referralStats.wallets.length + ' Users'}
+                                        : model.referralStats.wallets.length.toString() + ' Users'}
                                 </h4>
                             </div>
                             <div className='flex w-52 flex-1 flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>

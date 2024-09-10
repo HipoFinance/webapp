@@ -367,7 +367,7 @@ export class Model {
 
     get swapUrl() {
         let url = 'https://dedust.io/swap/hTON/TON'
-        if (this.isAmountValid && this.isAmountPositive) {
+        if (this.isAmountValid && this.isAmountPositive && this.amountInNano != null) {
             url += '?amount=' + this.amountInNano
         }
         return url
@@ -732,7 +732,6 @@ export class Model {
             })
 
             void this.readOldWallet(tonClient, lastBlock, treasuryState)
-
         } catch {
             this.setErrorMessage(errorMessageTonAccess, retryDelay - 500)
             clearTimeout(this.timeoutReadLastBlock)
@@ -749,25 +748,25 @@ export class Model {
         const readOldWallet: Promise<[Address | undefined, bigint | undefined, bigint | undefined]> =
             address == null || this.oldWalletAddress != null
                 ? Promise.resolve([this.oldWalletAddress, this.oldWalletTokens, this.newWalletTokens])
-                : Promise.resolve(
-                        tonClient.openAt(lastBlock, OldTreasury.createFromAddress(oldTreasuryAddress)),
-                    ).then(async (oldTreasury) => {
-                        const oldWalletAddress = await oldTreasury.getWalletAddress(address)
-                        const oldWallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(oldWalletAddress))
-                        const oldWalletTokens = await oldWallet
-                            .getWalletState()
-                            .then((walletState) => walletState.tokens)
-                            .catch(() => 0n)
-                        let newWalletTokens = 0n
-                        if (oldWalletTokens > 0n) {
-                            const [oldTotalCoins, oldTotalTokens] = await oldTreasury.getTotalCoinsAndTokens()
-                            if (oldTotalTokens > 0n && treasuryState.totalCoins > 0n) {
-                                const coins = (oldWalletTokens * oldTotalCoins) / oldTotalTokens
-                                newWalletTokens = (coins * treasuryState.totalTokens) / treasuryState.totalCoins
-                            }
-                        }
-                        return [oldWalletAddress, oldWalletTokens, newWalletTokens]
-                    })
+                : Promise.resolve(tonClient.openAt(lastBlock, OldTreasury.createFromAddress(oldTreasuryAddress))).then(
+                      async (oldTreasury) => {
+                          const oldWalletAddress = await oldTreasury.getWalletAddress(address)
+                          const oldWallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(oldWalletAddress))
+                          const oldWalletTokens = await oldWallet
+                              .getWalletState()
+                              .then((walletState) => walletState.tokens)
+                              .catch(() => 0n)
+                          let newWalletTokens = 0n
+                          if (oldWalletTokens > 0n) {
+                              const [oldTotalCoins, oldTotalTokens] = await oldTreasury.getTotalCoinsAndTokens()
+                              if (oldTotalTokens > 0n && treasuryState.totalCoins > 0n) {
+                                  const coins = (oldWalletTokens * oldTotalCoins) / oldTotalTokens
+                                  newWalletTokens = (coins * treasuryState.totalTokens) / treasuryState.totalCoins
+                              }
+                          }
+                          return [oldWalletAddress, oldWalletTokens, newWalletTokens]
+                      },
+                  )
         const [oldWalletAddress, oldWalletTokens, newWalletTokens] = await readOldWallet
 
         runInAction(() => {
@@ -1089,7 +1088,7 @@ export class Model {
         }
         fetch(
             'https://api.hipo.finance/referral?referrer=' +
-                this.address?.toString({ bounceable: false, testOnly: !this.isMainnet }),
+                (this.address?.toString({ bounceable: false, testOnly: !this.isMainnet }) ?? ''),
         )
             .then((res) => res.json())
             .then((res: { ok: boolean; result: { wallets: { wallet: string }[] } }) => {
@@ -1136,7 +1135,7 @@ function formatUnstakeHours(time: bigint): string {
     const now = Math.floor(Date.now() / 1000)
     const diff = Number(time) - now
     const hours = Math.max(0, Math.ceil(diff / 3600))
-    return hours + ''
+    return hours.toString()
 }
 
 function sleep(ms: number) {

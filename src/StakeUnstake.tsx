@@ -67,7 +67,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                         </div>
 
                         {model.stakingInProgressDetails.map((value) => (
-                            <div key={value.estimated + value.amount} className='flex flex-row flex-wrap'>
+                            <div key={(value.estimated ?? '') + value.amount} className='flex flex-row flex-wrap'>
                                 <p className='font-light opacity-70'>
                                     {value.estimated == null
                                         ? 'In progress'
