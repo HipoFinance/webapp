@@ -533,7 +533,7 @@ export class Model {
     }
 
     setTonClient = (endpoint: string) => {
-        this.tonClient = new TonClient4({ endpoint })
+        this.tonClient = new TonClient4({ endpoint, timeout: 5 * 1_000 })
     }
 
     setAddress = (address?: Address) => {
@@ -632,9 +632,8 @@ export class Model {
             return
         }
 
-        tonClient
-            .open(Treasury.createFromAddress(treasuryAddress))
-            .getTimes()
+        const openedTreasury = tonClient.open(Treasury.createFromAddress(treasuryAddress))
+        retry(openedTreasury.getTimes)
             .then(this.setTimes)
             .catch(() => {
                 clearTimeout(this.timeoutReadTimes)
@@ -669,32 +668,41 @@ export class Model {
 
         try {
             this.beginRequest()
-            const lastBlock = (await tonClient.getLastBlock()).last.seqno
+            const lastBlock = (await retry(() => tonClient.getLastBlock())).last.seqno
             if (lastBlock < this.lastBlock) {
                 throw new Error('older block')
             }
             const treasury = tonClient.openAt(lastBlock, Treasury.createFromAddress(treasuryAddress))
 
-            const readTreasuryState = treasury.getTreasuryState()
+            const readTreasuryState = retry(treasury.getTreasuryState)
 
             const readTonBalance =
                 address == null
                     ? Promise.resolve(undefined)
-                    : tonClient.getAccountLite(lastBlock, address).then((value) => BigInt(value.account.balance.coins))
+                    : retry(() => tonClient.getAccountLite(lastBlock, address)).then((value) =>
+                          BigInt(value.account.balance.coins),
+                      )
 
+            const lastParent = this.treasuryState?.parent
             const readWallet: Promise<[Address, OpenedContract<Wallet>, typeof this.walletState] | undefined> =
-                address == null || this.treasuryState?.parent == null
+                address == null || lastParent == null
                     ? Promise.resolve(undefined)
                     : (this.walletAddress != null
                           ? Promise.resolve(this.walletAddress)
-                          : tonClient
-                                .openAt(lastBlock, Parent.createFromAddress(this.treasuryState.parent))
-                                .getWalletAddress(address)
+                          : retry(() =>
+                                tonClient
+                                    .openAt(lastBlock, Parent.createFromAddress(lastParent))
+                                    .getWalletAddress(address),
+                            )
                       ).then(async (walletAddress) => {
                           const wallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(walletAddress))
-                          // Wallet may not exist or tonClient may throw an exception,
-                          // so return previous this.walletState which is good for both cases.
-                          const walletState = await wallet.getWalletState().catch(() => this.walletState)
+                          const walletState = await wallet.getWalletState().catch((e: unknown) => {
+                              if (e instanceof Error && 'message' in e && e.message === 'Exit code: -256') {
+                                  return undefined // wallet does not exists
+                              } else {
+                                  throw e
+                              }
+                          })
                           return [walletAddress, wallet, walletState]
                       })
 
@@ -708,14 +716,20 @@ export class Model {
 
             if (walletAddress == null && address != null && treasuryState.parent != null) {
                 try {
-                    ;[walletAddress, wallet, walletState] = await tonClient
-                        .openAt(lastBlock, Parent.createFromAddress(treasuryState.parent))
-                        .getWalletAddress(address)
-                        .then(async (walletAddress) => {
-                            const wallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(walletAddress))
-                            const walletState = await wallet.getWalletState().catch(() => undefined)
-                            return [walletAddress, wallet, walletState]
+                    const openedParent = tonClient.openAt(lastBlock, Parent.createFromAddress(treasuryState.parent))
+                    ;[walletAddress, wallet, walletState] = await retry(() =>
+                        openedParent.getWalletAddress(address),
+                    ).then(async (walletAddress) => {
+                        const wallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(walletAddress))
+                        const walletState = await wallet.getWalletState().catch((e: unknown) => {
+                            if (e instanceof Error && 'message' in e && e.message === 'Exit code: -256') {
+                                return undefined // wallet does not exists
+                            } else {
+                                throw e
+                            }
                         })
+                        return [walletAddress, wallet, walletState]
+                    })
                 } catch {
                     // ignore
                 }
@@ -731,7 +745,7 @@ export class Model {
                 this.lastBlock = lastBlock
             })
 
-            void this.readOldWallet(tonClient, lastBlock, treasuryState)
+            await this.readOldWallet(tonClient, lastBlock, treasuryState)
         } catch {
             this.setErrorMessage(errorMessageTonAccess, retryDelay - 500)
             clearTimeout(this.timeoutReadLastBlock)
@@ -750,15 +764,24 @@ export class Model {
                 ? Promise.resolve([this.oldWalletAddress, this.oldWalletTokens, this.newWalletTokens])
                 : Promise.resolve(tonClient.openAt(lastBlock, OldTreasury.createFromAddress(oldTreasuryAddress))).then(
                       async (oldTreasury) => {
-                          const oldWalletAddress = await oldTreasury.getWalletAddress(address)
+                          const oldWalletAddress = await retry(() => oldTreasury.getWalletAddress(address))
                           const oldWallet = tonClient.openAt(lastBlock, Wallet.createFromAddress(oldWalletAddress))
-                          const oldWalletTokens = await oldWallet
-                              .getWalletState()
-                              .then((walletState) => walletState.tokens)
-                              .catch(() => 0n)
+                          const oldWalletTokens =
+                              (await retry(() =>
+                                  oldWallet
+                                      .getWalletState()
+                                      .then((walletState) => walletState.tokens)
+                                      .catch((e: unknown) => {
+                                          if (e instanceof Error && 'message' in e && e.message === 'Exit code: -256') {
+                                              return undefined // wallet does not exists
+                                          } else {
+                                              throw e
+                                          }
+                                      }),
+                              )) ?? 0n
                           let newWalletTokens = 0n
                           if (oldWalletTokens > 0n) {
-                              const [oldTotalCoins, oldTotalTokens] = await oldTreasury.getTotalCoinsAndTokens()
+                              const [oldTotalCoins, oldTotalTokens] = await retry(oldTreasury.getTotalCoinsAndTokens)
                               if (oldTotalTokens > 0n && treasuryState.totalCoins > 0n) {
                                   const coins = (oldWalletTokens * oldTotalCoins) / oldTotalTokens
                                   newWalletTokens = (coins * treasuryState.totalTokens) / treasuryState.totalCoins
@@ -1140,4 +1163,27 @@ function formatUnstakeHours(time: bigint): string {
 
 function sleep(ms: number) {
     return new Promise((r) => setTimeout(r, ms))
+}
+
+function retry<T>(fn: () => Promise<T>, retries = 10): Promise<T> {
+    return new Promise(function (resolve, reject) {
+        let err: Error | undefined
+        const attempt = () => {
+            if (retries < 10) {
+                console.log('retry', retries)
+            }
+            if (retries <= 0) {
+                reject(err ?? new Error())
+            } else {
+                fn()
+                    .then(resolve)
+                    .catch((e: unknown) => {
+                        retries -= 1
+                        err = e as Error
+                        setTimeout(attempt)
+                    })
+            }
+        }
+        attempt()
+    })
 }
