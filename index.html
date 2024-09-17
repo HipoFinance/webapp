@@ -31,5 +31,17 @@
             </div>
         </div>
         <script type="module" src="src/main.tsx"></script>
+
+        <script async src="https://tganalytics.xyz/index.js" type="text/javascript"></script>
+        <script>
+            window.addEventListener('load', function () {
+                if (location.host === 'app.hipo.finance' && window.telegramAnalytics) {
+                    window.telegramAnalytics.init({
+                        token: 'eyJhcHBfbmFtZSI6IkhpcG9GaW5hbmNlIiwiYXBwX3VybCI6Imh0dHBzOi8vdC5tZS9IaXBvRmluYW5jZUJvdCIsImFwcF9kb21haW4iOiJodHRwczovL2FwcC5oaXBvLmZpbmFuY2UifQ==!E4pxUC4Gw7gYJ/OLjvBnyB3xdqnfZd96quHuM0hwQEY=',
+                        appName: 'HipoFinance',
+                    })
+                }
+            })
+        </script>
     </body>
 </html>
