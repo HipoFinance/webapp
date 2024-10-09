@@ -13,14 +13,34 @@ interface Props {
 
 const Wait = observer(({ model }: Props) => {
     let img
+    let progress
     let heading
     let message
     let button
-    if (model.waitForTransaction === 'wait') {
+    if (model.waitForTransaction === 'signed') {
         img = (
             <div>
                 <img src={loading} className='m-4 mx-auto h-16 animate-spin dark:hidden' />
                 <img src={loadingDark} className='m-4 mx-auto hidden h-16 animate-spin dark:block' />
+            </div>
+        )
+        progress = (
+            <div className='my-4 w-full rounded-full border border-dark-600 border-opacity-50 dark:border-milky dark:border-opacity-50'>
+                <div className='h-1 w-1/6 bg-blue'></div>
+            </div>
+        )
+        heading = <h1 className='text-center text-xl font-bold'>Finalizing your transaction</h1>
+        message = <p className='mt-4 text-center'>Awaiting the processing of your transaction in the next block.</p>
+    } else if (model.waitForTransaction === 'sent') {
+        img = (
+            <div>
+                <img src={loading} className='m-4 mx-auto h-16 animate-spin dark:hidden' />
+                <img src={loadingDark} className='m-4 mx-auto hidden h-16 animate-spin dark:block' />
+            </div>
+        )
+        progress = (
+            <div className='my-4 w-full rounded-full border border-dark-600 border-opacity-50 dark:border-milky dark:border-opacity-50'>
+                <div className='h-1 w-1/2 bg-blue'></div>
             </div>
         )
         heading = <h1 className='text-center text-xl font-bold'>Finalizing your transaction</h1>
@@ -32,6 +52,7 @@ const Wait = observer(({ model }: Props) => {
                 <img src={warningDark} className='m-4 mx-auto hidden h-16 dark:block' />
             </div>
         )
+        progress = <></>
         heading = <h1 className='text-center text-xl font-bold'>Cannot find your transaction</h1>
         message = <p className='mt-4 text-center'>Despite multiple attempts, we could not locate it.</p>
         button = (
@@ -51,6 +72,7 @@ const Wait = observer(({ model }: Props) => {
                 <img src={logoDark} className='m-4 mx-auto hidden h-32 dark:block' />
             </div>
         )
+        progress = <></>
         heading = (
             <h1 className='text-center text-xl font-bold'>
                 Successfully {model.isStakeTabActive ? 'staked' : 'unstaked'}
@@ -84,6 +106,7 @@ const Wait = observer(({ model }: Props) => {
             >
                 <div className='m-auto w-96 max-w-sm rounded-3xl bg-milky p-8 shadow-2xl dark:bg-dark-700'>
                     {img}
+                    {progress}
                     {heading}
                     {message}
                     {button}

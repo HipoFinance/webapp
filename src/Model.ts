@@ -25,7 +25,7 @@ type ActiveTab = 'stake' | 'unstake'
 
 type UnstakeOption = 'unstake' | 'swap'
 
-type WaitForTransaction = 'no' | 'wait' | 'timeout' | 'done'
+type WaitForTransaction = 'no' | 'signed' | 'sent' | 'timeout' | 'done'
 
 interface ReferralStats {
     wallets: Address[]
@@ -41,7 +41,7 @@ interface FragmentState {
 const updateTimesDelay = 5 * 60 * 1000
 const updateLastBlockDelay = 30 * 1000
 const retryDelay = 3 * 1000
-const checkBalanceChangeDelay = 6 * 1000
+const waitForCompletionDelay = 3 * 1000
 const txValidUntil = 5 * 60
 
 const averageStakeFee = 15000000n
@@ -825,6 +825,8 @@ export class Model {
             this.tonBalance != null &&
             this.oldWalletTokens != null
         ) {
+            const queryId = generateRandomQueryId()
+
             const tx: SendTransactionRequest = {
                 validUntil: Math.floor(Date.now() / 1000) + txValidUntil,
                 network: this.isMainnet ? CHAIN.MAINNET : CHAIN.TESTNET,
@@ -835,7 +837,7 @@ export class Model {
                         amount: feeUnstake.toString(),
                         payload: beginCell()
                             .storeUint(opUnstakeTokens, 32)
-                            .storeUint(0, 64)
+                            .storeUint(queryId, 64)
                             .storeCoins(this.oldWalletTokens)
                             .storeAddress(undefined)
                             .storeMaybeRef(undefined)
@@ -845,13 +847,9 @@ export class Model {
                     },
                 ],
             }
-            const tonBalance = this.tonBalance
             void this.tonConnectUI
                 .sendTransaction(tx)
-                .then(() => {
-                    this.setWaitForTransaction('wait')
-                    return this.checkIfBalanceChanged(tonBalance, 1)
-                })
+                .then(() => this.waitForCompletion(queryId))
                 .then(() => {
                     this.oldWalletAddress = undefined
                     this.oldWalletTokens = undefined
@@ -871,9 +869,11 @@ export class Model {
             this.tonConnectUI != null &&
             this.tonBalance != null
         ) {
+            const queryId = generateRandomQueryId()
+
             const message = this.isStakeTabActive
-                ? createDepositMessage(this.treasury.address, this.amountInNano, this.referrer)
-                : createUnstakeMessage(this.wallet.address, this.amountInNano)
+                ? createDepositMessage(this.treasury.address, this.amountInNano, queryId, this.referrer)
+                : createUnstakeMessage(this.wallet.address, this.amountInNano, queryId)
 
             const tx: SendTransactionRequest = {
                 validUntil: Math.floor(Date.now() / 1000) + txValidUntil,
@@ -881,31 +881,76 @@ export class Model {
                 from: this.address.toRawString(),
                 messages: [message],
             }
-            const tonBalance = this.tonBalance
             void this.tonConnectUI
                 .sendTransaction(tx)
-                .then(() => {
-                    this.setWaitForTransaction('wait')
-                    return this.checkIfBalanceChanged(tonBalance, 1)
-                })
+                .then(() => this.waitForCompletion(queryId))
                 .then(() => {
                     this.setAmount('')
                 })
         }
     }
 
-    checkIfBalanceChanged = async (tonBalance: bigint, counter: number): Promise<void> => {
-        await sleep(checkBalanceChangeDelay)
-        void this.readLastBlock()
-        if (this.tonBalance !== tonBalance) {
-            this.setWaitForTransaction('done')
-            return Promise.resolve()
-        }
-        if (counter > 60) {
+    waitForCompletion = async (queryId: bigint) => {
+        const tonClient = this.tonClient
+        const address = this.address
+
+        if (tonClient == null || address == null) {
             this.setWaitForTransaction('timeout')
-            return Promise.resolve()
+            return
         }
-        return this.checkIfBalanceChanged(tonBalance, counter + 1)
+
+        this.setWaitForTransaction('signed')
+
+        try {
+            clearTimeout(this.timeoutReadLastBlock)
+
+            for (let i = 0; i < 100; i += 1) {
+                await sleep(waitForCompletionDelay)
+
+                const lastBlock = (await retry(() => tonClient.getLastBlock())).last.seqno
+                const last = (await retry(() => tonClient.getAccountLite(lastBlock, address))).account.last
+                if (last == null) {
+                    continue
+                }
+                const txs = await retry(() =>
+                    tonClient.getAccountTransactions(address, BigInt(last.lt), Buffer.from(last.hash, 'base64')),
+                )
+
+                for (const txBlock of txs) {
+                    const tx = txBlock.tx
+                    if (tx.description.type !== 'generic' || tx.description.aborted || tx.inMessage == null) {
+                        continue
+                    }
+
+                    const inPayload = tx.inMessage.body.beginParse()
+                    if (tx.inMessage.info.type === 'internal' && inPayload.remainingBits >= 32 + 64) {
+                        inPayload.skip(32)
+                        if (inPayload.loadUintBig(64) === queryId) {
+                            await this.readLastBlock()
+                            clearTimeout(this.timeoutReadLastBlock)
+                            this.setWaitForTransaction('done')
+                            return
+                        }
+                    }
+
+                    const outMessage = tx.outMessages.get(0)
+                    if (this.waitForTransaction === 'signed' && outMessage != null) {
+                        const outPayload = outMessage.body.beginParse()
+                        if (outPayload.remainingBits >= 32 + 64) {
+                            outPayload.skip(32)
+                            if (outPayload.loadUintBig(64) === queryId) {
+                                this.setWaitForTransaction('sent')
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+        } catch {
+            this.setWaitForTransaction('timeout')
+        } finally {
+            this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), updateLastBlockDelay)
+        }
     }
 
     initTonConnect = () => {
@@ -1161,6 +1206,12 @@ function formatUnstakeHours(time: bigint): string {
     return hours.toString()
 }
 
+function generateRandomQueryId(): bigint {
+    const randomArray = new BigUint64Array(1)
+    crypto.getRandomValues(randomArray)
+    return randomArray[0]
+}
+
 function sleep(ms: number) {
     return new Promise((r) => setTimeout(r, ms))
 }
@@ -1170,7 +1221,7 @@ function retry<T>(fn: () => Promise<T>, retries = 10): Promise<T> {
         let err: Error | undefined
         const attempt = () => {
             if (retries < 10) {
-                console.log('retry', retries)
+                console.info('retry', retries)
             }
             if (retries <= 0) {
                 reject(err ?? new Error())
