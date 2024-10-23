@@ -608,7 +608,7 @@ export class Model {
     connectTonAccess = () => {
         const network = this.network
         clearTimeout(this.timeoutConnectTonAccess)
-        if (document.hidden || this.activePage !== 'stake') {
+        if (this.activePage !== 'stake') {
             return
         }
         getHttpV4Endpoint({ network })
