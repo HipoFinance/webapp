@@ -919,7 +919,7 @@ export class Model {
 
                 for (const txBlock of txs) {
                     const tx = txBlock.tx
-                    if (tx.description.type !== 'generic' || tx.description.aborted || tx.inMessage == null) {
+                    if (tx.description.type !== 'generic' || tx.inMessage == null) {
                         continue
                     }
 
