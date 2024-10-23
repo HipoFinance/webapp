@@ -1222,7 +1222,7 @@ function retry<T>(fn: () => Promise<T>, retries = 10): Promise<T> {
         let err: Error | undefined
         const attempt = () => {
             if (retries < 10) {
-                console.info('retry', retries)
+                console.warn('retry', retries)
             }
             if (retries <= 0) {
                 reject(err ?? new Error())
