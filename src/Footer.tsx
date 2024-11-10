@@ -20,6 +20,13 @@ const Footer = observer(({ model }: Props) => {
                         <a className='my-4 block text-sm' href='https://twitter.com/hipofinance' target='hipo_twitter'>
                             Twitter
                         </a>
+                        <a
+                            className='my-4 block text-sm'
+                            href='https://www.youtube.com/@HipoFinance'
+                            target='hipo_youtube'
+                        >
+                            YouTube
+                        </a>
                         <a className='my-4 block text-sm' href='https://medium.com/@hipofinance' target='hipo_blog'>
                             Blog
                         </a>
