@@ -24,14 +24,14 @@ interface Props {
 
 const Header = observer(({ model }: Props) => {
     return (
-        <div className='mx-auto w-full max-w-screen-lg font-body text-brown dark:text-dark-50'>
+        <div className='mx-auto flex w-full max-w-screen-lg flex-col gap-8 font-body text-brown dark:text-dark-50'>
             <div className='mx-4 flex flex-row items-center pt-4'>
                 <img src={logo} className='-ml-4 -mr-3 h-20 dark:hidden' />
                 <img src={logoDark} className='-ml-4 -mr-3 hidden h-20 dark:block' />
 
                 <TestnetBadge model={model} />
 
-                <ul className='dark:bg-choco dark:border-c2 border-c1 sm:bg-transparent sm:dark:bg-transparent fixed bottom-0 left-0 z-10 flex w-full select-none flex-row border-t bg-milky text-sm font-thin sm:static sm:ml-2 sm:w-auto sm:border-0'>
+                <ul className='fixed bottom-0 left-0 z-10 flex w-full select-none flex-row border-t border-c1 bg-milky text-sm font-thin dark:border-c2 dark:bg-choco sm:static sm:ml-2 sm:w-auto sm:border-0 sm:bg-transparent sm:dark:bg-transparent'>
                     <li
                         className={
                             'flex-1 cursor-pointer whitespace-nowrap pt-3 text-center sm:ml-4 sm:flex-none sm:pt-0' +
@@ -169,6 +169,20 @@ const Header = observer(({ model }: Props) => {
                     />
                 </div>
                 <div id='ton-connect-button' className='min-w-max'></div>
+            </div>
+
+            <div className='mb-8 px-4 text-center text-xl'>
+                <a href='https://hpo.hipo.finance/'>
+                    <div className='mx-auto flex max-w-max flex-row flex-wrap place-content-center items-center gap-2 rounded-3xl border border-brown p-4 shadow-md shadow-brown dark:border-milky dark:shadow-milky'>
+                        <img src='hpo.svg' className='h-10 w-10' />
+                        <p className='text-shadow'>
+                            Don&apos;t miss the $HPO TGE on <span className='whitespace-nowrap'>Nov. 25!</span>
+                        </p>
+                        <p className='whitespace-nowrap rounded-2xl bg-orange px-4 py-2 text-white dark:text-dark-600'>
+                            Join Now
+                        </p>
+                    </div>
+                </a>
             </div>
         </div>
     )
