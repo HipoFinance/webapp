@@ -24,7 +24,7 @@ interface Props {
 
 const Header = observer(({ model }: Props) => {
     return (
-        <div className='mx-auto flex w-full max-w-screen-lg flex-col gap-8 font-body text-brown dark:text-dark-50'>
+        <div className='mx-auto w-full max-w-screen-lg font-body text-brown dark:text-dark-50'>
             <div className='mx-4 flex flex-row items-center pt-4'>
                 <img src={logo} className='-ml-4 -mr-3 h-20 dark:hidden' />
                 <img src={logoDark} className='-ml-4 -mr-3 hidden h-20 dark:block' />
@@ -169,20 +169,6 @@ const Header = observer(({ model }: Props) => {
                     />
                 </div>
                 <div id='ton-connect-button' className='min-w-max'></div>
-            </div>
-
-            <div className='mb-8 px-4 text-center text-xl'>
-                <a href='https://hpo.hipo.finance/'>
-                    <div className='mx-auto flex max-w-max flex-row flex-wrap place-content-center items-center gap-2 rounded-3xl border border-brown p-4 shadow-md shadow-brown dark:border-milky dark:shadow-milky'>
-                        <img src='hpo.svg' className='h-10 w-10' />
-                        <p className='text-shadow'>
-                            Don&apos;t miss the $HPO TGE on <span className='whitespace-nowrap'>Nov. 25!</span>
-                        </p>
-                        <p className='whitespace-nowrap rounded-2xl bg-orange px-4 py-2 text-white dark:text-dark-600'>
-                            Join Now
-                        </p>
-                    </div>
-                </a>
             </div>
         </div>
     )
