@@ -84,6 +84,7 @@ export class Model {
     ongoingRequests = 0
     errorMessage = ''
     referralStats?: ReferralStats
+    holdersCount?: number
 
     // unobserved state
     dark = false
@@ -97,6 +98,7 @@ export class Model {
     timeoutSwitchNetwork?: ReturnType<typeof setTimeout>
     timeoutErrorMessage?: ReturnType<typeof setTimeout>
     timeoutReferralStats?: ReturnType<typeof setTimeout>
+    timeoutHipoGauge?: ReturnType<typeof setTimeout>
 
     readonly dedustSwapUrl = 'https://dedust.io/swap/hTON/TON'
     readonly dedustPoolUrl = 'https://dedust.io/pools/EQBWsAdyAg-8fs3G-m-eUBCXZuVaOldF5-tCMJBJzxQG7nLX'
@@ -128,6 +130,7 @@ export class Model {
             ongoingRequests: observable,
             errorMessage: observable,
             referralStats: observable,
+            holdersCount: observable,
 
             isWalletConnected: computed,
             isMainnet: computed,
@@ -197,6 +200,7 @@ export class Model {
         window.dispatchEvent(new HashChangeEvent('hashchange'))
 
         this.initTonConnect()
+        this.loadHipoGauge()
 
         autorun(() => {
             this.connectTonAccess()
@@ -489,6 +493,14 @@ export class Model {
         }
         url += '/'
         return url
+    }
+
+    get holdersCountFormatted() {
+        if (this.holdersCount != null) {
+            return formatCompact1Fraction(this.holdersCount)
+        } else {
+            return '-'
+        }
     }
 
     setNetwork = (network: Network) => {
@@ -1175,6 +1187,28 @@ export class Model {
                 this.timeoutReferralStats = setTimeout(this.loadReferralStats, 60000)
             })
     }
+
+    loadHipoGauge = () => {
+        clearTimeout(this.timeoutHipoGauge)
+        fetch('https://gauge.hipo.finance/data')
+            .then((res) => res.json())
+            .then((res: { ok: boolean; result: { holders: { holders_count: number } } }) => {
+                if (res.ok && res.result.holders.holders_count >= 0) {
+                    runInAction(() => {
+                        this.holdersCount = res.result.holders.holders_count
+                    })
+                }
+                throw new Error('invalid response')
+            })
+            .catch(() => {
+                clearTimeout(this.timeoutHipoGauge)
+                this.timeoutHipoGauge = setTimeout(this.loadHipoGauge, 5000)
+            })
+    }
+}
+
+export function formatCompact1Fraction(n: number): string {
+    return n.toLocaleString(undefined, { notation: 'compact', maximumFractionDigits: 1 })
 }
 
 function formatNano(amount: bigint | number, maximumFractionDigits = 2): string {
