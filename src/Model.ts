@@ -1192,10 +1192,10 @@ export class Model {
         clearTimeout(this.timeoutHipoGauge)
         fetch('https://gauge.hipo.finance/data')
             .then((res) => res.json())
-            .then((res: { ok: boolean; result: { holders: { holders_count: number } } }) => {
-                if (res.ok && res.result.holders.holders_count >= 0) {
+            .then((res: { ok: boolean; result: { hton: { holders_count: number } } }) => {
+                if (res.ok && res.result.hton.holders_count >= 0) {
                     runInAction(() => {
-                        this.holdersCount = res.result.holders.holders_count
+                        this.holdersCount = res.result.hton.holders_count
                     })
                 }
                 throw new Error('invalid response')
