@@ -104,6 +104,8 @@ export class Model {
     readonly dedustPoolUrl = 'https://dedust.io/pools/EQBWsAdyAg-8fs3G-m-eUBCXZuVaOldF5-tCMJBJzxQG7nLX'
     readonly stonSwapUrl = 'https://app.ston.fi/swap?chartVisible=false&ft=hTON&tt=TON'
     readonly stonPoolUrl = 'https://app.ston.fi/pools/EQDjmQDt12Ys1-gyKZskDSIDAVQaciI3cIUpk46LCWtnKpGF'
+    readonly toncoSwapUrl = 'https://app.tonco.io/#/swap?from=hTON&to=TON'
+    readonly toncoPoolUrl = 'https://app.tonco.io/#/pool/EQCNtxsO6JYljVLkcJVt7hZZhkC50kMIFAZklE4zBby31RAR'
     readonly aquaUsdUrl = 'https://app.aquaprotocol.xyz/?asset=hton'
     readonly evaaLoanUrl = 'https://app.evaa.finance/'
 

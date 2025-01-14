@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite'
 import { Model } from './Model'
 import dedust from './assets/dedust.png'
 import ston from './assets/ston.png'
+import tonco from './assets/tonco.png'
 import aquaUsd from './assets/aquausd.png'
 import evaa from './assets/evaa.svg'
 
@@ -45,6 +46,17 @@ const Referral = observer(({ model }: Props) => {
                             Swap now
                         </a>
                     </div>
+                    <div className='flex w-44 flex-none flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
+                        <img src={tonco} className='mx-auto h-12' />
+                        <p className='m-4 font-medium'>TONCO</p>
+                        <a
+                            className='mx-4 rounded-xl bg-orange p-2 text-white dark:text-dark-600'
+                            href={model.toncoSwapUrl}
+                            target='hipo_tonco'
+                        >
+                            Swap now
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -72,6 +84,17 @@ const Referral = observer(({ model }: Props) => {
                             className='mx-4 rounded-xl bg-orange p-2 text-white dark:text-dark-600'
                             href={model.stonPoolUrl}
                             target='hipo_ston'
+                        >
+                            Earn now
+                        </a>
+                    </div>
+                    <div className='flex w-44 flex-none flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
+                        <img src={tonco} className='mx-auto h-12' />
+                        <p className='m-4 font-medium'>TONCO</p>
+                        <a
+                            className='mx-4 rounded-xl bg-orange p-2 text-white dark:text-dark-600'
+                            href={model.toncoPoolUrl}
+                            target='hipo_tonco'
                         >
                             Earn now
                         </a>
