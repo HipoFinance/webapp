@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite'
 import { Model } from './Model'
 import dedust from './assets/dedust.png'
 import ston from './assets/ston.png'
-import tonco from './assets/tonco.png'
+import tonco from './assets/tonco.svg'
 import aquaUsd from './assets/aquausd.png'
 import evaa from './assets/evaa.svg'
 
