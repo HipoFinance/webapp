@@ -325,7 +325,7 @@ export class Model {
     }
 
     get amountInNano() {
-        const amount = this.numberParser.parse(this.amount).toString()
+        const amount = this.amount.trim() === '' ? '' : this.numberParser.parse(this.amount).toString()
         try {
             return toNano(amount)
         } catch {
