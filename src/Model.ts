@@ -100,7 +100,7 @@ export class Model {
     timeoutReferralStats?: ReturnType<typeof setTimeout>
     timeoutHipoGauge?: ReturnType<typeof setTimeout>
 
-    readonly numberParser = new NumberParser(navigator.language)
+    // readonly numberParser = new NumberParser(navigator.language)
 
     readonly dedustSwapUrl = 'https://dedust.io/swap/hTON/TON'
     readonly dedustPoolUrl = 'https://dedust.io/pools/EQBWsAdyAg-8fs3G-m-eUBCXZuVaOldF5-tCMJBJzxQG7nLX'
@@ -325,7 +325,7 @@ export class Model {
     }
 
     get amountInNano() {
-        const amount = this.amount.trim() === '' ? '' : this.numberParser.parse(this.amount).toString()
+        const amount = this.amount.trim()
         try {
             return toNano(amount)
         } catch {
@@ -1211,29 +1211,29 @@ export class Model {
     }
 }
 
-class NumberParser {
-    #group: RegExp
-    #decimal: RegExp
-    #numeral: RegExp
-    #index: (substring: string) => string
-    constructor(locale: string) {
-        const parts = new Intl.NumberFormat(locale).formatToParts(12345.6)
-        const numerals = [...new Intl.NumberFormat(locale, { useGrouping: false }).format(9876543210)].reverse()
-        const index = new Map(numerals.map((d, i) => [d, i]))
-        this.#group = new RegExp(`[${(parts.find((d) => d.type === 'group') ?? parts[0]).value}]`, 'g')
-        this.#decimal = new RegExp(`[${(parts.find((d) => d.type === 'decimal') ?? parts[0]).value}]`)
-        this.#numeral = new RegExp(`[${numerals.join('')}]`, 'g')
-        this.#index = (d) => (index.get(d) ?? '').toString()
-    }
-    parse(input: string) {
-        const result = input
-            .trim()
-            .replace(this.#group, '')
-            .replace(this.#decimal, '.')
-            .replace(this.#numeral, this.#index)
-        return result ? +result : NaN
-    }
-}
+// class NumberParser {
+//     #group: RegExp
+//     #decimal: RegExp
+//     #numeral: RegExp
+//     #index: (substring: string) => string
+//     constructor(locale: string) {
+//         const parts = new Intl.NumberFormat(locale).formatToParts(12345.6)
+//         const numerals = [...new Intl.NumberFormat(locale, { useGrouping: false }).format(9876543210)].reverse()
+//         const index = new Map(numerals.map((d, i) => [d, i]))
+//         this.#group = new RegExp(`[${(parts.find((d) => d.type === 'group') ?? parts[0]).value}]`, 'g')
+//         this.#decimal = new RegExp(`[${(parts.find((d) => d.type === 'decimal') ?? parts[0]).value}]`)
+//         this.#numeral = new RegExp(`[${numerals.join('')}]`, 'g')
+//         this.#index = (d) => (index.get(d) ?? '').toString()
+//     }
+//     parse(input: string) {
+//         const result = input
+//             .trim()
+//             .replace(this.#group, '')
+//             .replace(this.#decimal, '.')
+//             .replace(this.#numeral, this.#index)
+//         return result ? +result : NaN
+//     }
+// }
 
 export function formatCompact1Fraction(n: number): string {
     return n.toLocaleString(undefined, { notation: 'compact', maximumFractionDigits: 1 })

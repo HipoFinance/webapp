@@ -125,7 +125,8 @@ const StakeUnstake = observer(({ model }: Props) => {
                                 value={model.amount}
                                 onInput={(e) => {
                                     const target = e.target as HTMLInputElement
-                                    model.setAmount(target.value)
+                                    const value = target.value.replace(/,/g, '.')
+                                    model.setAmount(value)
                                 }}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && model.isButtonEnabled) {
