@@ -17,7 +17,7 @@
         "@ton/core": "^0.57.0",
         "@ton/crypto": "^3.3.0",
         "@ton/ton": "^15.0.0",
-        "@tonconnect/ui": "^2.0.9",
+        "@tonconnect/ui": "^2.0.11",
         "@twa-dev/sdk": "^7.10.0",
         "eslint-plugin-react": "^7.35.2",
         "mobx": "^6.13.2",
