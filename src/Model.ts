@@ -376,8 +376,8 @@ export class Model {
 
     get swapUrl() {
         let url = 'https://swap.coffee/dex?ft=EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w&st=TON'
-        if (this.isAmountValid && this.isAmountPositive && this.amountInNano != null) {
-            url += '&fa=' + this.amountInNano
+        if (this.isAmountValid && this.isAmountPositive) {
+            url += '&fa=' + this.amount
         }
         return url
     }
