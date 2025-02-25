@@ -375,9 +375,9 @@ export class Model {
     }
 
     get swapUrl() {
-        let url = 'https://dedust.io/swap/hTON/TON'
+        let url = 'https://swap.coffee/dex?ft=EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w&st=TON'
         if (this.isAmountValid && this.isAmountPositive && this.amountInNano != null) {
-            url += '?amount=' + this.amountInNano
+            url += '&fa=' + this.amountInNano
         }
         return url
     }
