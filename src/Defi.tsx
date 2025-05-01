@@ -4,7 +4,9 @@ import dedust from './assets/dedust.png'
 import ston from './assets/ston.png'
 import tonco from './assets/tonco.svg'
 import aquaUsd from './assets/aquausd.png'
-import evaa from './assets/evaa.svg'
+import tonspace from './assets/tonspace.jpg'
+import mtw from './assets/mytonwallet.svg'
+// import evaa from './assets/evaa.svg'
 
 interface Props {
     model: Model
@@ -124,6 +126,37 @@ const Referral = observer(({ model }: Props) => {
 
             <div className='m-8 mt-48 flex flex-col items-start gap-4 sm:flex-row'>
                 <div className='flex-1 sm:max-w-64'>
+                    <h3 className='py-4 text-2xl font-bold'>Ton Wallets</h3>
+                    <p className='my-4 text-lg'>Partner wallets supporting hTON and HPO.</p>
+                </div>
+                <div className='flex w-full flex-1 flex-col flex-wrap items-center justify-center gap-4 md:flex-row'>
+                    <div className='flex w-44 flex-none flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
+                        <img src={tonspace} className='mx-auto h-12' />
+                        <p className='m-4 font-medium'>Ton Space</p>
+                        <a
+                            className='mx-4 rounded-xl bg-orange p-2 text-white dark:text-dark-600'
+                            href={model.tonspaceUrl}
+                            target='hipo_tonspace'
+                        >
+                            Use Now
+                        </a>
+                    </div>
+                    <div className='flex w-44 flex-none flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
+                        <img src={mtw} className='mx-auto h-12' />
+                        <p className='m-4 whitespace-nowrap font-medium'>My Ton Wallet</p>
+                        <a
+                            className='mx-4 rounded-xl bg-orange p-2 text-white dark:text-dark-600'
+                            href={model.mtwUrl}
+                            target='hipo_mtw'
+                        >
+                            Use Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {/* <div className='m-8 mt-48 flex flex-col items-start gap-4 sm:flex-row'>
+                <div className='flex-1 sm:max-w-64'>
                     <h3 className='py-4 text-2xl font-bold'>Take a Loan</h3>
                     <p className='my-4 text-lg'>Use hTON as collateral for a loan.</p>
                 </div>
@@ -131,17 +164,17 @@ const Referral = observer(({ model }: Props) => {
                     <div className='flex w-44 flex-none flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center opacity-50 shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
                         <img src={evaa} className='mx-auto h-12' />
                         <p className='m-4 font-medium'>Evaa</p>
-                        {/* <a
+                        <a
                             className='mx-4 rounded-xl bg-orange p-2 text-white dark:text-dark-600'
                             href={model.evaaLoanUrl}
                             target='hipo_evaa'
                         >
                             Take now
-                        </a> */}
+                        </a>
                         Coming Soon
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 })

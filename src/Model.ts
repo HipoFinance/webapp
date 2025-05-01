@@ -109,6 +109,8 @@ export class Model {
     readonly toncoSwapUrl = 'https://app.tonco.io/#/swap?from=hTON&to=TON'
     readonly toncoPoolUrl = 'https://app.tonco.io/#/pool/EQCNtxsO6JYljVLkcJVt7hZZhkC50kMIFAZklE4zBby31RAR'
     readonly aquaUsdUrl = 'https://app.aquaprotocol.xyz/?asset=hton'
+    readonly tonspaceUrl = 'https://t.me/wallet?startattach'
+    readonly mtwUrl = 'https://mytonwallet.io/get'
     readonly evaaLoanUrl = 'https://app.evaa.finance/'
 
     constructor() {
