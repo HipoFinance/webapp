@@ -143,7 +143,7 @@ const Referral = observer(({ model }: Props) => {
                     </div>
                     <div className='flex w-44 flex-none flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
                         <img src={mtw} className='mx-auto h-12' />
-                        <p className='m-4 whitespace-nowrap font-medium'>My Ton Wallet</p>
+                        <p className='m-4 whitespace-nowrap font-medium'>MyTonWallet</p>
                         <a
                             className='mx-4 rounded-xl bg-orange p-2 text-white dark:text-dark-600'
                             href={model.mtwUrl}
