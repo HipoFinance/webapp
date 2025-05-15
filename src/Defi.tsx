@@ -5,7 +5,7 @@ import ston from './assets/ston.png'
 import tonco from './assets/tonco.svg'
 import aquaUsd from './assets/aquausd.png'
 import tonspace from './assets/tonspace.jpg'
-import mtw from './assets/mytonwallet.png'
+import mtw from './assets/mytonwallet.webp'
 // import evaa from './assets/evaa.svg'
 
 interface Props {
