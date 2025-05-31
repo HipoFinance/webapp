@@ -11,7 +11,7 @@ const Footer = observer(({ model }: Props) => {
     return (
         <div className='mt-auto bg-milky font-body text-brown dark:bg-dark-900 dark:text-dark-50'>
             <div className='mx-auto flex w-full max-w-screen-lg flex-col justify-center px-8 py-8 sm:flex sm:flex-row-reverse sm:items-start sm:px-0'>
-                <div className='mx-auto flex flex-row flex-wrap border'>
+                <div className='mx-auto flex flex-row flex-wrap'>
                     <div className='mx-8 my-4'>
                         <h3 className='font-bold text-orange dark:text-brown'>Social</h3>
                         <a className='my-4 block text-sm' href='https://t.me/HipoFinance' target='hipo_telegram'>
