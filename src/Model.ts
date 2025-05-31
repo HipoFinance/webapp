@@ -432,18 +432,8 @@ export class Model {
         const times = this.times
         const participations = this.treasuryState?.participations
         if (times != null && participations != null) {
-            const currentParticipation = participations.get(times.currentRoundSince)
-            let eta = currentParticipation?.stakeHeldUntil
-            if (eta != null) {
-                return formatUnstakeHours(eta)
-            }
-            const now = Math.floor(Date.now() / 1000)
-            const nextParticipation = participations.get(times.nextRoundSince)
-            if (nextParticipation == null || now < Number(times.participateSince) - 5 * 60) {
-                return formatUnstakeHours(0n)
-            }
-            eta = times.nextRoundUntil + times.stakeHeldFor + 5n * 60n
-            return formatUnstakeHours(eta)
+            const keys = participations.keys().sort()
+            return formatUnstakeHours(participations.get(keys[0] ?? 0n)?.stakeHeldUntil ?? 0n)
         }
     }
 
