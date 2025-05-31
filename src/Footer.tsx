@@ -10,8 +10,8 @@ interface Props {
 const Footer = observer(({ model }: Props) => {
     return (
         <div className='mt-auto bg-milky font-body text-brown dark:bg-dark-900 dark:text-dark-50'>
-            <div className='mx-auto w-full max-w-screen-lg justify-center px-8 py-8 sm:flex sm:flex-row-reverse sm:items-start sm:px-0'>
-                <div className='grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-4'>
+            <div className='mx-auto flex w-full max-w-screen-lg flex-col justify-center px-8 py-8 sm:flex sm:flex-row-reverse sm:items-start sm:px-0'>
+                <div className='mx-auto flex flex-row flex-wrap border'>
                     <div className='mx-8 my-4'>
                         <h3 className='font-bold text-orange dark:text-brown'>Social</h3>
                         <a className='my-4 block text-sm' href='https://t.me/HipoFinance' target='hipo_telegram'>
@@ -44,38 +44,30 @@ const Footer = observer(({ model }: Props) => {
 
                     <div className='mx-8 my-4'>
                         <h3 className='font-bold text-orange dark:text-brown'>Docs</h3>
-                        <a className='my-4 block text-sm' href='https://hipo.finance/#audit' target='hipo_audits'>
-                            Audits
-                        </a>
                         <a className='my-4 block text-sm' href='https://github.com/HipoFinance' target='hipo_github'>
                             GitHub
                         </a>
                         <a className='my-4 block text-sm' href='https://docs.hipo.finance/' target='hipo_docs'>
                             Documentation
                         </a>
-                    </div>
-
-                    <div className='mx-8 my-4'>
-                        <h3 className='font-bold text-orange dark:text-brown'>About</h3>
-                        <a className='my-4 block text-sm' href='https://hipo.finance/#roadmap' target='hipo_roadmap'>
-                            Roadmap
-                        </a>
-                        <a className='my-4 block text-sm' href='https://hipo.finance/#HowHipoWorks' target='hipo_how'>
-                            How Hipo Works?
-                        </a>
-                        <a className='my-4 block text-sm' href='https://hipo.finance/#WhyHipo' target='hipo_why'>
-                            Why Choose Hipo?
+                        <a className='my-4 block text-sm' href='https://hpo.hipo.finance/' target='hipo_hpo'>
+                            HPO
                         </a>
                     </div>
                 </div>
 
-                <div
-                    className='mx-8 my-8 flex select-none flex-row items-center gap-4 pb-16 font-logo text-2xl dark:text-orange'
-                    onClick={model.switchNetwork}
-                >
-                    <img src={logo} className='-ml-4 -mr-3 h-20 dark:hidden' />
-                    <img src={logoDark} className='-ml-4 -mr-3 hidden h-20 dark:block' />
-                    <p>Hipo</p>
+                <div className='mx-auto my-8 flex max-w-96 flex-col gap-4 px-8 pb-16 sm:w-1/3'>
+                    <div
+                        className='flex select-none flex-row items-center gap-4 font-logo text-2xl dark:text-orange'
+                        onClick={model.switchNetwork}
+                    >
+                        <img src={logo} className='-ml-4 -mr-3 h-20 dark:hidden' />
+                        <img src={logoDark} className='-ml-4 -mr-3 hidden h-20 dark:block' />
+                        <p>Hipo</p>
+                    </div>
+                    <p>
+                        Hipo is an open-source liquid staking protocol with one of the most engaged communities on TON.
+                    </p>
                 </div>
             </div>
         </div>
