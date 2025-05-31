@@ -56,7 +56,7 @@ const Footer = observer(({ model }: Props) => {
                     </div>
                 </div>
 
-                <div className='mx-auto my-8 flex max-w-96 flex-col gap-4 px-8 pb-16 sm:w-1/3'>
+                <div className='mx-auto flex max-w-96 flex-col gap-4 px-8 pb-16 sm:w-1/2'>
                     <div
                         className='flex select-none flex-row items-center gap-4 font-logo text-2xl dark:text-orange'
                         onClick={model.switchNetwork}
