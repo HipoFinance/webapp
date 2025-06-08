@@ -48,7 +48,8 @@ const Referral = observer(({ model }: Props) => {
                         <hr className='my-4' />
                         <h3 className='mb-2 font-bold'>Balance After a Year</h3>
                         <div className='flex flex-row gap-1'>
-                            <p className=''>{model.htonBalanceInTonAfterOneYear}</p>
+                            <p className=''>{model.htonBalanceFormatted}</p>
+                            <p className='text-gray-400'>{model.htonBalanceInTonAfterOneYear}</p>
                             <p>&nbsp;</p>
                         </div>
                         <hr className='my-4' />
