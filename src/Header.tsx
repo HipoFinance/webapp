@@ -13,10 +13,10 @@ import pageDefiBrown from './assets/page-defi-brown.svg'
 import pageDefiOrange from './assets/page-defi-orange.svg'
 import pageDefiWhite from './assets/page-defi-white.svg'
 import pageDefiBlack from './assets/page-defi-black.svg'
-import pageReferralBrown from './assets/page-referral-brown.svg'
-import pageReferralOrange from './assets/page-referral-orange.svg'
-import pageReferralWhite from './assets/page-referral-white.svg'
-import pageReferralBlack from './assets/page-referral-black.svg'
+import pageRewardBrown from './assets/page-reward-brown.svg'
+import pageRewardOrange from './assets/page-reward-orange.svg'
+import pageRewardWhite from './assets/page-reward-white.svg'
+import pageRewardBlack from './assets/page-reward-black.svg'
 
 interface Props {
     model: Model
@@ -74,6 +74,45 @@ const Header = observer(({ model }: Props) => {
                     <li
                         className={
                             'flex-1 cursor-pointer whitespace-nowrap pt-3 text-center sm:ml-4 sm:flex-none sm:pt-0' +
+                            (model.activePage === 'reward' ? ' text-dark-600' : ' text-brown')
+                        }
+                        onClick={() => {
+                            model.setActivePage('reward')
+                        }}
+                    >
+                        <div className='flex flex-col items-center sm:flex-row sm:pl-2'>
+                            <img
+                                src={pageRewardBrown}
+                                className={'h-4 dark:!hidden' + (model.activePage !== 'reward' ? ' block' : ' hidden')}
+                            />
+                            <img
+                                src={pageRewardWhite}
+                                className={
+                                    'hidden h-4' + (model.activePage !== 'reward' ? ' dark:!block' : ' sm:dark:!block')
+                                }
+                            />
+                            <img
+                                src={pageRewardOrange}
+                                className={'h-4 sm:hidden' + (model.activePage === 'reward' ? ' block' : ' hidden')}
+                            />
+                            <img
+                                src={pageRewardBlack}
+                                className={
+                                    'hidden h-4' + (model.activePage === 'reward' ? ' dark:!hidden sm:block' : '')
+                                }
+                            />
+                            <span className='p-2 dark:text-white'>Reward</span>
+                        </div>
+                        <div
+                            className={
+                                'mt-1 hidden h-1 rounded-full bg-orange' +
+                                (model.activePage === 'reward' ? ' sm:!block' : '')
+                            }
+                        ></div>
+                    </li>
+                    <li
+                        className={
+                            'flex-1 cursor-pointer whitespace-nowrap pt-3 text-center sm:ml-4 sm:flex-none sm:pt-0' +
                             (model.activePage === 'defi' ? ' text-dark-600' : ' text-brown')
                         }
                         onClick={() => {
@@ -105,48 +144,6 @@ const Header = observer(({ model }: Props) => {
                             className={
                                 'mt-1 hidden h-1 rounded-full bg-orange' +
                                 (model.activePage === 'defi' ? ' sm:!block' : '')
-                            }
-                        ></div>
-                    </li>
-                    <li
-                        className={
-                            'flex-1 cursor-pointer whitespace-nowrap pt-3 text-center sm:ml-4 sm:flex-none sm:pt-0' +
-                            (model.activePage === 'referral' ? ' text-dark-600' : ' text-brown')
-                        }
-                        onClick={() => {
-                            model.setActivePage('referral')
-                        }}
-                    >
-                        <div className='flex flex-col items-center sm:flex-row sm:pl-2'>
-                            <img
-                                src={pageReferralBrown}
-                                className={
-                                    'h-4 dark:!hidden' + (model.activePage !== 'referral' ? ' block' : ' hidden')
-                                }
-                            />
-                            <img
-                                src={pageReferralWhite}
-                                className={
-                                    'hidden h-4' +
-                                    (model.activePage !== 'referral' ? ' dark:!block' : ' sm:dark:!block')
-                                }
-                            />
-                            <img
-                                src={pageReferralOrange}
-                                className={'h-4 sm:hidden' + (model.activePage === 'referral' ? ' block' : ' hidden')}
-                            />
-                            <img
-                                src={pageReferralBlack}
-                                className={
-                                    'hidden h-4' + (model.activePage === 'referral' ? ' dark:!hidden sm:block' : '')
-                                }
-                            />
-                            <span className='p-2 dark:text-white'>Referral</span>
-                        </div>
-                        <div
-                            className={
-                                'mt-1 hidden h-1 rounded-full bg-orange' +
-                                (model.activePage === 'referral' ? ' sm:!block' : '')
                             }
                         ></div>
                     </li>

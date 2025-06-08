@@ -18,6 +18,7 @@ export default {
             attentiondark: '#ffedef',
             black: '#000000',
             gray: colors.gray,
+            green: colors.green,
             dark: {
                 '50': '#f2f2f2',
                 '100': '#eaeaea',

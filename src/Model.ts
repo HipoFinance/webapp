@@ -19,7 +19,7 @@ import {
 } from '@hipo-finance/sdk'
 import { OldTreasury } from './OldTreasury'
 
-type ActivePage = 'stake' | 'defi' | 'referral'
+type ActivePage = 'stake' | 'reward' | 'defi'
 
 type ActiveTab = 'stake' | 'unstake'
 
@@ -27,13 +27,26 @@ type UnstakeOption = 'unstake' | 'swap'
 
 type WaitForTransaction = 'no' | 'signed' | 'sent' | 'timeout' | 'done'
 
-interface ReferralStats {
-    wallets: Address[]
+type RewardsFetchState = 'init' | 'loading' | 'error' | 'more' | 'done'
+
+interface RewardRow {
+    time: Date
+    htonBalance: string
+    tonReward: string
+}
+
+interface RewardsState {
+    state: RewardsFetchState
+    rewards: RewardRow[]
+}
+
+const emptyRewardsState: RewardsState = {
+    state: 'init',
+    rewards: [],
 }
 
 interface FragmentState {
     network?: Network
-    referrer?: Address
     activePage?: ActivePage
     activeTab?: ActiveTab
 }
@@ -83,21 +96,19 @@ export class Model {
     waitForTransaction: WaitForTransaction = 'no'
     ongoingRequests = 0
     errorMessage = ''
-    referralStats?: ReferralStats
     holdersCount?: number
+    rewardsState: RewardsState = emptyRewardsState
 
     // unobserved state
     dark = false
     tonConnectUI?: TonConnectUI
     lastBlock = 0
     switchNetworkCounter = 0
-    referrer?: Address
     timeoutConnectTonAccess?: ReturnType<typeof setTimeout>
     timeoutReadTimes?: ReturnType<typeof setTimeout>
     timeoutReadLastBlock?: ReturnType<typeof setTimeout>
     timeoutSwitchNetwork?: ReturnType<typeof setTimeout>
     timeoutErrorMessage?: ReturnType<typeof setTimeout>
-    timeoutReferralStats?: ReturnType<typeof setTimeout>
     timeoutHipoGauge?: ReturnType<typeof setTimeout>
 
     // readonly numberParser = new NumberParser(navigator.language)
@@ -135,14 +146,17 @@ export class Model {
             waitForTransaction: observable,
             ongoingRequests: observable,
             errorMessage: observable,
-            referralStats: observable,
             holdersCount: observable,
+            rewardsState: observable,
 
             isWalletConnected: computed,
             isMainnet: computed,
             isStakeTabActive: computed,
             tonBalanceFormatted: computed,
             htonBalanceFormatted: computed,
+            htonBalanceInTon: computed,
+            htonBalanceInTonAfterOneYear: computed,
+            profitAfterOneYear: computed,
             oldWalletTokensFormatted: computed,
             newWalletTokensFormatted: computed,
             unstakingInProgressFormatted: computed,
@@ -167,7 +181,6 @@ export class Model {
             apyFormatted: computed,
             protocolFee: computed,
             currentlyStaked: computed,
-            referralUrl: computed,
 
             setNetwork: action,
             setTonClient: action,
@@ -182,6 +195,8 @@ export class Model {
             beginRequest: action,
             endRequest: action,
             setErrorMessage: action,
+            setRewardsFetchState: action,
+            loadMoreRewards: action,
         })
     }
 
@@ -199,7 +214,6 @@ export class Model {
                 this.setActivePage(fragmentState.activePage ?? defaultActivePage)
                 this.setActiveTab(fragmentState.activeTab ?? defaultActiveTab)
                 this.setNetwork(fragmentState.network ?? defaultNetwork)
-                this.setReferrer(fragmentState.referrer)
             })
             this.writeFragmentState()
         }
@@ -222,6 +236,16 @@ export class Model {
 
         autorun(() => {
             this.writeFragmentState()
+        })
+
+        autorun(() => {
+            const walletAddress = this.walletAddress
+            const activePage = this.activePage
+            const rewardsState = this.rewardsState
+            if (walletAddress == null || activePage !== 'reward' || rewardsState.state !== 'init') {
+                return
+            }
+            this.loadMoreRewards()
         })
     }
 
@@ -246,6 +270,35 @@ export class Model {
     get htonBalanceFormatted() {
         if (this.tonBalance != null) {
             return formatNano(this.walletState?.tokens ?? 0n) + ' hTON'
+        }
+    }
+
+    get htonBalanceInTon() {
+        const state = this.treasuryState
+        if (state != null) {
+            const rate = Number(state.totalCoins) / Number(state.totalTokens) || 1
+            const balance = Number(this.walletState?.tokens ?? 0n) * rate
+            return '≈ ' + formatNano(balance) + ' TON'
+        }
+    }
+
+    get htonBalanceInTonAfterOneYear() {
+        const apy = this.apy
+        const state = this.treasuryState
+        if (apy != null && state != null) {
+            const rate = Number(state.totalCoins) / Number(state.totalTokens) || 1
+            const balance = Number(this.walletState?.tokens ?? 0n) * rate * (1 + apy)
+            return '≈ ' + formatNano(balance) + ' TON'
+        }
+    }
+
+    get profitAfterOneYear() {
+        const apy = this.apy
+        const state = this.treasuryState
+        if (apy != null && state != null) {
+            const rate = Number(state.totalCoins) / Number(state.totalTokens) || 1
+            const balance = Number(this.walletState?.tokens ?? 0n) * rate * apy
+            return '≈ ' + formatNano(balance) + ' TON'
         }
     }
 
@@ -481,16 +534,6 @@ export class Model {
         }
     }
 
-    get referralUrl() {
-        const currentUrl = new URL(document.URL)
-        let url = currentUrl.origin + '/#'
-        if (this.address != null) {
-            url += '/referrer=' + this.address.toString({ bounceable: false })
-        }
-        url += '/'
-        return url
-    }
-
     get holdersCountFormatted() {
         if (this.holdersCount != null) {
             return formatCompact1Fraction(this.holdersCount)
@@ -523,24 +566,6 @@ export class Model {
         }
     }
 
-    setReferrer = (referrer?: Address) => {
-        if (referrer != null) {
-            this.referrer = referrer
-            localStorage.setItem('referrer', referrer.toString({ testOnly: !this.isMainnet, bounceable: false }))
-        } else {
-            try {
-                this.referrer = Address.parseFriendly(localStorage.getItem('referrer') ?? '').address
-            } catch {
-                this.referrer = undefined
-            }
-        }
-
-        if (this.referrer != null && this.address != null && this.referrer.equals(this.address)) {
-            this.referrer = undefined
-            localStorage.removeItem('referrer')
-        }
-    }
-
     setTonClient = (endpoint: string) => {
         this.tonClient = new TonClient4({ endpoint, timeout: 5 * 1_000 })
     }
@@ -555,7 +580,7 @@ export class Model {
         this.oldWalletTokens = undefined
         this.newWalletTokens = undefined
         this.lastBlock = 0
-        this.setReferrer()
+        this.rewardsState = emptyRewardsState
     }
 
     setTimes = (times?: Times) => {
@@ -613,12 +638,56 @@ export class Model {
         }
     }
 
+    setRewardsFetchState = (state: RewardsFetchState) => {
+        this.rewardsState.state = state
+    }
+
+    loadMoreRewards = () => {
+        const walletAddress = this.walletAddress
+        if (walletAddress == null) {
+            return
+        }
+
+        this.setRewardsFetchState('loading')
+
+        let url = 'https://api.hipo.finance:8443/hton/rewards/' + walletAddress.toString()
+        if (this.rewardsState.rewards.length > 0) {
+            const time = this.rewardsState.rewards[this.rewardsState.rewards.length - 1].time.getTime()
+            url += '?before=' + (time / 1000).toString()
+        }
+
+        fetch(url)
+            .then((res) => res.json())
+            .then((res) => {
+                const ok = res?.ok ?? false
+                const rewards = res?.result?.rewards
+                if (!ok || !Array.isArray(rewards)) {
+                    this.setRewardsFetchState('error')
+                } else {
+                    runInAction(() => {
+                        for (const reward of rewards) {
+                            this.rewardsState.rewards.push({
+                                time: new Date(reward.time * 1000),
+                                htonBalance: formatNano(BigInt(reward.hton_balance), 3),
+                                tonReward: formatNano(BigInt(reward.ton_reward), 9),
+                            })
+                        }
+                    })
+                    if (rewards.length < 10) {
+                        this.setRewardsFetchState('done')
+                    } else {
+                        this.setRewardsFetchState('more')
+                    }
+                }
+            })
+            .catch(() => {
+                this.setRewardsFetchState('error')
+            })
+    }
+
     connectTonAccess = () => {
         const network = this.network
         clearTimeout(this.timeoutConnectTonAccess)
-        if (this.activePage !== 'stake') {
-            return
-        }
         getHttpV4Endpoint({ network })
             .then(this.setTonClient)
             .catch(() => {
@@ -631,7 +700,7 @@ export class Model {
         const tonClient = this.tonClient
         const treasuryAddress = treasuryAddresses.get(this.network)
         clearTimeout(this.timeoutReadTimes)
-        if (document.hidden || this.activePage !== 'stake') {
+        if (document.hidden) {
             return
         }
         this.timeoutReadTimes = setTimeout(this.readTimes, updateTimesDelay)
@@ -655,7 +724,7 @@ export class Model {
         const address = this.address
         const treasuryAddress = treasuryAddresses.get(this.network)
         clearTimeout(this.timeoutReadLastBlock)
-        if (document.hidden || this.activePage !== 'stake') {
+        if (document.hidden) {
             return
         }
         this.timeoutReadLastBlock = setTimeout(() => void this.readLastBlock(), updateLastBlockDelay)
@@ -881,7 +950,7 @@ export class Model {
             const queryId = generateRandomQueryId()
 
             const message = this.isStakeTabActive
-                ? createDepositMessage(this.treasury.address, this.amountInNano, queryId, this.referrer)
+                ? createDepositMessage(this.treasury.address, this.amountInNano, queryId)
                 : createUnstakeMessage(this.wallet.address, this.amountInNano, queryId)
 
             const tx: SendTransactionRequest = {
@@ -1117,15 +1186,8 @@ export class Model {
                         fragmentState.network = value
                     }
                 }
-                if (key === 'referrer') {
-                    try {
-                        fragmentState.referrer = Address.parseFriendly(value).address
-                    } catch {
-                        // ignore
-                    }
-                }
                 if (key === 'page') {
-                    if (value === 'stake' || value === 'defi' || value === 'referral') {
+                    if (value === 'stake' || value === 'reward' || value === 'defi') {
                         fragmentState.activePage = value
                     }
                 }
@@ -1154,36 +1216,6 @@ export class Model {
         window.location.hash = hash
     }
 
-    copyReferralUrl = () => {
-        void navigator.clipboard.writeText(this.referralUrl)
-    }
-
-    loadReferralStats = () => {
-        clearTimeout(this.timeoutReferralStats)
-        if (this.referralStats != null || !this.isWalletConnected) {
-            return
-        }
-        fetch(
-            'https://api.hipo.finance/referral?referrer=' +
-                (this.address?.toString({ bounceable: false, testOnly: !this.isMainnet }) ?? ''),
-        )
-            .then((res) => res.json())
-            .then((res: { ok: boolean; result: { wallets: { wallet: string }[] } }) => {
-                if (res.ok && res.result.wallets.length >= 0) {
-                    runInAction(() => {
-                        this.referralStats = {
-                            wallets: res.result.wallets.map((w) => Address.parseFriendly(w.wallet).address),
-                        }
-                    })
-                }
-                throw new Error('invalid response')
-            })
-            .catch(() => {
-                clearTimeout(this.timeoutReferralStats)
-                this.timeoutReferralStats = setTimeout(this.loadReferralStats, 60000)
-            })
-    }
-
     loadHipoGauge = () => {
         clearTimeout(this.timeoutHipoGauge)
         fetch('https://gauge.hipo.finance/data')
@@ -1193,8 +1225,9 @@ export class Model {
                     runInAction(() => {
                         this.holdersCount = res.result.hton.holders_count
                     })
+                } else {
+                    throw new Error('invalid response')
                 }
-                throw new Error('invalid response')
             })
             .catch(() => {
                 clearTimeout(this.timeoutHipoGauge)

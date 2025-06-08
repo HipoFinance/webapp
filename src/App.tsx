@@ -4,7 +4,7 @@ import Header from './Header.tsx'
 import OldWalletUpgrade from './OldWalletUpgrade.tsx'
 import StakeUnstake from './StakeUnstake.tsx'
 import Defi from './Defi.tsx'
-import Referral from './Referral.tsx'
+import Reward from './Reward.tsx'
 import Wait from './Wait.tsx'
 import Stats from './Stats.tsx'
 import Footer from './Footer.tsx'
@@ -31,8 +31,8 @@ const App = observer(({ model }: Props) => {
     )
     if (model.activePage === 'defi') {
         page = <Defi model={model} />
-    } else if (model.activePage === 'referral') {
-        page = <Referral model={model} />
+    } else if (model.activePage === 'reward') {
+        page = <Reward model={model} />
     }
 
     return (
