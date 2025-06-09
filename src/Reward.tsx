@@ -53,7 +53,7 @@ const Referral = observer(({ model }: Props) => {
                             <p>&nbsp;</p>
                         </div>
                         <hr className='my-4' />
-                        <h3 className='mb-2 font-bold'>Total Profit</h3>
+                        <h3 className='mb-2 font-bold'>Annual Profit</h3>
                         <div className='flex flex-row gap-1'>
                             <p className=''>{model.profitAfterOneYear}</p>
                             <p>&nbsp;</p>
@@ -115,14 +115,36 @@ const Referral = observer(({ model }: Props) => {
                         </div>
                     )}
 
-                    {model.rewardsState.state === 'done' && model.rewardsState.rewards.length === 0 && (
-                        <div className='mx-auto flex max-w-md flex-col gap-8 rounded-xl bg-white p-8 text-sm shadow-md dark:bg-dark-700'>
-                            <p className='text-center'>
-                                Your first reward will be credited within <b className='font-bold'>36 hours</b>.
-                            </p>
-                            <img src={stakingRewards} className='h-36 object-contain' />
-                        </div>
-                    )}
+                    {model.rewardsState.state === 'done' &&
+                        model.rewardsState.rewards.length === 0 &&
+                        model.htonBalance > 0n && (
+                            <div className='mx-auto flex max-w-md flex-col gap-8 rounded-xl bg-white p-8 text-sm shadow-md dark:bg-dark-700'>
+                                <p className='text-center'>
+                                    Your first reward will be credited within <b className='font-bold'>36 hours</b>.
+                                </p>
+                                <img src={stakingRewards} className='h-36 object-contain' />
+                            </div>
+                        )}
+
+                    {model.rewardsState.state === 'done' &&
+                        model.rewardsState.rewards.length === 0 &&
+                        model.htonBalance === 0n && (
+                            <div className='mx-auto mt-4 max-w-md rounded-xl bg-white shadow-md dark:bg-dark-700'>
+                                <div className='mx-auto flex max-w-sm flex-col gap-8 p-8'>
+                                    <p className='text-center'>Start staking with Hipo for daily rewards!</p>
+                                    <img src={stakingRewards} className='h-36 object-contain' />
+                                    <button
+                                        className='mx-auto block h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white dark:text-dark-600 sm:w-80'
+                                        onClick={() => {
+                                            model.setActivePage('stake')
+                                            model.setActiveTab('stake')
+                                        }}
+                                    >
+                                        Stake Now
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                 </>
             )}
         </div>

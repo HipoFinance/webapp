@@ -153,6 +153,7 @@ export class Model {
             isMainnet: computed,
             isStakeTabActive: computed,
             tonBalanceFormatted: computed,
+            htonBalance: computed,
             htonBalanceFormatted: computed,
             htonBalanceInTon: computed,
             htonBalanceInTonAfterOneYear: computed,
@@ -265,6 +266,10 @@ export class Model {
         if (this.tonBalance != null) {
             return formatNano(this.tonBalance) + ' TON'
         }
+    }
+
+    get htonBalance() {
+        return this.walletState?.tokens ?? 0n
     }
 
     get htonBalanceFormatted() {
