@@ -60,60 +60,61 @@ const Referral = observer(({ model }: Props) => {
                         </div>
                     </div>
 
-                    {!(model.rewardsState.state === 'done' && model.rewardsState.rewards.length === 0) && (
-                        <div className='mx-auto mb-4 flex max-w-md flex-col rounded-xl bg-white p-8 shadow-md dark:bg-dark-700'>
-                            <h3 className='mb-4 font-bold'>Earned Rewards</h3>
+                    {!(model.rewardsState.state === 'done' && model.rewardsState.rewards.length === 0) &&
+                        model.htonBalanceFormatted != null && (
+                            <div className='mx-auto mb-4 flex max-w-md flex-col rounded-xl bg-white p-8 shadow-md dark:bg-dark-700'>
+                                <h3 className='mb-4 font-bold'>Earned Rewards</h3>
 
-                            {model.rewardsState.rewards.map((reward, i) => (
-                                <>
-                                    <div className='my-4 flex w-full flex-row items-center gap-4 text-sm' key={i}>
-                                        <img src={ton} className='h-8' />
-                                        <div className='flex flex-col items-start'>
-                                            <p className=''>Rewards</p>
-                                            <p
-                                                className='text-gray-500 dark:text-gray-300'
-                                                title={reward.time.toLocaleString(navigator.language, {
-                                                    year: 'numeric',
-                                                    month: 'numeric',
-                                                    day: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    hour12: false,
-                                                })}
-                                            >
-                                                {reward.time.toLocaleString(navigator.language, {
-                                                    month: 'long',
-                                                    day: '2-digit',
-                                                })}
-                                            </p>
-                                        </div>
-                                        <div className='ml-auto flex flex-col items-end'>
-                                            <p className='text-green-600'>+{reward.tonReward}</p>
-                                            <p>TON</p>
-                                        </div>
-                                    </div>
-                                    <hr className='ml-10' />
-                                </>
-                            ))}
-
-                            <div className='mt-8 flex flex-row place-content-center items-center gap-1'>
-                                {model.rewardsState.state === 'loading' && (
+                                {model.rewardsState.rewards.map((reward, i) => (
                                     <>
-                                        <img src={loading} className='m-2 h-8 animate-spin dark:hidden' />
-                                        <img src={loadingDark} className='m-2 hidden h-8 animate-spin dark:block' />
+                                        <div className='my-4 flex w-full flex-row items-center gap-4 text-sm' key={i}>
+                                            <img src={ton} className='h-8' />
+                                            <div className='flex flex-col items-start'>
+                                                <p className=''>Rewards</p>
+                                                <p
+                                                    className='text-gray-500 dark:text-gray-300'
+                                                    title={reward.time.toLocaleString(navigator.language, {
+                                                        year: 'numeric',
+                                                        month: 'numeric',
+                                                        day: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                        hour12: false,
+                                                    })}
+                                                >
+                                                    {reward.time.toLocaleString(navigator.language, {
+                                                        month: 'long',
+                                                        day: '2-digit',
+                                                    })}
+                                                </p>
+                                            </div>
+                                            <div className='ml-auto flex flex-col items-end'>
+                                                <p className='text-green-600'>+{reward.tonReward}</p>
+                                                <p>TON</p>
+                                            </div>
+                                        </div>
+                                        <hr className='ml-10' />
                                     </>
-                                )}
-                                {['error', 'more'].includes(model.rewardsState.state) && (
-                                    <button
-                                        onClick={model.loadMoreRewards}
-                                        className='rounded-2xl bg-orange px-8 py-3 font-medium text-white dark:text-dark-600'
-                                    >
-                                        Load More
-                                    </button>
-                                )}
+                                ))}
+
+                                <div className='mt-8 flex flex-row place-content-center items-center gap-1'>
+                                    {model.rewardsState.state === 'loading' && (
+                                        <>
+                                            <img src={loading} className='m-2 h-8 animate-spin dark:hidden' />
+                                            <img src={loadingDark} className='m-2 hidden h-8 animate-spin dark:block' />
+                                        </>
+                                    )}
+                                    {['error', 'more'].includes(model.rewardsState.state) && (
+                                        <button
+                                            onClick={model.loadMoreRewards}
+                                            className='rounded-2xl bg-orange px-8 py-3 font-medium text-white dark:text-dark-600'
+                                        >
+                                            Load More
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
                     {model.rewardsState.state === 'done' &&
                         model.rewardsState.rewards.length === 0 &&

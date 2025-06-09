@@ -280,9 +280,9 @@ export class Model {
 
     get htonBalanceInTon() {
         const state = this.treasuryState
-        if (state != null) {
+        if (state != null && this.walletState != null) {
             const rate = Number(state.totalCoins) / Number(state.totalTokens) || 1
-            const balance = Number(this.walletState?.tokens ?? 0n) * rate
+            const balance = Number(this.walletState.tokens ?? 0n) * rate
             return '≈ ' + formatNano(balance) + ' TON'
         }
     }
@@ -290,9 +290,9 @@ export class Model {
     get htonBalanceInTonAfterOneYear() {
         const apy = this.apy
         const state = this.treasuryState
-        if (apy != null && state != null) {
+        if (apy != null && state != null && this.walletState != null) {
             const rate = Number(state.totalCoins) / Number(state.totalTokens) || 1
-            const balance = Number(this.walletState?.tokens ?? 0n) * rate * (1 + apy)
+            const balance = Number(this.walletState.tokens ?? 0n) * rate * (1 + apy)
             return '≈ ' + formatNano(balance) + ' TON'
         }
     }
@@ -300,9 +300,9 @@ export class Model {
     get profitAfterOneYear() {
         const apy = this.apy
         const state = this.treasuryState
-        if (apy != null && state != null) {
+        if (apy != null && state != null && this.walletState != null) {
             const rate = Number(state.totalCoins) / Number(state.totalTokens) || 1
-            const balance = Number(this.walletState?.tokens ?? 0n) * rate * apy
+            const balance = Number(this.walletState.tokens ?? 0n) * rate * apy
             return '≈ ' + formatNano(balance) + ' TON'
         }
     }
@@ -647,47 +647,60 @@ export class Model {
         this.rewardsState.state = state
     }
 
-    loadMoreRewards = () => {
+    loadMoreRewards = async () => {
         const walletAddress = this.walletAddress
-        if (walletAddress == null) {
+        if (walletAddress == null || this.rewardsState.state === 'loading') {
             return
         }
 
         this.setRewardsFetchState('loading')
 
-        let url = 'https://api.hipo.finance:8443/hton/rewards/' + walletAddress.toString()
+        const url = 'https://api.hipo.finance:8443/hton/rewards/' + walletAddress.toString() + '?before='
+
+        let before = 0
         if (this.rewardsState.rewards.length > 0) {
-            const time = this.rewardsState.rewards[this.rewardsState.rewards.length - 1].time.getTime()
-            url += '?before=' + (time / 1000).toString()
+            before = this.rewardsState.rewards[this.rewardsState.rewards.length - 1].time.getTime() / 1_000
         }
 
-        fetch(url)
-            .then((res) => res.json())
-            .then((res) => {
-                const ok = res?.ok ?? false
-                const rewards = res?.result?.rewards
-                if (!ok || !Array.isArray(rewards)) {
-                    this.setRewardsFetchState('error')
-                } else {
-                    runInAction(() => {
-                        for (const reward of rewards) {
+        try {
+            let count = 0
+            while (true) {
+                const rewards = await fetch(url + before.toString())
+                    .then((res) => res.json())
+                    .then((res) => {
+                        const ok = res?.ok ?? false
+                        const rewards = res?.result?.rewards
+                        if (!ok || !Array.isArray(rewards)) {
+                            throw new Error()
+                        } else {
+                            return rewards
+                        }
+                    })
+
+                runInAction(() => {
+                    for (const reward of rewards) {
+                        before = reward.time
+                        if (BigInt(reward.ton_reward) > 0n) {
                             this.rewardsState.rewards.push({
                                 time: new Date(reward.time * 1000),
                                 htonBalance: formatNano(BigInt(reward.hton_balance), 3),
                                 tonReward: formatNano(BigInt(reward.ton_reward), 9),
                             })
+                            count += 1
                         }
-                    })
-                    if (rewards.length < 10) {
-                        this.setRewardsFetchState('done')
-                    } else {
-                        this.setRewardsFetchState('more')
                     }
+                })
+                if (rewards.length < 10) {
+                    this.setRewardsFetchState('done')
+                    break
+                } else if (count >= 10) {
+                    this.setRewardsFetchState('more')
+                    break
                 }
-            })
-            .catch(() => {
-                this.setRewardsFetchState('error')
-            })
+            }
+        } catch {
+            this.setRewardsFetchState('error')
+        }
     }
 
     connectTonAccess = () => {
