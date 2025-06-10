@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import { Model } from './Model.ts'
 import '@twa-dev/sdk'
+import './lib/mtw-tonconnect-patch.js'
 import './index.css'
 
 if (self === top) {
