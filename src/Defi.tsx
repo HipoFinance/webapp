@@ -3,7 +3,6 @@ import { Model } from './Model'
 import dedust from './assets/dedust.png'
 import ston from './assets/ston.png'
 import tonco from './assets/tonco.svg'
-import aquaUsd from './assets/aquausd.png'
 import tonspace from './assets/tonspace.jpg'
 import mtw from './assets/mytonwallet.webp'
 // import evaa from './assets/evaa.svg'
@@ -99,26 +98,6 @@ const Referral = observer(({ model }: Props) => {
                             target='hipo_tonco'
                         >
                             Earn now
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div className='m-8 mt-48 flex flex-col items-start gap-4 sm:flex-row'>
-                <div className='flex-1 sm:max-w-64'>
-                    <h3 className='py-4 text-2xl font-bold'>Mint Stablecoin</h3>
-                    <p className='my-4 text-lg'>Use hTON as collateral to mint stablecoins on TON.</p>
-                </div>
-                <div className='flex w-full flex-1 flex-col flex-wrap items-center justify-center gap-4 md:flex-row'>
-                    <div className='flex w-44 flex-none flex-col rounded-2xl border border-dark-600 border-opacity-50 bg-milky bg-opacity-50 p-4 text-center shadow-md dark:border-milky dark:border-opacity-50 dark:bg-dark-700'>
-                        <img src={aquaUsd} className='mx-auto h-12' />
-                        <p className='m-4 font-medium'>AquaUSD</p>
-                        <a
-                            className='mx-4 rounded-xl bg-orange p-2 text-white dark:text-dark-600'
-                            href={model.aquaUsdUrl}
-                            target='hipo_dedust'
-                        >
-                            Mint Now
                         </a>
                     </div>
                 </div>
