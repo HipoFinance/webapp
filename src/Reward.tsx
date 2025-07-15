@@ -97,7 +97,7 @@ const Referral = observer(({ model }: Props) => {
                                     </>
                                 ))}
 
-                                <div className='mt-8 flex flex-row place-content-center items-center gap-1'>
+                                <div className='mt-8 flex flex-col place-content-center items-center gap-1'>
                                     {model.rewardsState.state === 'loading' && (
                                         <>
                                             <img src={loading} className='m-2 h-8 animate-spin dark:hidden' />
@@ -105,12 +105,17 @@ const Referral = observer(({ model }: Props) => {
                                         </>
                                     )}
                                     {['error', 'more'].includes(model.rewardsState.state) && (
-                                        <button
-                                            onClick={model.loadMoreRewards}
-                                            className='rounded-2xl bg-orange px-8 py-3 font-medium text-white dark:text-dark-600'
-                                        >
-                                            Load More
-                                        </button>
+                                        <>
+                                            <button
+                                                onClick={model.loadMoreRewards}
+                                                className='rounded-2xl bg-orange px-8 py-3 font-medium text-white dark:text-dark-600'
+                                            >
+                                                Load More
+                                            </button>
+                                            {model.rewardsState.state === 'error' && (
+                                                <p className=''>Oops! Please try again a little later.</p>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             </div>

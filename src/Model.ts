@@ -689,10 +689,10 @@ export class Model {
                         }
                     }
                 })
-                if (rewards.length < 10) {
+                if (rewards.length < 1) {
                     this.setRewardsFetchState('done')
                     break
-                } else if (count >= 10) {
+                } else if (count >= 1) {
                     this.setRewardsFetchState('more')
                     break
                 }
