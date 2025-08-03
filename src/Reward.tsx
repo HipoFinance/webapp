@@ -63,7 +63,7 @@ const Referral = observer(({ model }: Props) => {
                     {!(model.rewardsState.state === 'done' && model.rewardsState.rewards.length === 0) &&
                         model.htonBalanceFormatted != null && (
                             <div className='mx-auto mb-4 flex max-w-md flex-col rounded-xl bg-white p-8 shadow-md dark:bg-dark-700'>
-                                <h3 className='mb-4 font-bold'>Earned Rewards</h3>
+                                <h3 className='mb-4 font-bold'>Recent Rewards</h3>
 
                                 {model.rewardsState.rewards.map((reward, i) => (
                                     <>
