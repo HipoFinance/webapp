@@ -664,7 +664,7 @@ export class Model {
         try {
             let count = 0
             while (true) {
-                const rewards = await fetch(url + before.toString())
+                const rewards = await fetch(url + before.toString(), { headers: { Accept: 'application/json' } })
                     .then((res) => res.json())
                     .then((res) => {
                         const ok = res?.ok ?? false
