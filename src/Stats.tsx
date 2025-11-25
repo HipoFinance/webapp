@@ -28,7 +28,7 @@ const Stats = observer(({ model }: Props) => {
                         </p>
                         <p className='ml-auto'>{model.apyFormatted}</p>
                     </div>
-                    <div className='relative my-4 flex flex-row'>
+                    {/* <div className='relative my-4 flex flex-row'>
                         <p>Protocol fee</p>
                         <img src={question} className='peer ml-1 w-4 dark:hidden' />
                         <img src={questionDark} className='peer ml-1 hidden w-4 dark:block' />
@@ -36,7 +36,7 @@ const Stats = observer(({ model }: Props) => {
                             This fee is subtracted from generated validator rewards, NOT your staked amount.
                         </p>
                         <p className='ml-auto'>{model.protocolFee}</p>
-                    </div>
+                    </div> */}
                     <div className='relative my-4 flex flex-row'>
                         <p>Staked</p>
                         <img src={question} className='peer ml-1 w-4 dark:hidden' />
