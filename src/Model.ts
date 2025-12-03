@@ -313,7 +313,7 @@ export class Model {
 
         const hton = Number(this.walletState.tokens ?? 0n)
         const ton = hton * exchangeRate * apy
-        const hpo = hton * rewardRate * rewardCoefficient * 20 * 12
+        const hpo = hton * exchangeRate * rewardRate * rewardCoefficient * 20 * 12
 
         if (hpo > 0.01) {
             return formatNano(ton) + ' TON + ' + formatNano(hpo) + ' HPO'

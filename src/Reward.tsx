@@ -1,7 +1,5 @@
 import { observer } from 'mobx-react-lite'
 import { Model } from './Model'
-import loading from './assets/loading.svg'
-import loadingDark from './assets/loading-dark.svg'
 import stakingRewards from './assets/staking-rewards.webp'
 import ton from './assets/ton.svg'
 import hpo from './assets/hpo.svg'
