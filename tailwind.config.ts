@@ -6,6 +6,9 @@ export default {
     content: ['./index.html', './src/**/*.tsx'],
     darkMode: 'class',
     theme: {
+        borderWidth: {
+            '1': '1px',
+        },
         colors: {
             white: '#ffffff',
             orange: '#ff7e73',
@@ -35,6 +38,10 @@ export default {
             c1: '#b8aa9c',
             c2: '#71665f',
             c3: '#f4f1ed',
+            c4: '#f2ebfb',
+            c5: '#ccccff',
+            c6: '#7e22ce',
+            c7: '#0e0e0e',
             transparent: 'transparent',
         },
         fontFamily: {

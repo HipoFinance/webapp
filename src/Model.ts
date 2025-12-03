@@ -74,6 +74,8 @@ const tonConnectButtonRootId = 'ton-connect-button'
 const errorMessageTonAccess = 'Unable to access blockchain'
 const errorMessageNetworkMismatch = 'Your wallet must be on '
 
+const cookieBannerClosed = 'banner.closed'
+
 export class Model {
     // observed state
     network: Network = defaultNetwork
@@ -112,6 +114,8 @@ export class Model {
     timeoutErrorMessage?: ReturnType<typeof setTimeout>
     timeoutHipoGauge?: ReturnType<typeof setTimeout>
 
+    isBannerClosed = false
+
     // readonly numberParser = new NumberParser(navigator.language)
 
     readonly dedustSwapUrl = 'https://dedust.io/swap/hTON/TON'
@@ -149,6 +153,7 @@ export class Model {
             holdersCount: observable,
             walletRewardsFetchState: observable,
             walletRewards: observable,
+            isBannerClosed: observable,
 
             isWalletConnected: computed,
             isMainnet: computed,
@@ -201,6 +206,7 @@ export class Model {
             setErrorMessage: action,
             setWalletRewardsFetchState: action,
             loadWalletRewards: action,
+            closeBanner: action,
         })
     }
 
@@ -222,6 +228,9 @@ export class Model {
             this.writeFragmentState()
         }
         window.dispatchEvent(new HashChangeEvent('hashchange'))
+
+        const value = getCookie(cookieBannerClosed)
+        this.isBannerClosed = value === 'closed'
 
         this.initTonConnect()
         this.loadHipoGauge()
@@ -1286,6 +1295,11 @@ export class Model {
                 this.timeoutHipoGauge = setTimeout(this.loadHipoGauge, 5000)
             })
     }
+
+    closeBanner() {
+        this.isBannerClosed = true
+        setCookie(cookieBannerClosed, 'closed', 36)
+    }
 }
 
 // class NumberParser {
@@ -1358,6 +1372,20 @@ function generateRandomQueryId(): bigint {
 
 function sleep(ms: number) {
     return new Promise((r) => setTimeout(r, ms))
+}
+
+function setCookie(name: string, value: string, hours: number) {
+    const d = new Date()
+    d.setTime(d.getTime() + hours * 60 * 60 * 1000)
+    document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`
+}
+
+function getCookie(name: string): string | null {
+    const cookie = document.cookie.toString()
+    const regexp = new RegExp('(^| )' + name + '=([^;]+)')
+    const match = regexp.exec(cookie)
+
+    return match ? match[2] : null
 }
 
 function retry<T>(fn: () => Promise<T>, retries = 10): Promise<T> {
