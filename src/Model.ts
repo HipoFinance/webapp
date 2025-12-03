@@ -27,22 +27,22 @@ type UnstakeOption = 'unstake' | 'swap'
 
 type WaitForTransaction = 'no' | 'signed' | 'sent' | 'timeout' | 'done'
 
-type RewardsFetchState = 'init' | 'loading' | 'error' | 'more' | 'done'
+type WalletRewardsFetchState = 'init' | 'loading' | 'error' | 'done'
 
-interface RewardRow {
+interface WalletRewards {
+    clubLevel: number
+    rewardCoefficient: number
+    htonHpoRewardRate: number
+    hpoSumRewards: number
+    htonSumRewards: number
+    earnedRewards: EarnedReward[]
+}
+
+interface EarnedReward {
+    roundSince: Date
     time: Date
-    htonBalance: string
-    tonReward: string
-}
-
-interface RewardsState {
-    state: RewardsFetchState
-    rewards: RewardRow[]
-}
-
-const emptyRewardsState: RewardsState = {
-    state: 'init',
-    rewards: [],
+    tonReward: number
+    hpoReward: number
 }
 
 interface FragmentState {
@@ -97,7 +97,8 @@ export class Model {
     ongoingRequests = 0
     errorMessage = ''
     holdersCount?: number
-    rewardsState: RewardsState = emptyRewardsState
+    walletRewardsFetchState: WalletRewardsFetchState = 'init'
+    walletRewards?: WalletRewards
 
     // unobserved state
     dark = false
@@ -146,7 +147,8 @@ export class Model {
             ongoingRequests: observable,
             errorMessage: observable,
             holdersCount: observable,
-            rewardsState: observable,
+            walletRewardsFetchState: observable,
+            walletRewards: observable,
 
             isWalletConnected: computed,
             isMainnet: computed,
@@ -181,6 +183,8 @@ export class Model {
             apyFormatted: computed,
             protocolFee: computed,
             currentlyStaked: computed,
+            holdersCountFormatted: computed,
+            claimWalletRewardsLabel: computed,
 
             setNetwork: action,
             setTonClient: action,
@@ -195,8 +199,8 @@ export class Model {
             beginRequest: action,
             endRequest: action,
             setErrorMessage: action,
-            setRewardsFetchState: action,
-            loadMoreRewards: action,
+            setWalletRewardsFetchState: action,
+            loadWalletRewards: action,
         })
     }
 
@@ -241,11 +245,11 @@ export class Model {
         autorun(() => {
             const walletAddress = this.walletAddress
             const activePage = this.activePage
-            const rewardsState = this.rewardsState
-            if (walletAddress == null || activePage !== 'reward' || rewardsState.state !== 'init') {
+            const walletRewardsFetchState = this.walletRewardsFetchState
+            if (walletAddress == null || activePage !== 'reward' || walletRewardsFetchState !== 'init') {
                 return
             }
-            this.loadMoreRewards()
+            this.loadWalletRewards()
         })
     }
 
@@ -299,10 +303,22 @@ export class Model {
     get profitAfterOneYear() {
         const apy = this.apy
         const state = this.treasuryState
-        if (apy != null && state != null && this.walletState != null) {
-            const rate = Number(state.totalCoins) / Number(state.totalTokens) || 1
-            const balance = Number(this.walletState.tokens ?? 0n) * rate * apy
-            return '≈ ' + formatNano(balance) + ' TON'
+        if (apy == null || state == null || this.walletState == null) {
+            return
+        }
+
+        const exchangeRate = Number(state.totalCoins) / Number(state.totalTokens) || 1
+        const rewardRate = this.walletRewards?.htonHpoRewardRate ?? 0
+        const rewardCoefficient = this.walletRewards?.rewardCoefficient ?? 0
+
+        const hton = Number(this.walletState.tokens ?? 0n)
+        const ton = hton * exchangeRate * apy
+        const hpo = hton * rewardRate * rewardCoefficient * 20 * 12
+
+        if (hpo > 0.01) {
+            return formatNano(ton) + ' TON + ' + formatNano(hpo) + ' HPO'
+        } else {
+            return formatNano(ton) + ' TON'
         }
     }
 
@@ -546,6 +562,29 @@ export class Model {
         }
     }
 
+    get claimWalletRewardsLabel() {
+        const rewards = this.walletRewards
+        if (rewards == null) {
+            return 'Claim Rewards'
+        }
+        if (rewards.hpoSumRewards > 0.01 && rewards.htonSumRewards > 0.01) {
+            return (
+                'Claim ' +
+                formatCompact2Fraction(rewards.hpoSumRewards) +
+                ' TON + ' +
+                formatCompact2Fraction(rewards.htonSumRewards) +
+                ' HPO'
+            )
+        }
+        if (rewards.hpoSumRewards > 0.01) {
+            return 'Claim ' + formatCompact2Fraction(rewards.hpoSumRewards) + ' TON'
+        }
+        if (rewards.htonSumRewards > 0.01) {
+            return 'Claim ' + formatCompact2Fraction(rewards.htonSumRewards) + ' HPO'
+        }
+        return 'Claim Rewards'
+    }
+
     setNetwork = (network: Network) => {
         if (this.network !== network) {
             this.network = network
@@ -584,7 +623,8 @@ export class Model {
         this.oldWalletTokens = undefined
         this.newWalletTokens = undefined
         this.lastBlock = 0
-        this.rewardsState = emptyRewardsState
+        this.walletRewardsFetchState = 'init'
+        this.walletRewards = undefined
     }
 
     setTimes = (times?: Times) => {
@@ -642,63 +682,58 @@ export class Model {
         }
     }
 
-    setRewardsFetchState = (state: RewardsFetchState) => {
-        this.rewardsState.state = state
+    setWalletRewardsFetchState = (state: WalletRewardsFetchState) => {
+        this.walletRewardsFetchState = state
     }
 
-    loadMoreRewards = async () => {
-        const walletAddress = this.walletAddress
-        if (walletAddress == null || this.rewardsState.state === 'loading') {
+    loadWalletRewards = async () => {
+        const address = this.address
+        if (address == null || this.walletRewardsFetchState === 'loading') {
             return
         }
 
-        this.setRewardsFetchState('loading')
+        this.setWalletRewardsFetchState('loading')
 
-        const url = 'https://api.hipo.finance:8443/hton/rewards/' + walletAddress.toString() + '?before='
-
-        let before = 0
-        if (this.rewardsState.rewards.length > 0) {
-            before = this.rewardsState.rewards[this.rewardsState.rewards.length - 1].time.getTime() / 1_000
-        }
+        const url = 'https://api.hipogang.io/wallet-rewards?address=' + address.toString()
 
         try {
-            let count = 0
-            while (true) {
-                const rewards = await fetch(url + before.toString(), { headers: { Accept: 'application/json' } })
-                    .then((res) => res.json())
-                    .then((res) => {
-                        const ok = res?.ok ?? false
-                        const rewards = res?.result?.rewards
-                        if (!ok || !Array.isArray(rewards)) {
-                            throw new Error()
-                        } else {
-                            return rewards
-                        }
-                    })
+            this.beginRequest()
 
-                runInAction(() => {
-                    for (const reward of rewards) {
-                        before = reward.time
-                        if (BigInt(reward.ton_reward) > 0n) {
-                            this.rewardsState.rewards.push({
-                                time: new Date(reward.time * 1000),
-                                htonBalance: formatNano(BigInt(reward.hton_balance), 3),
-                                tonReward: formatNano(BigInt(reward.ton_reward), 9),
-                            })
-                            count += 1
-                        }
+            const rewards = await fetch(url, { headers: { Accept: 'application/json' } })
+                .then((res) => res.json())
+                .then((res) => {
+                    const ok = res?.ok ?? false
+                    const rewards = res?.result
+                    if (!ok) {
+                        throw new Error()
+                    } else {
+                        return rewards
                     }
                 })
-                if (rewards.length < 1) {
-                    this.setRewardsFetchState('done')
-                    break
-                } else if (count >= 1) {
-                    this.setRewardsFetchState('more')
-                    break
-                }
+
+            const walletRewards: WalletRewards = {
+                clubLevel: rewards.club_level,
+                rewardCoefficient: rewards.reward_coefficient,
+                htonHpoRewardRate: rewards.hton_hpo_reward_rate,
+                hpoSumRewards: +rewards.hpo_sum_rewars,
+                htonSumRewards: +rewards.hton_sum_rewards,
+                earnedRewards: rewards.earned_rewards.map((reward: any) => ({
+                    roundSince: new Date(reward.round_since * 1_000),
+                    time: new Date(reward.time * 1_000),
+                    tonReward: +reward.ton_reward,
+                    hpoReward: +reward.hpo_reward,
+                })),
             }
+
+            runInAction(() => {
+                this.walletRewards = walletRewards
+            })
+
+            this.setWalletRewardsFetchState('done')
         } catch {
-            this.setRewardsFetchState('error')
+            this.setWalletRewardsFetchState('error')
+        } finally {
+            this.endRequest()
         }
     }
 
@@ -1279,6 +1314,10 @@ export class Model {
 
 export function formatCompact1Fraction(n: number): string {
     return n.toLocaleString(undefined, { notation: 'compact', maximumFractionDigits: 1 })
+}
+
+function formatCompact2Fraction(n: number): string {
+    return n.toLocaleString(undefined, { maximumFractionDigits: 2 })
 }
 
 function formatNano(amount: bigint | number, maximumFractionDigits = 2): string {
