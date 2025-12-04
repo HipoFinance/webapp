@@ -70,7 +70,7 @@ const Referral = observer(({ model }: Props) => {
                         {(model.walletRewards?.clubLevel ?? 0) <
                             (model.walletRewards?.rewardCoefficients ?? [1]).length - 1 && (
                             <p className=''>
-                                Level {(model.walletRewards?.rewardCoefficients ?? [1]).length} Reward:
+                                Level {(model.walletRewards?.rewardCoefficients ?? [1]).length} Reward:{' '}
                                 <span className='text-gray-400'>{model.profitAfterOneYearOnLastLevel}</span>
                             </p>
                         )}
