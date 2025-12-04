@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import { Model } from './Model'
-import stakingRewards from './assets/staking-rewards.webp'
+import gift from './assets/hpo-hton-ton-gift.webp'
 import ton from './assets/ton.svg'
 import hpo from './assets/hpo.svg'
 
@@ -20,7 +20,7 @@ const Referral = observer(({ model }: Props) => {
                         <p className='text-center'>
                             Connect your TON wallet to view your <b className='font-bold'>staking rewards</b>.
                         </p>
-                        <img src={stakingRewards} className='h-36 object-contain' />
+                        <img src={gift} className='h-36 object-contain' />
                         <button
                             className='mx-auto block h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white dark:text-dark-600 sm:w-80'
                             onClick={(e) => {
@@ -57,7 +57,8 @@ const Referral = observer(({ model }: Props) => {
                         <div className=''>
                             {model.walletRewards != null && (
                                 <p className=''>
-                                    {model.walletRewards.rewardCoefficient}x (Level {model.walletRewards.clubLevel + 1})
+                                    {model.walletRewards.rewardCoefficient}x (Level {model.walletRewards.clubLevel + 1}
+                                    <span className='text-gray-400'>/{model.walletRewards.clubLevels}</span>)
                                 </p>
                             )}
                         </div>
@@ -121,33 +122,31 @@ const Referral = observer(({ model }: Props) => {
                                     <p className=''>Oops! Please try again a little later.</p>
                                 )}
                             </div>
-                        </div>
-                    )}
 
-                    {model.walletRewards?.earnedRewards.length === 0 && model.htonBalance > 0n && (
-                        <div className='mx-auto flex max-w-md flex-col gap-8 rounded-xl bg-white p-8 text-sm shadow-md dark:bg-dark-700'>
-                            <p className='text-center'>
-                                Your first reward will be credited within <b className='font-bold'>36 hours</b>.
-                            </p>
-                            <img src={stakingRewards} className='h-36 object-contain' />
-                        </div>
-                    )}
+                            {model.walletRewards?.earnedRewards.length === 0 && model.htonBalance > 0n && (
+                                <div className='mx-auto flex max-w-md flex-col gap-8 p-8'>
+                                    <p className='text-center'>
+                                        Your first reward will be credited within <b className='font-bold'>36 hours</b>.
+                                    </p>
+                                    <img src={gift} className='h-36 object-contain' />
+                                </div>
+                            )}
 
-                    {model.walletRewards?.earnedRewards.length === 0 && model.htonBalance === 0n && (
-                        <div className='mx-auto mt-4 max-w-md rounded-xl bg-white shadow-md dark:bg-dark-700'>
-                            <div className='mx-auto flex max-w-sm flex-col gap-8 p-8'>
-                                <p className='text-center'>Start staking with Hipo for daily rewards!</p>
-                                <img src={stakingRewards} className='h-36 object-contain' />
-                                <button
-                                    className='mx-auto block h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white dark:text-dark-600 sm:w-80'
-                                    onClick={() => {
-                                        model.setActivePage('stake')
-                                        model.setActiveTab('stake')
-                                    }}
-                                >
-                                    Stake Now
-                                </button>
-                            </div>
+                            {model.walletRewards?.earnedRewards.length === 0 && model.htonBalance === 0n && (
+                                <div className='mx-auto -mt-8 flex max-w-sm flex-col gap-8 p-8'>
+                                    <p className='text-center'>Start staking with Hipo for daily rewards!</p>
+                                    <img src={gift} className='h-36 object-contain' />
+                                    <button
+                                        className='mx-auto block h-14 w-full rounded-2xl bg-orange text-lg font-medium text-white dark:text-dark-600 sm:w-80'
+                                        onClick={() => {
+                                            model.setActivePage('stake')
+                                            model.setActiveTab('stake')
+                                        }}
+                                    >
+                                        Stake Now
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </>

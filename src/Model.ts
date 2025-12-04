@@ -31,6 +31,7 @@ type WalletRewardsFetchState = 'init' | 'loading' | 'error' | 'done'
 
 interface WalletRewards {
     clubLevel: number
+    clubLevels: number
     rewardCoefficient: number
     htonHpoRewardRate: number
     hpoSumRewards: number
@@ -722,16 +723,19 @@ export class Model {
 
             const walletRewards: WalletRewards = {
                 clubLevel: rewards.club_level,
+                clubLevels: rewards.club_levels,
                 rewardCoefficient: rewards.reward_coefficient,
                 htonHpoRewardRate: rewards.hton_hpo_reward_rate,
                 hpoSumRewards: +rewards.hpo_sum_rewars,
                 htonSumRewards: +rewards.hton_sum_rewards,
-                earnedRewards: rewards.earned_rewards.map((reward: any) => ({
-                    roundSince: new Date(reward.round_since * 1_000),
-                    time: new Date(reward.time * 1_000),
-                    tonReward: +reward.ton_reward,
-                    hpoReward: +reward.hpo_reward,
-                })),
+                earnedRewards: rewards.earned_rewards
+                    .filter((reward: any) => +reward.ton_reward > 0 || +reward.hpo_reward > 0)
+                    .map((reward: any) => ({
+                        roundSince: new Date(reward.round_since * 1_000),
+                        time: new Date(reward.time * 1_000),
+                        tonReward: +reward.ton_reward,
+                        hpoReward: +reward.hpo_reward,
+                    })),
             }
 
             runInAction(() => {
