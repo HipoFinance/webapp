@@ -1320,7 +1320,7 @@ export class Model {
 
     closeBanner() {
         this.isBannerClosed = true
-        setCookie(cookieBannerClosed, 'closed', 36)
+        setCookie(cookieBannerClosed, 'closed', 24)
     }
 }
 

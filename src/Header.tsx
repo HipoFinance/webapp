@@ -27,10 +27,18 @@ const Header = observer(({ model }: Props) => {
         <div className='mx-auto w-full max-w-screen-lg font-body text-brown dark:text-dark-50'>
             {!model.isBannerClosed && (
                 <div className='fixed top-0 z-50 w-full max-w-screen-lg'>
-                    <div className='w-fiull bg-c4 border-c6 border-1 my-4 ml-2 mr-4 flex flex-row items-center justify-between gap-4 rounded-2xl px-4 py-2'>
-                        <div className='flex w-full flex-col items-center justify-between gap-2 lg:flex-row'>
+                    <div className='w-fiull bg-c4 border-c6 border-1 my-4 ml-2 mr-4 flex flex-col-reverse items-start justify-items-end gap-0 rounded-2xl px-4 py-2 md:flex-row md:items-center md:justify-between md:gap-4'>
+                        <div className='flex w-full flex-col items-center justify-between gap-2 md:flex-row'>
                             <div className='text-c7'>
-                                💰 <b>Airdrop! 6.2% APY</b> — Earn TON + HPO by Staking in Hipo.
+                                <div className='flex flex-col items-center gap-1 md:hidden'>
+                                    <div>
+                                        💰 <b>Airdrop! 6.2% APY</b>
+                                    </div>
+                                    <div>Earn TON + HPO by Staking in Hipo.</div>
+                                </div>
+                                <div className='max-md:hidden'>
+                                    💰 <b>Airdrop! 6.2% APY</b> — Earn TON + HPO by Staking in Hipo.
+                                </div>
                             </div>
                             <div>
                                 <a href='http://t.me/HipoFinanceBot/join' target='_blank' rel='noopener noreferrer'>
@@ -38,9 +46,9 @@ const Header = observer(({ model }: Props) => {
                                 </a>
                             </div>
                         </div>
-                        <div className='flex w-fit flex-row gap-4'>
+                        <div className='flex w-full flex-row justify-end md:w-fit'>
                             <button
-                                className='text-c6 p-2 font-bold'
+                                className='text-c6 px-2 font-bold md:py-2'
                                 onClick={() => {
                                     model.closeBanner()
                                 }}
@@ -51,7 +59,7 @@ const Header = observer(({ model }: Props) => {
                     </div>
                 </div>
             )}
-            <div className={'mx-4 flex flex-row items-center pt-4' + (!model.isBannerClosed ? ' mt-32 md:mt-16' : '')}>
+            <div className={'mx-4 flex flex-row items-center pt-4' + (!model.isBannerClosed ? ' mt-40 md:mt-16' : '')}>
                 <img src={logo} className='-ml-4 -mr-3 h-20 dark:hidden' />
                 <img src={logoDark} className='-ml-4 -mr-3 hidden h-20 dark:block' />
 
