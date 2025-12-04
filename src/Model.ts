@@ -31,8 +31,7 @@ type WalletRewardsFetchState = 'init' | 'loading' | 'error' | 'done'
 
 interface WalletRewards {
     clubLevel: number
-    clubLevels: number
-    rewardCoefficient: number
+    rewardCoefficients: number[]
     htonHpoRewardRate: number
     hpoSumRewards: number
     htonSumRewards: number
@@ -165,6 +164,7 @@ export class Model {
             htonBalanceInTon: computed,
             htonBalanceInTonAfterOneYear: computed,
             profitAfterOneYear: computed,
+            profitAfterOneYearOnLastLevel: computed,
             oldWalletTokensFormatted: computed,
             newWalletTokensFormatted: computed,
             unstakingInProgressFormatted: computed,
@@ -319,7 +319,9 @@ export class Model {
 
         const exchangeRate = Number(state.totalCoins) / Number(state.totalTokens) || 1
         const rewardRate = this.walletRewards?.htonHpoRewardRate ?? 0
-        const rewardCoefficient = this.walletRewards?.rewardCoefficient ?? 0
+        const clubLevel = this.walletRewards?.clubLevel ?? 0
+        const rewardCoefficients = this.walletRewards?.rewardCoefficients ?? [1]
+        const rewardCoefficient = rewardCoefficients[clubLevel] ?? 0
 
         const hton = Number(this.walletState.tokens ?? 0n)
         const ton = hton * exchangeRate * apy
@@ -330,6 +332,23 @@ export class Model {
         } else {
             return formatNano(ton) + ' TON'
         }
+    }
+
+    get profitAfterOneYearOnLastLevel() {
+        const state = this.treasuryState
+        if (state == null || this.walletState == null) {
+            return
+        }
+
+        const exchangeRate = Number(state.totalCoins) / Number(state.totalTokens) || 1
+        const rewardRate = this.walletRewards?.htonHpoRewardRate ?? 0
+        const rewardCoefficients = this.walletRewards?.rewardCoefficients ?? [1]
+        const rewardCoefficient = rewardCoefficients[rewardCoefficients.length - 1]
+
+        const hton = Number(this.walletState.tokens ?? 0n)
+        const hpo = hton * exchangeRate * rewardRate * rewardCoefficient * 20 * 12
+
+        return formatNano(hpo) + ' HPO'
     }
 
     get oldWalletTokensFormatted() {
@@ -723,8 +742,7 @@ export class Model {
 
             const walletRewards: WalletRewards = {
                 clubLevel: rewards.club_level,
-                clubLevels: rewards.club_levels,
-                rewardCoefficient: rewards.reward_coefficient,
+                rewardCoefficients: rewards.reward_coefficients,
                 htonHpoRewardRate: rewards.hton_hpo_reward_rate,
                 hpoSumRewards: +rewards.hpo_sum_rewars,
                 htonSumRewards: +rewards.hton_sum_rewards,

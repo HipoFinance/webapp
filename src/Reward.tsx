@@ -57,11 +57,23 @@ const Referral = observer(({ model }: Props) => {
                         <div className=''>
                             {model.walletRewards != null && (
                                 <p className=''>
-                                    {model.walletRewards.rewardCoefficient}x (Level {model.walletRewards.clubLevel + 1}
-                                    <span className='text-gray-400'>/{model.walletRewards.clubLevels}</span>)
+                                    {(model.walletRewards.rewardCoefficients ?? [1])[model.walletRewards.clubLevel] ??
+                                        1}
+                                    x (Level {model.walletRewards.clubLevel + 1}
+                                    <span className='text-gray-400'>
+                                        /{(model.walletRewards.rewardCoefficients ?? [1]).length}
+                                    </span>
+                                    )
                                 </p>
                             )}
                         </div>
+                        {(model.walletRewards?.clubLevel ?? 0) <
+                            (model.walletRewards?.rewardCoefficients ?? [1]).length - 1 && (
+                            <p className=''>
+                                Level {(model.walletRewards?.rewardCoefficients ?? [1]).length} Reward:
+                                <span className='text-gray-400'>{model.profitAfterOneYearOnLastLevel}</span>
+                            </p>
+                        )}
 
                         <a
                             className='mx-auto mt-8 block h-14 w-full cursor-pointer place-content-center rounded-2xl bg-orange text-center text-lg font-medium text-white dark:text-dark-600 sm:w-80'
