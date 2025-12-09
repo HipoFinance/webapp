@@ -1399,11 +1399,11 @@ function sleep(ms: number) {
 function setCookie(name: string, value: string, hours: number) {
     const d = new Date()
     d.setTime(d.getTime() + hours * 60 * 60 * 1000)
-    document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`
+    document.cookie = `${name}=${value};expires=${d.toUTCString()}; path=/; SameSite=Lax; Secure`
 }
 
 function getCookie(name: string): string | null {
-    const cookie = document.cookie.toString()
+    const cookie = document.cookie
     const regexp = new RegExp('(^| )' + name + '=([^;]+)')
     const match = regexp.exec(cookie)
 
