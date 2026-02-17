@@ -1,4 +1,4 @@
-import { Network, getHttpV4Endpoint } from '@orbs-network/ton-access'
+import { Network } from '@orbs-network/ton-access'
 import { TonConnectUI, THEME, CHAIN, SendTransactionRequest } from '@tonconnect/ui'
 import { action, autorun, computed, makeObservable, observable, runInAction } from 'mobx'
 import { Address, Dictionary, OpenedContract, TonClient4, beginCell, fromNano, toNano } from '@ton/ton'
