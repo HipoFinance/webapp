@@ -854,6 +854,7 @@
             "version": "2.3.3",
             "resolved": "https://registry.npmjs.org/@orbs-network/ton-access/-/ton-access-2.3.3.tgz",
             "integrity": "sha512-b1miCPts7wBG9JKYgzXIRZQm/LMy5Uk1mNK8NzlcXHL3HRHJkkFbuYJGuj3IkWCiIicW3Ipp4sYnn3Fwo4oB0g==",
+            "license": "MIT",
             "dependencies": {
                 "isomorphic-fetch": "^3.0.0"
             }

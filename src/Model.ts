@@ -771,12 +771,21 @@ export class Model {
     connectTonAccess = () => {
         const network = this.network
         clearTimeout(this.timeoutConnectTonAccess)
-        getHttpV4Endpoint({ network })
-            .then(this.setTonClient)
-            .catch(() => {
-                this.setErrorMessage(errorMessageTonAccess, retryDelay - 500)
-                this.timeoutConnectTonAccess = setTimeout(this.connectTonAccess, retryDelay)
-            })
+        // TonAccess is not working anymore
+        // getHttpV4Endpoint({ network })
+        //     .then(this.setTonClient)
+        //     .catch((e) => {
+        //         console.error(e)
+        //         this.setErrorMessage(errorMessageTonAccess, retryDelay - 500)
+        //         this.timeoutConnectTonAccess = setTimeout(this.connectTonAccess, retryDelay)
+        //     })
+
+        // Switch to fixed endpoint
+        if (network === 'mainnet') {
+            this.setTonClient('https://mainnet-v4.tonhubapi.com')
+        } else {
+            this.setTonClient('https://testnet-v4.tonhubapi.com')
+        }
     }
 
     readTimes = () => {
