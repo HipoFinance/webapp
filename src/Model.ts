@@ -41,6 +41,7 @@ interface WalletRewards {
 interface EarnedReward {
     roundSince: Date
     time: Date
+    stakeReward: number
     tonReward: number
     hpoReward: number
 }
@@ -751,8 +752,9 @@ export class Model {
                     .map((reward: any) => ({
                         roundSince: new Date(reward.round_since * 1_000),
                         time: new Date(reward.time * 1_000),
-                        tonReward: +reward.ton_reward,
-                        hpoReward: +reward.hpo_reward,
+                        stakeReward: +reward.stake_reward || 0,
+                        tonReward: +reward.ton_reward || 0,
+                        hpoReward: +reward.hpo_reward || 0,
                     })),
             }
 

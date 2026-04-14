@@ -114,7 +114,9 @@ const Referral = observer(({ model }: Props) => {
                                     <div className='flex flex-row items-center'>
                                         <img src={ton} className='h-8 w-8' />
                                         <div className='ml-auto flex flex-row gap-1'>
-                                            <span className='text-green-600'>{reward.tonReward}</span>
+                                            <span className='text-green-600'>
+                                                {reward.tonReward + reward.stakeReward}
+                                            </span>
                                             <span className='text-gray-400'>TON</span>
                                         </div>
                                     </div>
