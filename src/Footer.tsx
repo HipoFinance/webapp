@@ -53,6 +53,9 @@ const Footer = observer(({ model }: Props) => {
                         <a className='my-4 block text-sm' href='https://hpo.hipo.finance/' target='hipo_hpo'>
                             HPO
                         </a>
+                        <a className='my-4 block text-sm' href='https://stats.hipo.finance/' target='hipo_stats'>
+                            Stats
+                        </a>
                     </div>
                 </div>
 
