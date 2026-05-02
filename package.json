@@ -19,11 +19,11 @@
         "@ton/ton": "^16.2.4",
         "@tonconnect/ui": "^2.4.4",
         "@twa-dev/sdk": "^8.0.2",
+        "buffer": "^6.0.3",
         "mobx": "^6.15.0",
         "mobx-react-lite": "^4.1.1",
         "react": "^19.2.5",
-        "react-dom": "^19.2.5",
-        "vite-plugin-node-polyfills": "^0.26.0"
+        "react-dom": "^19.2.5"
     },
     "devDependencies": {
         "@types/node": "^25.6.0",
@@ -31,7 +31,7 @@
         "@types/react-dom": "^19.2.3",
         "@typescript-eslint/eslint-plugin": "^8.59.1",
         "@typescript-eslint/parser": "^8.59.1",
-        "@vitejs/plugin-react-swc": "^4.3.0",
+        "@vitejs/plugin-react": "^6.0.1",
         "autoprefixer": "^10.5.0",
         "eslint": "^9.39.4",
         "eslint-config-prettier": "^10.1.8",
