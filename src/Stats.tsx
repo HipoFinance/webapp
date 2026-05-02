@@ -19,7 +19,7 @@ const Stats = observer(({ model }: Props) => {
 
             <div className='mx-auto max-w-lg text-sm font-medium'>
                 <div className='m-4 rounded-2xl bg-white p-8 shadow-sm dark:bg-dark-800'>
-                    {/* <div className='relative my-4 flex flex-row'>
+                    <div className='relative my-4 flex flex-row'>
                         <p>APY</p>
                         <img src={question} className='peer ml-1 w-4 dark:hidden' />
                         <img src={questionDark} className='peer ml-1 hidden w-4 dark:block' />
@@ -27,7 +27,7 @@ const Stats = observer(({ model }: Props) => {
                             Your yearly earnings based on recent staking rewards.
                         </p>
                         <p className='ml-auto'>{model.apyFormatted}</p>
-                    </div> */}
+                    </div>
                     {/* <div className='relative my-4 flex flex-row'>
                         <p>Protocol fee</p>
                         <img src={question} className='peer ml-1 w-4 dark:hidden' />

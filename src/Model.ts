@@ -551,13 +551,15 @@ export class Model {
 
     get apy() {
         const times = this.times
-        const lastStaked = this.treasuryState?.lastStaked
-        const lastRecovered = this.treasuryState?.lastRecovered
-        if (times != null && lastStaked != null && lastRecovered != null) {
+        const previousRate = this.treasuryState?.previousRate
+        const currentRate = this.treasuryState?.currentRate
+        if (times != null && previousRate != null && currentRate != null) {
             const duration = 2 * Number(times.nextRoundSince - times.currentRoundSince)
             const year = 365 * 24 * 60 * 60
             const compoundingFrequency = year / duration
-            return Math.pow(Number(lastRecovered) / Number(lastStaked) || 1, compoundingFrequency) - 1
+            const exchangeRateDiff = Number(currentRate - previousRate) / 1_000_000_000
+            const apy = Math.pow(exchangeRateDiff + 1, compoundingFrequency) - 1
+            return apy
         }
     }
 
