@@ -115,7 +115,7 @@ const Referral = observer(({ model }: Props) => {
                                         <img src={ton} className='h-8 w-8' />
                                         <div className='ml-auto flex flex-row gap-1'>
                                             <span className='text-green-600'>
-                                                {(reward.tonReward + reward.stakeReward).toLocaleString('en', {
+                                                {reward.tonReward.toLocaleString('en', {
                                                     maximumFractionDigits: 9,
                                                 })}
                                             </span>
