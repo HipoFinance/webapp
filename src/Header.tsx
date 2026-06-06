@@ -32,12 +32,13 @@ const Header = observer(({ model }: Props) => {
                             <div className='text-c7'>
                                 <div className='flex flex-col items-center gap-1 md:hidden'>
                                     <div>
-                                        💰 <b>Airdrop! 43.7% APY</b>
+                                        💰 <b>Earn 100% of staking rewards</b>.
                                     </div>
-                                    <div>Earn TON + HPO by Staking in Hipo.</div>
+                                    <div>Protocol fee is now 0%.</div>
                                 </div>
                                 <div className='max-md:hidden'>
-                                    💰 <b>Airdrop! 43.7% APY</b> — Earn TON + HPO by Staking in Hipo.
+                                    💰 Earn 100% of staking rewards. Protocol fee is now 0%. 💰{' '}
+                                    <b>Earn 100% of staking rewards</b>. Protocol fee is now 0%.
                                 </div>
                             </div>
                             <div>
