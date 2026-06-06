@@ -37,7 +37,6 @@ const Header = observer(({ model }: Props) => {
                                     <div>Protocol fee is now 0%.</div>
                                 </div>
                                 <div className='max-md:hidden'>
-                                    💰 Earn 100% of staking rewards. Protocol fee is now 0%. 💰{' '}
                                     <b>Earn 100% of staking rewards</b>. Protocol fee is now 0%.
                                 </div>
                             </div>
