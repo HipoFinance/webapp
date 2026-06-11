@@ -13,7 +13,7 @@ const Stats = observer(({ model }: Props) => {
             <div className='mx-auto flex max-w-lg flex-row items-center px-4'>
                 <p className='text-lg font-bold'>Hipo statistics</p>
                 <a href={model.explorerHref} target='hipo_explorer' className='ml-auto text-xs font-light text-blue'>
-                    GRAM Explorer
+                    TON Explorer
                 </a>
             </div>
 
