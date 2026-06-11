@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import { Model } from './Model'
-import ton from './assets/ton.svg'
+import gram from './assets/gram.svg'
 import hton from './assets/hton.svg'
 import question from './assets/question.svg'
 import questionDark from './assets/question-dark.svg'
@@ -111,7 +111,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                                     : ' border-orange focus-within:border-orange dark:border-orange dark:focus-within:border-orange')
                             }
                         >
-                            <img src={ton} className={'w-7' + (model.isStakeTabActive ? '' : ' hidden')} />
+                            <img src={gram} className={'w-7' + (model.isStakeTabActive ? '' : ' hidden')} />
                             <img src={hton} className={'w-7' + (model.isStakeTabActive ? ' hidden' : '')} />
                             <input
                                 type='text'

@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import { Model } from './Model'
 import gift from './assets/hpo-hton-ton-gift.webp'
-import ton from './assets/ton.svg'
+import gram from './assets/gram.svg'
 import hpo from './assets/hpo.svg'
 
 interface Props {
@@ -112,7 +112,7 @@ const Referral = observer(({ model }: Props) => {
                                     </div>
 
                                     <div className='flex flex-row items-center'>
-                                        <img src={ton} className='h-8 w-8' />
+                                        <img src={gram} className='h-8 w-8' />
                                         <div className='ml-auto flex flex-row gap-1'>
                                             <span className='text-green-600'>
                                                 {reward.tonReward.toLocaleString('en', {
