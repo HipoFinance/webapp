@@ -119,7 +119,7 @@ const Referral = observer(({ model }: Props) => {
                                                     maximumFractionDigits: 9,
                                                 })}
                                             </span>
-                                            <span className='text-gray-400'>TON</span>
+                                            <span className='text-gray-400'>GRAM</span>
                                         </div>
                                     </div>
 

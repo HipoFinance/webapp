@@ -16,8 +16,8 @@ const StakeUnstake = observer(({ model }: Props) => {
             <p className='pt-4 text-center text-3xl font-bold'>Hipo</p>
             <p className='my-8 text-center'>
                 {model.isStakeTabActive
-                    ? 'Stake TON and receive hTON while staking'
-                    : 'Unstake hTON and receive TON and rewards'}
+                    ? 'Stake GRAM and receive hTON while staking'
+                    : 'Unstake hTON and receive GRAM and rewards'}
             </p>
 
             <div className='dark:bg-tabbar mx-auto my-8 w-max rounded-full bg-milky p-0.5 dark:bg-dark-400 dark:text-white'>
@@ -62,7 +62,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                 >
                     <div className='mx-4 rounded-t-2xl bg-brown px-8 pb-12 pt-4 text-sm text-white dark:bg-dark-600 dark:text-dark-50'>
                         <div className='flex flex-row flex-wrap'>
-                            <p className='font-light'>TON balance</p>
+                            <p className='font-light'>GRAM balance</p>
                             <p className='ml-auto font-medium'>{model.tonBalanceFormatted}</p>
                         </div>
 
@@ -105,7 +105,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                     <label>
                         <div
                             className={
-                                'mb-8 mt-4 flex flex-row rounded-lg border border-milky p-4 focus-within:border-brown dark:border-dark-900 dark:bg-dark-900 ' +
+                                'border mb-8 mt-4 flex flex-row rounded-lg border-milky p-4 focus-within:border-brown dark:border-dark-900 dark:bg-dark-900 ' +
                                 (model.isAmountValid
                                     ? ''
                                     : ' border-orange focus-within:border-orange dark:border-orange dark:focus-within:border-orange')
@@ -161,7 +161,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                     >
                         <div
                             className={
-                                'flex flex-1 cursor-pointer select-none flex-row flex-nowrap rounded-lg border-2 bg-milky p-4 pr-2 text-sm dark:text-brown' +
+                                'border-2 flex flex-1 cursor-pointer select-none flex-row flex-nowrap rounded-lg bg-milky p-4 pr-2 text-sm dark:text-brown' +
                                 (model.unstakeOption === 'unstake' ? ' border-orange' : ' border-milky')
                             }
                             onClick={() => {
@@ -187,7 +187,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                         </div>
                         <div
                             className={
-                                'flex flex-1 cursor-pointer select-none flex-row flex-nowrap rounded-lg border-2 bg-milky p-4 pr-2 text-sm dark:text-brown' +
+                                'border-2 flex flex-1 cursor-pointer select-none flex-row flex-nowrap rounded-lg bg-milky p-4 pr-2 text-sm dark:text-brown' +
                                 (model.unstakeOption === 'swap' ? ' border-orange' : ' border-milky')
                             }
                             onClick={() => {

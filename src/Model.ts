@@ -278,7 +278,7 @@ export class Model {
 
     get tonBalanceFormatted() {
         if (this.tonBalance != null) {
-            return formatNano(this.tonBalance) + ' TON'
+            return formatNano(this.tonBalance) + ' GRAM'
         }
     }
 
@@ -297,7 +297,7 @@ export class Model {
         if (state != null && this.walletState != null) {
             const rate = Number(state.totalCoins) / Number(state.totalTokens) || 1
             const balance = Number(this.walletState.tokens ?? 0n) * rate
-            return '≈ ' + formatNano(balance) + ' TON'
+            return '≈ ' + formatNano(balance) + ' GRAM'
         }
     }
 
@@ -307,7 +307,7 @@ export class Model {
         if (apy != null && state != null && this.walletState != null) {
             const rate = Number(state.totalCoins) / Number(state.totalTokens) || 1
             const balance = Number(this.walletState.tokens ?? 0n) * rate * (1 + apy)
-            return '≈ ' + formatNano(balance) + ' TON'
+            return '≈ ' + formatNano(balance) + ' GRAM'
         }
     }
 
@@ -329,9 +329,9 @@ export class Model {
         const hpo = hton * exchangeRate * rewardRate * rewardCoefficient * 20 * 12
 
         if (hpo > 0.01) {
-            return formatNano(ton) + ' TON + ' + formatNano(hpo) + ' HPO'
+            return formatNano(ton) + ' GRAM + ' + formatNano(hpo) + ' HPO'
         } else {
-            return formatNano(ton) + ' TON'
+            return formatNano(ton) + ' GRAM'
         }
     }
 
@@ -396,7 +396,7 @@ export class Model {
                 result += value
             }
         }
-        return formatNano(result) + ' TON'
+        return formatNano(result) + ' GRAM'
     }
 
     get stakingInProgressDetails() {
@@ -409,7 +409,7 @@ export class Model {
             if (value != null) {
                 const until = this.treasuryState?.participations.get(time)?.stakeHeldUntil ?? 0n
                 result.push({
-                    amount: formatNano(value) + ' TON',
+                    amount: formatNano(value) + ' GRAM',
                     estimated: until === 0n ? undefined : formatDate(new Date((Number(until) + 5 * 60) * 1000)),
                 })
             }
@@ -422,7 +422,7 @@ export class Model {
         const tonBalance = this.tonBalance
         const walletState = this.walletState
         if (isStakeTabActive) {
-            // reserve enough TON for user's ton wallet storage fee + enough funds for future unstake
+            // reserve enough GRAM for user's ton wallet storage fee + enough funds for future unstake
             return maxAmountToStake(tonBalance ?? 0n)
         } else {
             return walletState?.tokens ?? 0n
@@ -494,9 +494,9 @@ export class Model {
         if (rate == null) {
             return
         } else if (nano == null || !this.isAmountValid || !this.isAmountPositive) {
-            return isStakeTabActive ? 'hTON' : 'TON'
+            return isStakeTabActive ? 'hTON' : 'GRAM'
         } else {
-            return `~ ${formatNano(Number(nano) * rate)} ${isStakeTabActive ? 'hTON' : 'TON'}`
+            return `~ ${formatNano(Number(nano) * rate)} ${isStakeTabActive ? 'hTON' : 'GRAM'}`
         }
     }
 
@@ -515,19 +515,19 @@ export class Model {
         const state = this.treasuryState
         if (state != null) {
             const rate = (Number(state.totalCoins) / Number(state.totalTokens)) * 1000000000 || 1
-            return '1 hTON = ~ ' + formatNano(rate, 4) + ' TON'
+            return '1 hTON = ~ ' + formatNano(rate, 4) + ' GRAM'
         }
     }
 
     get averageStakeFeeFormatted() {
         if (this.treasuryState != null) {
-            return formatNano(averageStakeFee, 3) + ' TON'
+            return formatNano(averageStakeFee, 3) + ' GRAM'
         }
     }
 
     get averageUnstakeFeeFormatted() {
         if (this.treasuryState != null) {
-            return formatNano(averageUnstakeFee, 3) + ' TON'
+            return formatNano(averageUnstakeFee, 3) + ' GRAM'
         }
     }
 
@@ -581,7 +581,7 @@ export class Model {
             return (
                 (Number(this.treasuryState.totalCoins) / 1000000000).toLocaleString(undefined, {
                     maximumFractionDigits: 0,
-                }) + ' TON'
+                }) + ' GRAM'
             )
         }
     }
@@ -603,13 +603,13 @@ export class Model {
             return (
                 'Claim ' +
                 formatCompact2Fraction(rewards.hpoSumRewards) +
-                ' TON + ' +
+                ' GRAM + ' +
                 formatCompact2Fraction(rewards.htonSumRewards) +
                 ' HPO'
             )
         }
         if (rewards.hpoSumRewards > 0.01) {
-            return 'Claim ' + formatCompact2Fraction(rewards.hpoSumRewards) + ' TON'
+            return 'Claim ' + formatCompact2Fraction(rewards.hpoSumRewards) + ' GRAM'
         }
         if (rewards.htonSumRewards > 0.01) {
             return 'Claim ' + formatCompact2Fraction(rewards.htonSumRewards) + ' HPO'
