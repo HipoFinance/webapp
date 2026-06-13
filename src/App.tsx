@@ -1,15 +1,8 @@
 import { observer } from 'mobx-react-lite'
 import { Model } from './Model.ts'
-import Header from './Header.tsx'
-import OldWalletUpgrade from './OldWalletUpgrade.tsx'
-import StakeUnstake from './StakeUnstake.tsx'
-import Defi from './Defi.tsx'
-import Reward from './Reward.tsx'
-import Wait from './Wait.tsx'
-import Stats from './Stats.tsx'
-import Footer from './Footer.tsx'
-import LoadingIndicator from './LoadingIndicator.tsx'
-import ErrorDisplay from './ErrorDisplay.tsx'
+import Home from './Home.tsx'
+import Page404 from './Page404.tsx'
+import { Routes, Route } from 'react-router-dom'
 import '@fontsource/poppins/300.css'
 import '@fontsource/poppins/400.css'
 import '@fontsource/poppins/500.css'
@@ -21,28 +14,11 @@ interface Props {
 }
 
 const App = observer(({ model }: Props) => {
-    let page = (
-        <>
-            <OldWalletUpgrade model={model} />
-            <StakeUnstake model={model} />
-            <Wait model={model} />
-            <Stats model={model} />
-        </>
-    )
-    if (model.activePage === 'defi') {
-        page = <Defi model={model} />
-    } else if (model.activePage === 'reward') {
-        page = <Reward model={model} />
-    }
-
     return (
-        <>
-            <Header model={model} />
-            {page}
-            <Footer model={model} />
-            <LoadingIndicator model={model} />
-            <ErrorDisplay model={model} />
-        </>
+        <Routes>
+            <Route path='/' element={<Home model={model} />} />
+            <Route path='*' element={<Page404 />} />
+        </Routes>
     )
 })
 

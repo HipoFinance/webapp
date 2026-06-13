@@ -23,7 +23,8 @@
         "mobx": "^6.15.0",
         "mobx-react-lite": "^4.1.1",
         "react": "^19.2.5",
-        "react-dom": "^19.2.5"
+        "react-dom": "^19.2.5",
+        "react-router-dom": "^7.17.0"
     },
     "devDependencies": {
         "@types/node": "^25.6.0",
