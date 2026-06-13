@@ -51,7 +51,7 @@ const Stats = observer(({ model }: Props) => {
                         <img src={question} className='peer ml-1 w-4 dark:hidden' />
                         <img src={questionDark} className='peer ml-1 hidden w-4 dark:block' />
                         <p className='absolute left-1/3 top-6 z-10 hidden -translate-x-1/4 rounded-lg bg-lightblue p-4 text-xs font-normal text-blue shadow-xl peer-hover:block'>
-                            The number of wallets holding the hTON token.
+                            The number of wallets holding the hGRAM token.
                         </p>
                         <p className='ml-auto'>{model.holdersCountFormatted}</p>
                     </div>

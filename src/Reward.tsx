@@ -12,7 +12,7 @@ const Referral = observer(({ model }: Props) => {
     return (
         <div className='mx-auto w-full max-w-screen-lg p-4 pb-32 font-body text-brown dark:text-dark-50'>
             <p className='px-8 pt-4 text-center text-3xl font-bold'>Staking Rewards</p>
-            <p className='mb-4 mt-2 px-8 text-center'>Track your hTON rewards.</p>
+            <p className='mb-4 mt-2 px-8 text-center'>Track your hGRAM rewards.</p>
 
             {model.isWalletConnected || (
                 <div className='mx-auto mt-4 max-w-md rounded-xl bg-white shadow-md dark:bg-dark-700'>

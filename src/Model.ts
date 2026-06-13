@@ -288,7 +288,7 @@ export class Model {
 
     get htonBalanceFormatted() {
         if (this.tonBalance != null) {
-            return formatNano(this.walletState?.tokens ?? 0n) + ' hTON'
+            return formatNano(this.walletState?.tokens ?? 0n) + ' hGRAM'
         }
     }
 
@@ -354,18 +354,18 @@ export class Model {
 
     get oldWalletTokensFormatted() {
         if (this.oldWalletTokens != null) {
-            return formatNano(this.oldWalletTokens) + ' hTON'
+            return formatNano(this.oldWalletTokens) + ' hGRAM'
         }
     }
 
     get newWalletTokensFormatted() {
         if (this.newWalletTokens != null) {
-            return formatNano(this.newWalletTokens) + ' hTON'
+            return formatNano(this.newWalletTokens) + ' hGRAM'
         }
     }
 
     get unstakingInProgressFormatted() {
-        return formatNano(this.walletState?.unstaking ?? 0n) + ' hTON'
+        return formatNano(this.walletState?.unstaking ?? 0n) + ' hGRAM'
     }
 
     get unstakingInProgressDetails() {
@@ -380,7 +380,7 @@ export class Model {
             time = firstParticipationValue?.stakeHeldUntil
         }
         return {
-            amount: formatNano(value) + ' hTON',
+            amount: formatNano(value) + ' hGRAM',
             estimated: time == null ? undefined : formatDate(new Date((Number(time) + 5 * 60) * 1000)),
         }
     }
@@ -494,9 +494,9 @@ export class Model {
         if (rate == null) {
             return
         } else if (nano == null || !this.isAmountValid || !this.isAmountPositive) {
-            return isStakeTabActive ? 'hTON' : 'GRAM'
+            return isStakeTabActive ? 'hGRAM' : 'GRAM'
         } else {
-            return `~ ${formatNano(Number(nano) * rate)} ${isStakeTabActive ? 'hTON' : 'GRAM'}`
+            return `~ ${formatNano(Number(nano) * rate)} ${isStakeTabActive ? 'hGRAM' : 'GRAM'}`
         }
     }
 
@@ -515,7 +515,7 @@ export class Model {
         const state = this.treasuryState
         if (state != null) {
             const rate = (Number(state.totalCoins) / Number(state.totalTokens)) * 1000000000 || 1
-            return '1 hTON = ~ ' + formatNano(rate, 4) + ' GRAM'
+            return '1 hGRAM = ~ ' + formatNano(rate, 4) + ' GRAM'
         }
     }
 

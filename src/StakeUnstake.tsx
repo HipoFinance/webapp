@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import { Model } from './Model'
 import gram from './assets/gram.svg'
-import hton from './assets/hton.svg'
+import hgram from './assets/hgram.svg'
 import question from './assets/question.svg'
 import questionDark from './assets/question-dark.svg'
 import checkOrange from './assets/check-orange.svg'
@@ -16,8 +16,8 @@ const StakeUnstake = observer(({ model }: Props) => {
             <p className='pt-4 text-center text-3xl font-bold'>Hipo</p>
             <p className='my-8 text-center'>
                 {model.isStakeTabActive
-                    ? 'Stake GRAM and receive hTON while staking'
-                    : 'Unstake hTON and receive GRAM and rewards'}
+                    ? 'Stake GRAM and receive hGRAM while staking'
+                    : 'Unstake hGRAM and receive GRAM and rewards'}
             </p>
 
             <div className='dark:bg-tabbar mx-auto my-8 w-max rounded-full bg-milky p-0.5 dark:bg-dark-400 dark:text-white'>
@@ -80,7 +80,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                         <div className='my-4 h-px bg-white opacity-40'></div>
 
                         <div className='flex flex-row flex-wrap'>
-                            <p className='font-light'>hTON balance</p>
+                            <p className='font-light'>hGRAM balance</p>
                             <p className='ml-auto font-medium'>{model.htonBalanceFormatted}</p>
                         </div>
 
@@ -112,7 +112,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                             }
                         >
                             <img src={gram} className={'w-7' + (model.isStakeTabActive ? '' : ' hidden')} />
-                            <img src={hton} className={'w-7' + (model.isStakeTabActive ? ' hidden' : '')} />
+                            <img src={hgram} className={'w-7' + (model.isStakeTabActive ? ' hidden' : '')} />
                             <input
                                 type='text'
                                 inputMode='decimal'

@@ -13,7 +13,7 @@ const OldWalletUpgrade = observer(({ model }: Props) => {
                 (model.oldWalletTokens != null && model.oldWalletTokens > 0n ? ' max-h-[100rem]' : ' max-h-0')
             }
         >
-            <div className='bg-attention dark:bg-attentiondark m-4 flex max-w-2xl flex-col items-center rounded-2xl p-4 shadow-sm'>
+            <div className='m-4 flex max-w-2xl flex-col items-center rounded-2xl bg-attention p-4 shadow-sm dark:bg-attentiondark'>
                 <h3 className='my-4 text-xl font-bold'>Upgrade to Hipo Version 2</h3>
                 <p className='max-w-xl px-4 py-2'>
                     Press &quot;Upgrade&quot; below to switch automatically from the old to the new version.
@@ -23,7 +23,7 @@ const OldWalletUpgrade = observer(({ model }: Props) => {
                     get <b>{model.newWalletTokensFormatted}</b> in the new version.
                 </p>
                 <p className='max-w-xl px-4 py-2'>
-                    After confirming, it may take a few minutes to receive the new hTON. Don&apos;t worry!
+                    After confirming, it may take a few minutes to receive the new hGRAM. Don&apos;t worry!
                 </p>
                 <button
                     className='my-4 rounded-2xl bg-orange px-16 py-2 text-lg font-medium text-white dark:text-dark-600'
