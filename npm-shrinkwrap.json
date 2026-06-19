@@ -10,7 +10,7 @@
             "dependencies": {
                 "@fontsource/eczar": "^5.2.8",
                 "@fontsource/poppins": "^5.2.7",
-                "@hipo-finance/sdk": "^3.0.1",
+                "@hipo-finance/sdk": "^4.1.0",
                 "@orbs-network/ton-access": "^2.3.3",
                 "@ton/core": "^0.63.1",
                 "@ton/crypto": "^3.3.0",
@@ -18,6 +18,7 @@
                 "@tonconnect/ui": "^2.4.4",
                 "@twa-dev/sdk": "^8.0.2",
                 "buffer": "^6.0.3",
+                "lucide-react": "^1.21.0",
                 "mobx": "^6.15.0",
                 "mobx-react-lite": "^4.1.1",
                 "react": "^19.2.5",
@@ -599,12 +600,12 @@
             }
         },
         "node_modules/@hipo-finance/sdk": {
-            "version": "3.0.1",
-            "resolved": "https://registry.npmjs.org/@hipo-finance/sdk/-/sdk-3.0.1.tgz",
-            "integrity": "sha512-OBVG7CcMBHto1ZHTQOJyvUe2Uo1ojTSJZv/AxV4vsyeXKT8e9PTGCUlFR38fk8zBCi2lskSMnhJZP6owCIk71w==",
+            "version": "4.1.0",
+            "resolved": "https://registry.npmjs.org/@hipo-finance/sdk/-/sdk-4.1.0.tgz",
+            "integrity": "sha512-cwdxggFkdmL24hwP0PAvbkn032x23z9kbe1xWxh52mJrG1C8OAJuyHsf+BCBEJmWaJ/+gT136nuTjAz0l+r/WQ==",
             "license": "MIT",
             "peerDependencies": {
-                "@ton/ton": "^16.2.4"
+                "@ton/ton": "^16.3.0"
             }
         },
         "node_modules/@humanfs/core": {
@@ -4503,6 +4504,15 @@
             "license": "ISC",
             "dependencies": {
                 "yallist": "^3.0.2"
+            }
+        },
+        "node_modules/lucide-react": {
+            "version": "1.21.0",
+            "resolved": "https://registry.npmjs.org/lucide-react/-/lucide-react-1.21.0.tgz",
+            "integrity": "sha512-reEZMXq8Qdd5jg5XYkQ5TR1fB/GiQ7ih4vcrthYDtgjSDwh0i6/YLiGjsWsIwgN49gpAnd4J2elSNzncMEEUUQ==",
+            "license": "ISC",
+            "peerDependencies": {
+                "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
             }
         },
         "node_modules/make-error": {

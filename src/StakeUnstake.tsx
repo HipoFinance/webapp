@@ -5,6 +5,7 @@ import hgram from './assets/hgram.svg'
 import question from './assets/question.svg'
 import questionDark from './assets/question-dark.svg'
 import checkOrange from './assets/check-orange.svg'
+import { Clock, Zap, ArrowRight } from 'lucide-react'
 
 interface Props {
     model: Model
@@ -105,7 +106,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                     <label>
                         <div
                             className={
-                                'border mb-8 mt-4 flex flex-row rounded-lg border-milky p-4 focus-within:border-brown dark:border-dark-900 dark:bg-dark-900 ' +
+                                'mb-8 mt-4 flex flex-row rounded-lg border border-milky p-4 focus-within:border-brown dark:border-dark-900 dark:bg-dark-900 ' +
                                 (model.isAmountValid
                                     ? ''
                                     : ' border-orange focus-within:border-orange dark:border-orange dark:focus-within:border-orange')
@@ -155,50 +156,75 @@ const StakeUnstake = observer(({ model }: Props) => {
 
                     <div
                         className={
-                            'flex flex-row gap-4 overflow-hidden transition-all motion-reduce:transition-none' +
-                            (model.isStakeTabActive ? ' max-h-0 pb-0' : ' max-h-32 pb-8')
+                            'grid grid-cols-2 gap-4 overflow-hidden transition-all motion-reduce:transition-none' +
+                            (model.isStakeTabActive ? ' max-h-0 pb-0' : ' max-h-64 pb-4')
                         }
                     >
                         <div
                             className={
-                                'border-2 flex flex-1 cursor-pointer select-none flex-row flex-nowrap rounded-lg bg-milky p-4 pr-2 text-sm dark:text-brown' +
-                                (model.unstakeOption === 'unstake' ? ' border-orange' : ' border-milky')
+                                'flex cursor-pointer select-none flex-col gap-2 rounded-lg border-2 bg-milky p-4 text-sm dark:text-brown' +
+                                (model.unstakeOption === 'best' ? ' border-orange' : ' border-milky')
                             }
                             onClick={() => {
-                                model.setUnstakeOption('unstake')
+                                model.setUnstakeOption('best')
                             }}
                         >
-                            <p className='grow'>
-                                {model.unstakeHours ? (
-                                    <>
-                                        <span className='hidden min-[420px]:inline'>
-                                            Unstake in {model.unstakeHours}h
-                                        </span>
-                                        <span className='inline min-[420px]:hidden'>In {model.unstakeHours}h</span>
-                                    </>
-                                ) : (
-                                    'Unstake'
-                                )}
-                            </p>
-                            <img
-                                src={checkOrange}
-                                className={'w-5' + (model.unstakeOption === 'unstake' ? '' : ' invisible')}
-                            />
+                            <div className='flex items-start gap-2'>
+                                <div className='rounded-full bg-orange/10 p-1 text-orange'>
+                                    <Clock className='size-4' />
+                                </div>
+                                <p className='font-medium text-dark-800'>
+                                    Wait
+                                    {model.unstakeHours && ' ' + model.unstakeHours + 'h'}
+                                </p>
+                                <img
+                                    src={checkOrange}
+                                    className={'ml-auto w-5' + (model.unstakeOption === 'best' ? '' : ' invisible')}
+                                />
+                            </div>
+                            <div className='flex items-center gap-2'>
+                                <p className='text-xs'>
+                                    Slower
+                                    <br />
+                                    Full rewards
+                                </p>
+                            </div>
                         </div>
                         <div
                             className={
-                                'border-2 flex flex-1 cursor-pointer select-none flex-row flex-nowrap rounded-lg bg-milky p-4 pr-2 text-sm dark:text-brown' +
-                                (model.unstakeOption === 'swap' ? ' border-orange' : ' border-milky')
+                                'flex cursor-pointer select-none flex-col gap-2 rounded-lg border-2 bg-milky p-4 text-sm dark:text-brown' +
+                                (model.unstakeOption === 'instant' ? ' border-orange' : ' border-milky')
                             }
                             onClick={() => {
-                                model.setUnstakeOption('swap')
+                                model.setUnstakeOption('instant')
                             }}
                         >
-                            <p className='grow'>Swap now</p>
-                            <img
-                                src={checkOrange}
-                                className={'w-5' + (model.unstakeOption === 'swap' ? '' : ' invisible')}
-                            />
+                            <div className='flex items-start gap-2'>
+                                <div className='rounded-full bg-orange/10 p-1 text-orange'>
+                                    <Zap className='size-4' />
+                                </div>
+                                <p className='font-medium text-dark-800'>Instant</p>
+                                <img
+                                    src={checkOrange}
+                                    className={'ml-auto w-5' + (model.unstakeOption === 'instant' ? '' : ' invisible')}
+                                />
+                            </div>
+                            <div className='flex items-center gap-2'>
+                                <p className='text-xs'>
+                                    Faster, lower rewards
+                                    <br />
+                                    If liquidity is available
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            className={
+                                'col-span-2 -mt-2 text-right text-xs' +
+                                (model.unstakeOption !== 'instant' ? ' invisible' : '') +
+                                (model.unstakeMoreThanInstantBurnable ? ' text-orange' : '')
+                            }
+                        >
+                            &nbsp; {model.maxBurnableTokensFormatted}
                         </div>
                     </div>
 
@@ -208,11 +234,7 @@ const StakeUnstake = observer(({ model }: Props) => {
                         disabled={!model.isButtonEnabled}
                         onClick={(e) => {
                             if (model.isWalletConnected) {
-                                if (model.isStakeTabActive || model.unstakeOption === 'unstake') {
-                                    model.send()
-                                } else {
-                                    window.open(model.swapUrl, 'hipo_swap')
-                                }
+                                model.send()
                             } else {
                                 model.connect()
                             }
@@ -222,6 +244,19 @@ const StakeUnstake = observer(({ model }: Props) => {
                     >
                         {model.buttonLabel}
                     </button>
+
+                    {!model.isStakeTabActive && (
+                        <div className='mt-2 flex font-light text-blue'>
+                            <a
+                                href={model.swapUrl}
+                                target='hipo_swap'
+                                className='ml-auto flex items-center gap-1 text-sm'
+                            >
+                                <span className=''>Swap on DEX</span>
+                                <ArrowRight className='h-4 w-4' />
+                            </a>
+                        </div>
+                    )}
 
                     <div className='mt-12 text-sm font-medium'>
                         <div className='my-4 flex flex-row flex-wrap'>

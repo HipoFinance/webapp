@@ -6,9 +6,6 @@ export default {
     content: ['./index.html', './src/**/*.tsx'],
     darkMode: 'class',
     theme: {
-        borderWidth: {
-            '1': '1px',
-        },
         colors: {
             white: '#ffffff',
             orange: '#ff7e73',

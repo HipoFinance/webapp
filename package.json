@@ -12,7 +12,7 @@
     "dependencies": {
         "@fontsource/eczar": "^5.2.8",
         "@fontsource/poppins": "^5.2.7",
-        "@hipo-finance/sdk": "^3.0.1",
+        "@hipo-finance/sdk": "^4.1.0",
         "@orbs-network/ton-access": "^2.3.3",
         "@ton/core": "^0.63.1",
         "@ton/crypto": "^3.3.0",
@@ -20,6 +20,7 @@
         "@tonconnect/ui": "^2.4.4",
         "@twa-dev/sdk": "^8.0.2",
         "buffer": "^6.0.3",
+        "lucide-react": "^1.21.0",
         "mobx": "^6.15.0",
         "mobx-react-lite": "^4.1.1",
         "react": "^19.2.5",

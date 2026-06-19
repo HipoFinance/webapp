@@ -23,7 +23,7 @@ type ActivePage = 'stake' | 'reward' | 'defi'
 
 type ActiveTab = 'stake' | 'unstake'
 
-type UnstakeOption = 'unstake' | 'swap'
+type UnstakeOption = 'best' | 'instant'
 
 type WaitForTransaction = 'no' | 'signed' | 'sent' | 'timeout' | 'done'
 
@@ -85,6 +85,7 @@ export class Model {
     tonBalance?: bigint
     treasury?: OpenedContract<Treasury>
     treasuryState?: TreasuryConfig
+    maxBurnableTokens?: bigint
     times?: Times
     walletAddress?: Address
     wallet?: OpenedContract<Wallet>
@@ -95,7 +96,7 @@ export class Model {
     activePage: ActivePage = defaultActivePage
     activeTab: ActiveTab = defaultActiveTab
     amount = ''
-    unstakeOption: UnstakeOption = 'unstake'
+    unstakeOption: UnstakeOption = 'best'
     waitForTransaction: WaitForTransaction = 'no'
     ongoingRequests = 0
     errorMessage = ''
@@ -137,6 +138,7 @@ export class Model {
             tonBalance: observable,
             treasury: observable,
             treasuryState: observable,
+            maxBurnableTokens: observable,
             times: observable,
             walletAddress: observable,
             wallet: observable,
@@ -162,6 +164,8 @@ export class Model {
             tonBalanceFormatted: computed,
             htonBalance: computed,
             htonBalanceFormatted: computed,
+            maxBurnableTokensFormatted: computed,
+            unstakeMoreThanInstantBurnable: computed,
             htonBalanceInTon: computed,
             htonBalanceInTonAfterOneYear: computed,
             profitAfterOneYear: computed,
@@ -290,6 +294,18 @@ export class Model {
         if (this.tonBalance != null) {
             return formatNano(this.walletState?.tokens ?? 0n) + ' hGRAM'
         }
+    }
+
+    get maxBurnableTokensFormatted() {
+        if (this.maxBurnableTokens != null) {
+            return 'Max Instant: ' + formatNano(Math.max(0, Number(this.maxBurnableTokens ?? 0n))) + ' hGRAM'
+        }
+    }
+
+    get unstakeMoreThanInstantBurnable() {
+        const amountInNano = this.amountInNano
+        const maxBurnableTokens = this.maxBurnableTokens
+        return amountInNano != null && maxBurnableTokens != null && amountInNano > maxBurnableTokens
     }
 
     get htonBalanceInTon() {
@@ -454,10 +470,10 @@ export class Model {
         const tonBalance = this.tonBalance
         const htonBalance = this.walletState?.tokens
         const haveBalance = this.isStakeTabActive ? tonBalance != null : htonBalance != null
-        const isStakeTabActive = this.isStakeTabActive
-        const unstakeOption = this.unstakeOption
+        const isInstantBurnable =
+            this.isStakeTabActive || this.unstakeOption === 'best' || !this.unstakeMoreThanInstantBurnable
         if (this.isWalletConnected) {
-            return (isAmountValid && isAmountPositive && haveBalance) || (!isStakeTabActive && unstakeOption === 'swap')
+            return isAmountValid && isAmountPositive && haveBalance && isInstantBurnable
         } else {
             return true
         }
@@ -468,11 +484,7 @@ export class Model {
             if (this.isStakeTabActive) {
                 return 'Stake'
             } else {
-                if (this.unstakeOption === 'unstake') {
-                    return 'Unstake'
-                } else {
-                    return 'Swap'
-                }
+                return 'Unstake'
             }
         } else {
             return 'Connect Wallet'
@@ -850,6 +862,8 @@ export class Model {
 
             const readTreasuryState = retry(treasury.getTreasuryState)
 
+            const readMaxBurnableTokens = retry(treasury.getMaxBurnableTokens)
+
             const readTonBalance =
                 address == null
                     ? Promise.resolve(undefined)
@@ -882,10 +896,11 @@ export class Model {
 
             const parallel: [
                 Promise<TreasuryConfig>,
+                Promise<bigint>,
                 Promise<bigint | undefined>,
                 Promise<[Address, OpenedContract<Wallet>, typeof this.walletState] | undefined>,
-            ] = [readTreasuryState, readTonBalance, readWallet]
-            const [treasuryState, tonBalance, hton] = await Promise.all(parallel)
+            ] = [readTreasuryState, readMaxBurnableTokens, readTonBalance, readWallet]
+            const [treasuryState, maxBurnableTokens, tonBalance, hton] = await Promise.all(parallel)
             let [walletAddress, wallet, walletState] = hton ?? []
 
             if (walletAddress == null && address != null && treasuryState.parent != null) {
@@ -913,6 +928,7 @@ export class Model {
                 this.tonBalance = tonBalance
                 this.treasury = treasury
                 this.treasuryState = treasuryState
+                this.maxBurnableTokens = maxBurnableTokens
                 this.walletAddress = walletAddress
                 this.wallet = wallet
                 this.walletState = walletState
@@ -1047,7 +1063,7 @@ export class Model {
 
             const message = this.isStakeTabActive
                 ? createDepositMessage(this.treasury.address, this.amountInNano, queryId)
-                : createUnstakeMessage(this.wallet.address, this.amountInNano, queryId)
+                : createUnstakeMessage(this.wallet.address, this.amountInNano, this.unstakeOption, queryId)
 
             const tx: SendTransactionRequest = {
                 validUntil: Math.floor(Date.now() / 1000) + txValidUntil,
