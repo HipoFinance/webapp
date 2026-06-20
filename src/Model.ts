@@ -492,7 +492,7 @@ export class Model {
     }
 
     get swapUrl() {
-        let url = 'https://swap.coffee/dex?ft=EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w&st=TON'
+        let url = 'https://swap.coffee/dex?ft=EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w&st=GRAM'
         if (this.isAmountValid && this.isAmountPositive) {
             url += '&fa=' + this.amount
         }
